@@ -1,4 +1,4 @@
-name: CI – Prod Branch
+name: CI – Prod Branch - Push
 
 on:
   push:
