@@ -1,5 +1,7 @@
 import Dexie, { EntityTable } from 'dexie';
 
+type TransactionType = "Income" | "Expense"
+
 interface Accounts {
     id: number,
     type: string,
@@ -9,7 +11,7 @@ interface Accounts {
 interface Transactions {
     id: number,
     value: number,
-    type?: string,
+    type: TransactionType,
     name: string,
     account_id: number,
     date: string,
@@ -38,6 +40,6 @@ class AppDatabase extends Dexie {
 //     transaction: '++id, value, type, name, account_id, date, category'
 // });
 
-export type { Accounts, Transactions };
+export type { Accounts, Transactions, TransactionType };
 // export { db };
 export const db = new AppDatabase();

@@ -14,7 +14,7 @@ const Mainscreen = () => {
 
 
   return (
-    <div className='relative mx-auto max-w-lg overflow-hidden rounded-xl bg-white shadow-md md:max-w-2x1 flex flex-col min-h-full gap-2'>
+    <div className='relative mx-auto max-w-lg overflow-hidden rounded-xl bg-white shadow-md md:max-w-2x1 flex flex-col min-h-full gap-2 p-1'>
         {transactions && dates.map(d => <Day key={d} date={d} transactions={transactions.filter((t2 => t2.date == d))} total={transactions.filter(t => t.date <= d).reduce((accumulator, transaction) => accumulator + transaction.value, 0)}/>)}
         <CreateTransaction/>
     </div>

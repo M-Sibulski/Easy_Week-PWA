@@ -2,12 +2,12 @@ import './App.css';
 // import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db.ts';
 import { useEffect, useState } from 'react';
-// import { Transactions } from '../db.ts';
+import { TransactionType } from '../db.ts';
 
 
 const CreateTransaction = () => {
     const [value, setValue] = useState('0');
-    const [type, setType] = useState('');
+    const [type, setType] = useState<TransactionType>('Expense');
     const [name, setName] = useState('');
     const [date, setDate] = useState('');
     const [category, setCategory] = useState('');
@@ -30,7 +30,7 @@ const CreateTransaction = () => {
         console.log('createTransaction');
         try {
         const id = await db.transactions.add({
-            value: Number(value),
+            value: type === 'Expense' ? 0-Number(value) : Number(value),
             name: name === ''?'Generic Transaction': name,
             account_id: 1,
             date: date,
@@ -42,7 +42,7 @@ const CreateTransaction = () => {
             console.log(error)
         }
         setValue('0');
-        setType('');
+        setType('Expense');
         setName('');
         setDateToToday();
         setCategory('');
@@ -65,7 +65,10 @@ const CreateTransaction = () => {
                 <input type="text" placeholder="Generic Transaction" value={name} onChange={e => setName(e.currentTarget.value)} name="name" id="name" className='bg-red-300 rounded-md hover:bg-red-200'/>
 
                 <label htmlFor="type">Type</label>
-                <input type="text" value={type} onChange={e => setType(e.currentTarget.value)} name="type" id="type" className='bg-red-300 rounded-md hover:bg-red-200'/>
+                <select value={type} onChange={e => setType(e.currentTarget.value as TransactionType)} name="type" id="type" className='bg-red-300 rounded-md hover:bg-red-200'>
+                    <option value="Income">Income</option>
+                    <option value="Expense">Expense</option>
+                </select>
             
                 <label htmlFor="value">Value</label>
                 <input type="text" value={value} onChange={e => setValue(e.currentTarget.value)} name="value" id="value" className='bg-red-300 rounded-md hover:bg-red-200'/>
