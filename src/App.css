@@ -1,8 +1,14 @@
 @import "tailwindcss";
 
+body {
+  overflow-y: hidden;
+}
+
 #root {
-  max-width: 960px;
-  width: 100%;
-  margin: 2rem auto;
+  width: 100dvw;
+  height: 100dvh;
+  margin: 0;
   padding: 0;
+  overflow-y:hidden;
+  background-color: lightgrey;
 }
