@@ -1,7 +1,7 @@
-name: CI – Prod Branch
+name: CI – Prod Branch - PR
 
 on:
-  push:
+  pull_request:
     branches: [main]
 
 jobs:
