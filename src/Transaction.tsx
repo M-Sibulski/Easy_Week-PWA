@@ -17,12 +17,14 @@ const Transaction = ({transaction}:Props) => {
     }
   }
 
+  console.log('Transaction');
+
 
   return (
     <div className='grid grid-cols-4 gap-1 mx-2'>
         <h3>{transaction.name}</h3>
         <h4>{transaction.value}</h4>
-        <h5>{transaction.date}</h5>
+        <h5>{transaction.type}</h5>
         <button id={transaction.id.toString()} onClick={e => handleDelete(e)} className='bg-red-500 rounded-md hover:bg-red-400 cursor-pointer'>Delete</button>
     </div>
   )

@@ -11,15 +11,19 @@ const CreateTransaction = () => {
     const [name, setName] = useState('');
     const [date, setDate] = useState('');
     const [category, setCategory] = useState('');
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    const formattedDate = `${year}-${month}-${day}`;
+    
+    const setDateToToday = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const formattedDate = `${year}-${month}-${day}`;
+        setDate(formattedDate);
+    }
 
     useEffect(() => {
-        setDate(formattedDate);
-    }, [formattedDate])
+        setDateToToday();
+    }, [])
 
     const createTransaction = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -40,9 +44,11 @@ const CreateTransaction = () => {
         setValue('0');
         setType('');
         setName('');
-        setDate(formattedDate);
+        setDateToToday();
         setCategory('');
     }
+
+    console.log('CreateTransaction');
 
   return (
     <>
