@@ -48,7 +48,6 @@ const Transaction = ({transaction}:Props) => {
     }
     setOpen(false);
   }
-
   console.log('Transaction');
 
 
@@ -88,7 +87,6 @@ const Transaction = ({transaction}:Props) => {
             <input className='text-right flex-none w-20 self-center' placeholder='Value' type='number' value={value} onChange={e => setValue(e.currentTarget.value)}/>
           </div>
           <button id={transaction.id.toString()} onClick={e => handleDelete(e)} className='bg-red-500 rounded-md hover:bg-red-400 cursor-pointer px-2 self-end'>Delete</button>
-          
       </form>
     </>
   )
