@@ -1,0 +1,27 @@
+#############################################
+#  Netlify routing rules for a Vite PWA SPA #
+#############################################
+
+# Serve the real service‑worker script, not index.html
+[[redirects]]
+  from   = "/sw.js"
+  to     = "/sw.js"
+  status = 200
+
+# Serve the Web App Manifest
+[[redirects]]
+  from   = "/manifest.webmanifest"
+  to     = "/manifest.webmanifest"
+  status = 200
+
+# (Optional) favicon, analytics, any other root files you need
+[[redirects]]
+  from   = "/favicon.svg"
+  to     = "/favicon.svg"
+  status = 200
+
+# Catch‑all: send every other unknown path to your SPA entry
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
