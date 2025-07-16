@@ -68,7 +68,7 @@ const CreateTransaction = () => {
         <span hidden={open} onClick={() => setOpen(true)} className='hover:bg-red-600 absolute -bottom-7 left-1/2 transform -translate-x-1/2 bg-red-500 size-15 rounded-full text-center cursor-pointer'>
             <p className='text-2xl bold'>+</p>
         </span>
-        <form hidden={!open} id='transaction-form' onSubmit={e => createTransaction(e)} className='absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-red-500 p-2 rounded-t-xl flex flex-col gap-1'>
+        <form hidden={!open} id='transaction-form' onSubmit={e => createTransaction(e)} className='absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-red-500 p-2 rounded-t-xl flex flex-col gap-1 w-full'>
             <h3 className='w-full text-center'>New Transaction</h3>
             <div className='grid grid-cols-2 gap-1'>
                 <label htmlFor="name">Name</label>

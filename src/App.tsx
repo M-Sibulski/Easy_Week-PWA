@@ -7,7 +7,7 @@ function App() {
 
   return (
     <div className='mx-auto max-w-lg sm:py-5 overflow-y-hidden h-full'>
-      <div className='relative mx-auto max-w-lg overflow-y-hidden h-full rounded-xl shadow-md bg-white'>
+      <div className='relative my-1 mx-auto max-w-lg overflow-y-hidden h-full '>
         <Mainscreen/>
         <PWABadge />
         <CreateTransaction/>
