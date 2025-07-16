@@ -1,0 +1,22 @@
+name: CI – Prod Branch
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test-prod:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v3.0
+        with:
+          publish-dir: './dist'             # folder produced by `vite build`
+          production-branch: main     # matches the branch triggering this workflow
+          production-deploy: true           # mark it as the main site, not a preview
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Prod deploy – ${{ github.sha }}"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID:     ${{ secrets.NETLIFY_SITE_ID }}
