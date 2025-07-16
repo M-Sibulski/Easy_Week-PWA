@@ -1,11 +1,13 @@
 import { VitePWA } from 'vite-plugin-pwa';
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import tailwind from '@tailwindcss/vite';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    react(), 
+    react(),
+    tailwind(), 
     VitePWA({
       filename: 'sw.js',
       registerType: 'autoUpdate',
@@ -57,13 +59,13 @@ export default defineConfig({
       exclude: [
         'dist',
         'node_modules',
-        'tests',
+        'scripts',
         '*.config.ts',
         '*.config.js',
         '*/vite-env.d.ts',
         '*/main.tsx',
         '.git',
-        '.dev-dist',
+        'dev-dist',
         'coverage'
       ],
     }
