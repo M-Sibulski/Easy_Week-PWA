@@ -84,10 +84,10 @@ const CreateTransaction = () => {
                 <input type="text" value={value} onChange={e => setValue(e.currentTarget.value)} name="value" id="value" className='bg-red-300 rounded-md hover:bg-red-200'/>
             
                 <label htmlFor="date">Date</label>
-                <input type="date" value={date} onChange={e => setDate(e.currentTarget.value)} name="date" id="date" className='bg-red-300 rounded-md hover:bg-red-200'/>
+                <input type="date" value={date} onChange={e => setDate(e.currentTarget.value)} name="date" id="date" className='bg-red-300 rounded-md hover:bg-red-200 w-full'/>
             
                 <label htmlFor="category">Category</label>
-                <input type="text" value={category} onChange={e => setCategory(e.currentTarget.value)} name="category" id="category" className='bg-red-300 rounded-md hover:bg-red-200'  />
+                <input type="number" value={category} onChange={e => setCategory(e.currentTarget.value)} name="category" id="category" className='bg-red-300 rounded-md hover:bg-red-200'  />
             
                 <button type='reset' onClick={handleBackButton} className='border-solid border rounded-md hover:bg-red-400 cursor-pointer'>back</button>
                 <button type='submit' className='rounded-md border rounded-md border-red-100 bg-red-100 text-red-500 hover:bg-red-400 cursor-pointer'>Save</button>
