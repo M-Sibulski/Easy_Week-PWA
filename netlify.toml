@@ -16,8 +16,8 @@
 
 # (Optional) favicon, analytics, any other root files you need
 [[redirects]]
-  from   = "/favicon.svg"
-  to     = "/favicon.svg"
+  from   = "/favicon.ico"
+  to     = "/favicon.ico"
   status = 200
 
 # Catch‑all: send every other unknown path to your SPA entry
