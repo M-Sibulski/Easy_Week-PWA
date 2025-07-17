@@ -9,11 +9,11 @@ export default defineConfig({
     react(),
     tailwind(), 
     VitePWA({
-      filename: 'sw.js',
+      // filename: 'sw.js',
       registerType: 'autoUpdate',
-      injectRegister: false,
+      // injectRegister: false,
 
-      includeAssets: ['favicon.ico'],
+      includeAssets: ['favicon-v2.ico'],
 
       manifest: {
         name: 'EasyWeek',
@@ -22,7 +22,7 @@ export default defineConfig({
         theme_color: '#ff3c3cff',
         id: '/',
         icons: [{
-          src: '/favicon.ico',
+          src: '/favicon-v2.ico',
           sizes: '256x256',
           type: 'image/ico',
           purpose: "maskable"
@@ -31,34 +31,19 @@ export default defineConfig({
 
       workbox: {
 
-        globPatterns: ['**/*.{js,css,html,svg,png,ico}','index.html'],
+        // globPatterns: ['**/*.{js,css,html,svg,png,ico}','index.html'],
         cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        navigateFallback: "index.html",
-        runtimeCaching: [
-              {
-                urlPattern: '/', // Cache same-origin requests
-                handler: 'StaleWhileRevalidate',
-                options: {
-                  cacheName: 'assets-cache',
-                  expiration: {
-                    maxEntries: 50,
-                    maxAgeSeconds: 60 * 60 * 24 * 7, // 1 week
-                  },
-                  cacheableResponse: {
-                    statuses: [0, 200],
-                  },
-                },
-              },
-            ],
+        // clientsClaim: true,
+        // navigateFallback: "index.html",
+        
         
       },
 
       devOptions: {
         enabled: true,
-        navigateFallback: '/index.html',
-        suppressWarnings: true,
-        type: 'module',
+        // navigateFallback: '/index.html',
+        // suppressWarnings: true,
+        // type: 'module',
       }
   })],
   test: {
