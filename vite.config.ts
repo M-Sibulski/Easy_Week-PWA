@@ -30,10 +30,27 @@ export default defineConfig({
       },
 
       workbox: {
+
         globPatterns: ['**/*.{js,css,html,svg,png,ico}','index.html'],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         navigateFallback: "index.html",
+        runtimeCaching: [
+              {
+                urlPattern: '/', // Cache same-origin requests
+                handler: 'StaleWhileRevalidate',
+                options: {
+                  cacheName: 'assets-cache',
+                  expiration: {
+                    maxEntries: 50,
+                    maxAgeSeconds: 60 * 60 * 24 * 7, // 1 week
+                  },
+                  cacheableResponse: {
+                    statuses: [0, 200],
+                  },
+                },
+              },
+            ],
         
       },
 
