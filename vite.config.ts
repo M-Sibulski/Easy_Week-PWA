@@ -13,22 +13,17 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: false,
 
-      includeAssets: ['favicon.svg', 'favicon.ico'],
+      includeAssets: ['favicon.ico'],
 
       manifest: {
-        name: 'vite-project',
-        short_name: 'vite-project',
-        description: 'vite-project',
-        theme_color: '#FFEAEA',
+        name: 'EasyWeek',
+        short_name: 'EasyWeek',
+        description: 'Easy daily finance controll app',
+        theme_color: '#ff3c3cff',
         id: '/',
         icons: [{
-          src: '/favicon.svg',
-          sizes: 'any',
-          type: 'image/svg+xml',
-          purpose: "any"
-        },{
           src: '/favicon.ico',
-          sizes: '48x48',
+          sizes: '256x256',
           type: 'image/ico',
           purpose: "maskable"
         }]
