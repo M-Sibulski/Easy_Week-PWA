@@ -1,5 +1,4 @@
 name: CI – Dev Branch
-
 on:
   push:
     branches: [dev]
