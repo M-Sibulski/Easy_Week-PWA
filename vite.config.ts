@@ -11,7 +11,10 @@ export default defineConfig({
       registerType: 'autoUpdate',
 
       includeAssets: ['favicon.ico'],
-
+      manifestFilename: 'manifest.webmanifest',
+      injectManifest: {
+        globPatterns: ['**/*.{js,ts,css,html,svg,png,ico,webmanifest}'],
+      },
       manifest: {
         name: 'EasyWeek',
         short_name: 'EasyWeek',
