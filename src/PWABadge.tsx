@@ -4,8 +4,8 @@ import registerPeriodicSync from './registerPeriodicSync'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 
 function PWABadge() {
-  // check for updates every hour
-  const period = 60 * 60 * 1000
+  // check for updates every 3 minutes
+  const period = 3 * 60 * 1000
 
   const {
     offlineReady: [offlineReady, setOfflineReady],
