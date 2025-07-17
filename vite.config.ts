@@ -19,7 +19,7 @@ export default defineConfig({
         name: 'EasyWeek',
         short_name: 'EasyWeek',
         description: 'Easy daily finance controll app',
-        theme_color: '#4882ffff',
+        theme_color: '#d3dbfdff',
         id: '/',
         icons: [{
           src: '/favicon.ico',
