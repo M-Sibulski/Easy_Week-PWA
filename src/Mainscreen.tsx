@@ -6,7 +6,8 @@ import Day from './Day.tsx';
 
 const Mainscreen = () => {
     const transactions = useLiveQuery<Transactions[]>(() => db.transactions.where("name").notEqual('').sortBy('date'));
-    const dates = Array.from(new Set(transactions?.map(t => t.date)))
+    // const dates = Array.from(new Set(transactions?.map(t => t.date)))
+    const dateNames = transactions ? Array.from(new Set(transactions?.map(t => dateToInputType(t.date)))) : [];
     console.log('Mainscreen');
 
 
