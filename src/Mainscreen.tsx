@@ -13,7 +13,7 @@ const Mainscreen = () => {
 
 
   return (
-    <div className='h-dvh overflow-y-auto flex flex-col gap-2 p-1 bg-gray-300'>
+    <div className='h-full overflow-y-auto flex flex-col gap-2 p-1 bg-gray-300'>
         {transactions && dateNames.map(d => <Day key={d} date={d} transactions={transactions.filter((t2 => dateToInputType(t2.date) == d))} total={transactions.filter(t => dateToInputType(t.date) <= d).reduce((accumulator, transaction) => accumulator + transaction.value, 0)}/>)}
     </div>
   )
