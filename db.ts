@@ -4,7 +4,7 @@ type TransactionType = "Income" | "Expense"
 
 interface Accounts {
     id: number,
-    type: Date,
+    type: string,
     goal?: number
 }
 
@@ -14,7 +14,7 @@ interface Transactions {
     type: TransactionType,
     name: string,
     account_id: number,
-    date: Date,
+    date: string,
     category?: string
 }
 
