@@ -3,7 +3,6 @@ import { db, TransactionType } from '../db.ts';
 import './App.css';
 import { Transactions } from '../db.ts';
 import { useState } from 'react';
-import { dateToInputType } from './dateConversions.ts';
 
 interface Props {
     transaction: Transactions;
