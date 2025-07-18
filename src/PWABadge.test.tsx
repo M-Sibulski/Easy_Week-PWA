@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, } from '@testing-library/react'; //fireEvent, act 
 import PWABadge from './PWABadge';
 import registerPeriodicSync from './registerPeriodicSync';
 import {describe, it, expect, vi, type Mock, afterEach} from "vitest";
@@ -19,7 +19,7 @@ afterEach(() => {
 // ---------- 1.  Prepare a programmable mock of useRegisterSW ----------
 const updateServiceWorkerMock = vi.fn()
 
-let setOfflineReady!: React.Dispatch<React.SetStateAction<boolean>>
+// let setOfflineReady!: React.Dispatch<React.SetStateAction<boolean>>
 
 /**
  * A helper that builds a fresh hook implementation for every test.
@@ -31,7 +31,7 @@ function buildMockHook(initial: { offlineReady?: boolean; needRefresh?: boolean 
     const [needRefresh, _setNeedRefresh] = React.useState(!!initial.needRefresh)
 
     // put the setters in outer-scope variables so tests can call them
-    setOfflineReady = _setOfflineReady
+    // setOfflineReady = _setOfflineReady
 
     return {
       offlineReady: [offlineReady, _setOfflineReady] as const,
