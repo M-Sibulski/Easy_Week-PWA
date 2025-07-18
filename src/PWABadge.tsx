@@ -5,7 +5,7 @@ import { useRegisterSW } from 'virtual:pwa-register/react'
 
 function PWABadge() {
   // check for updates every 3 minutes
-  const period = 3 * 60 * 1000
+  const period = 0.5 * 60 * 1000
 
   const {
     offlineReady: [offlineReady, setOfflineReady],
@@ -33,21 +33,22 @@ function PWABadge() {
   }
 
   return (
-    <div className="PWABadge" role="alert" aria-labelledby="toast-message">
-      { (offlineReady || needRefresh)
-      && (
-        <div className="PWABadge-toast">
-          <div className="PWABadge-message">
-            { offlineReady
-              ? <span id="toast-message">App ready to work offline</span>
-              : <span id="toast-message">New content available, click on reload button to update.</span>}
-          </div>
-          <div className="PWABadge-buttons">
-            { needRefresh && <button className="PWABadge-toast-button" onClick={() => updateServiceWorker(true)}>Reload</button> }
-            <button className="PWABadge-toast-button" onClick={() => close()}>Close</button>
-          </div>
+    <div className="" role="alert" aria-labelledby="toast-message">
+      { offlineReady &&
+        <div className="absolute top-0 w-lg flex justify-between py-1 px-3 bg-green-400 text-center">
+          <p id="toast-message" className='m-0 p-0 inline-block align-middle'>App ready to work offline</p>
+          <button name='close' onClick={() => close()} className="cursor-pointer h-full p-1 rounded-md hover:bg-green-300">
+              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000ff"><path d="M200-440v-80h560v80H200Z"/></svg>
+          </button>
+        </div>}
+      { needRefresh &&
+      <div className="absolute top-0 w-lg flex justify-between py-1 px-3 bg-green-400 text-center">
+          <p id="toast-message" className='m-0 p-0 inline-block align-middle'>New content available, click on reload button to update.</p>
+          <button name='refresh' onClick={() => updateServiceWorker(true)} className="cursor-pointer h-full p-1 rounded-md hover:bg-blue-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000ff"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg>
+          </button>
         </div>
-      )}
+      }
     </div>
   )
 }

@@ -14,7 +14,7 @@ const Transaction = ({transaction}:Props) => {
   const [value, setValue] = useState(Math.abs(transaction.value).toString());
   const [type, setType] = useState<TransactionType>(transaction.type);
   const [name, setName] = useState(transaction.name);
-  const [date, setDate] = useState(transaction.date);
+  const [date, setDate] = useState(dateToInputType(transaction.date));
   const [category, setCategory] = useState(transaction.category);
 
   const handleDelete = async (e:React.MouseEvent<HTMLButtonElement>) => {
@@ -39,7 +39,7 @@ const Transaction = ({transaction}:Props) => {
         value: type === 'Expense' ? 0-Number(value) : Number(value),
         name: name === ''?'Generic Transaction': name,
         account_id: 1,
-        date: date,
+        date: new Date(date),
         category: category,
         type: type
       })
@@ -56,16 +56,17 @@ const Transaction = ({transaction}:Props) => {
       <div hidden={!open} className="z-10 absolute w-screen h-screen right-0 bottom-0" onClick={handleBackButton}></div>
       
       {/* <div className=''> */}
-        <form className={'z-20 transition-all duration-1000 ease-in-out p-0 bg-blue-400 rounded-md' + (open ? '' : ' bg-gray-50 hover:bg-gray-200')}>
-          <div className='flex gap-5 hover:bg-gray-200 rounded-md p-1' hidden={open} onClick={() => setOpen(true)}>
+      <div className='flex gap-5 hover:bg-gray-200 rounded-md p-1' hidden={open} onClick={() => setOpen(true)}>
               <div className='flex-1 flex flex-col'>
                 <h3 className='text-lg'>{transaction.name}</h3>
                 <h3 className='text-sm text-gray-700'>{transaction.category}</h3>
               </div>
               
               <h4 className={'text-right flex-none text-lg font-bold ' + (transaction.value > 0 ? 'text-green-700' : 'text-red-700')}>{(transaction.value < 0 ? '- $' : '$') + Math.abs(transaction.value)}</h4>
-          </div>
-          <div className='flex flex-col' hidden={!open}>
+        </div>
+        {/* <form className={'transition-all duration-1000 ease-in-out p-0 bg-blue-400 rounded-md' + (open ? '' : ' bg-gray-50 hover:bg-gray-200')}> */}
+          
+          <form className='z-30 flex flex-col bg-blue-400 rounded-md' hidden={!open}>
             <div className='flex justify-between'>
               {/* <button id={transaction.id.toString()} onClick={handleBackButton} className='bg-gray-500 rounded-md hover:bg-gray-400 cursor-pointer px-2'>Back</button> */}
               <button id={transaction.id.toString()} onClick={e => handleDelete(e)}  className="cursor-pointer h-full p-1 rounded-md hover:bg-blue-500">
@@ -76,28 +77,38 @@ const Transaction = ({transaction}:Props) => {
               </div>
             </div>
             
-            <div className='flex gap-5 p-1'>
-            {/* <h5 className='flex-none text-xl'>{transaction.type === 'Expense' ? 'E' : 'I'}</h5> */}
-              <div className='flex-1 flex flex-col gap-2'>
-                <input className='text-md' placeholder='Name' value={name} onChange={e => setName(e.currentTarget.value)}/>
-                <input className='text-sm text-gray-700' placeholder='Category' value={category} onChange={e => setCategory(e.currentTarget.value)}/>
-                <input className='text-sm text-gray-700' type='date' value={dateToInputType(date)} onChange={e => setDate(new Date(e.currentTarget.value))}/>
-                <select className='text-sm text-gray-700' value={type} onChange={e => setType(e.currentTarget.value as TransactionType)}>
-                  <option value="Income">Income</option>
-                  <option value="Expense">Expense</option>
+            {/* <div className='flex flex-col p-1'>
+            <input className='' placeholder='Name (Generic Transaction)' value={name} onChange={e => setName(e.currentTarget.value)}/>
+            <select className='' value={type} onChange={e => setType(e.currentTarget.value as TransactionType)}>
+              <option value="Income">Income</option>
+              <option value="Expense">Expense</option>
+            </select>
+              <input className='' placeholder='Value' type='number' value={value} onChange={e => setValue(e.currentTarget.value)}/>
+            <input className='' type='date' value={dateToInputType(date)} onChange={e => setDate(new Date(e.currentTarget.value))}/>
+            <input className='' placeholder='Category' value={category} onChange={e => setCategory(e.currentTarget.value)}/>
+            
+            </div> */}
+            <div className='flex flex-col gap-3 p-1'>
+                <input type="text" placeholder="Name (Generic Transaction)" value={name} onChange={e => setName(e.currentTarget.value)} name="name" id="name" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'/>
+
+                <select value={type} onChange={e => setType(e.currentTarget.value as TransactionType)} name="type" id="type" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'>
+                    <option value="Income">Income</option>
+                    <option value="Expense">Expense</option>
                 </select>
-              </div>
-              <div className='flex-none flex flex-col justify-around'>
-                
-                
-              </div>
-              <input className='text-right flex-none w-20 self-center' placeholder='Value' type='number' value={value} onChange={e => setValue(e.currentTarget.value)}/>
+            
+                <input type="text" placeholder='$ 0.00' inputMode="numeric" value={value === '' ? '' : `$ ${value}`} onChange={e => setValue(e.currentTarget.value.replace(/[^0-9.]/g, ''))} name="value" id="value" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'/>
+            
+                <input type="date" value={date} onChange={e => setDate(e.currentTarget.value)} name="date" id="date" className='bg-blue-300 rounded-md hover:bg-blue-200 w-full p-1'/>
+            
+                <input type='text' placeholder="Category" value={category} onChange={e => setCategory(e.currentTarget.value)} name="category" id="category" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'  />
+            
+                {/* <button type='submit' className='rounded-md border rounded-md border-blue-100 bg-blue-100 text-blue-500 hover:bg-blue-400 cursor-pointer p-1'>Save</button> */}
+            
+              <button id={transaction.id.toString()} onClick={e => handleSaveButton(e)} className="cursor-pointer h-full p-2 rounded-md hover:bg-blue-500 flex justify-center">
+                <svg className='' xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>
+              </button>
             </div>
-            {/* <button id={transaction.id.toString()} onClick={e => handleDelete(e)} className='bg-red-500 rounded-md hover:bg-red-400 cursor-pointer px-2 self-end'>Delete</button> */}
-            <button id={transaction.id.toString()} onClick={e => handleSaveButton(e)} className="cursor-pointer h-full p-2 rounded-md hover:bg-blue-500 flex justify-center">
-              <svg className='' xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>
-            </button>
-          </div>
+          {/* </div> */}
         </form>
       {/* </div> */}
     </>
