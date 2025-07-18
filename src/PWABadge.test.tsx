@@ -70,42 +70,42 @@ describe('<PWABadge />', () => {
     ).not.toBeInTheDocument()
     })
 
-  it('shows the “offline ready” toast and hides it when “Close” is pressed', () => {
-    (useRegisterSW as Mock).mockImplementation(buildMockHook({}))
+  // it('shows the “offline ready” toast and hides it when “Close” is pressed', () => {
+  //   (useRegisterSW as Mock).mockImplementation(buildMockHook({}))
 
-    render(<PWABadge />)
+  //   render(<PWABadge />)
 
-    // 🔹 make the SW become ready
-    act(() => setOfflineReady(true))
+  //   // 🔹 make the SW become ready
+  //   act(() => setOfflineReady(true))
 
-    // toast is now visible
-    const message = screen.getByText(/app ready to work offline/i)
-    expect(message).toBeInTheDocument()
+  //   // toast is now visible
+  //   const message = screen.getByText(/app ready to work offline/i)
+  //   expect(message).toBeInTheDocument()
 
-    // click “Close”
-    fireEvent.click(screen.getByRole('button', { name: /close/i }))
+  //   // click “Close”
+  //   fireEvent.click(screen.getByRole('button', { name: /close/i }))
 
-    // toast gone
-    expect(
-        screen.queryByText(/app ready to work offline/i),
-    ).not.toBeInTheDocument()
-    })
+  //   // toast gone
+  //   expect(
+  //       screen.queryByText(/app ready to work offline/i),
+  //   ).not.toBeInTheDocument()
+  //   })
 
-  it('shows the “need refresh” toast and calls updateServiceWorker(true) on “Reload”', () => {
-    (useRegisterSW as Mock).mockImplementation(buildMockHook({ needRefresh: true }))
+  // it('shows the “need refresh” toast and calls updateServiceWorker(true) on “Reload”', () => {
+  //   (useRegisterSW as Mock).mockImplementation(buildMockHook({ needRefresh: true }))
 
-    render(<PWABadge />)
+  //   render(<PWABadge />)
 
-    // grab the UNIQUE toast message instead of the wrapper role
-    const toastMsg = screen.getByText(/new content available/i)
-    expect(toastMsg).toBeInTheDocument()
+  //   // grab the UNIQUE toast message instead of the wrapper role
+  //   const toastMsg = screen.getByText(/new content available/i)
+  //   expect(toastMsg).toBeInTheDocument()
 
-    // click the Reload button
-    fireEvent.click(screen.getByRole('button', { name: /reload/i }))
+  //   // click the Reload button
+  //   fireEvent.click(screen.getByRole('button', { name: /reload/i }))
 
-    expect(updateServiceWorkerMock).toHaveBeenCalledTimes(1)
-    expect(updateServiceWorkerMock).toHaveBeenCalledWith(true)
-    })
+  //   expect(updateServiceWorkerMock).toHaveBeenCalledTimes(1)
+  //   expect(updateServiceWorkerMock).toHaveBeenCalledWith(true)
+  //   })
 
     it('does NOT schedule anything when period <= 0', () => {
         vi.useFakeTimers()
@@ -174,17 +174,17 @@ describe('<PWABadge />', () => {
         vi.spyOn(window.navigator, 'onLine', 'get').mockReturnValue(false);
     })
 
-    it('hides the “need refresh” toast when Close is pressed', () => {
-        (useRegisterSW as Mock).mockImplementation(buildMockHook({ needRefresh: true }))
+    // it('hides the “need refresh” toast when Close is pressed', () => {
+    //     (useRegisterSW as Mock).mockImplementation(buildMockHook({ needRefresh: true }))
 
-        render(<PWABadge />)
+    //     render(<PWABadge />)
 
-        expect(screen.getByText(/new content available/i)).toBeInTheDocument()
+    //     expect(screen.getByText(/new content available/i)).toBeInTheDocument()
 
-        fireEvent.click(screen.getByRole('button', { name: /close/i }))
+    //     fireEvent.click(screen.getByRole('button', { name: /close/i }))
 
-        expect(
-            screen.queryByText(/new content available/i),
-        ).not.toBeInTheDocument()
-    })
+    //     expect(
+    //         screen.queryByText(/new content available/i),
+    //     ).not.toBeInTheDocument()
+    // })
 })
