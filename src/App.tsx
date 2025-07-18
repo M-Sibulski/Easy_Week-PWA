@@ -6,8 +6,8 @@ import CreateTransaction from './CreateTransaction.tsx';
 function App() {
 
   return (
-    <div className='sm:mx-auto sm:max-w-lg sm:py-5 overflow-y-hidden h-full'>
-      <div className='relative sm:my-1 mx-auto overflow-y-hidden h-full w-full sm:rounded-2xl shadow-lg/20'>
+    <div className='sm:mx-auto sm:max-w-lg sm:py-5 overflow-y-hidden h-dvh'>
+      <div className='relative sm:my-1 mx-auto overflow-y-hidden h-dvh w-full sm:rounded-2xl shadow-lg/20'>
         <Mainscreen/>
         <PWABadge />
         <CreateTransaction/>
