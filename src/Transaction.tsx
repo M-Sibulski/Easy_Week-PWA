@@ -3,6 +3,7 @@ import { db, TransactionType } from '../db.ts';
 import './App.css';
 import { Transactions } from '../db.ts';
 import { useState } from 'react';
+import { dateToInputType } from './dateConversions.ts';
 
 interface Props {
     transaction: Transactions;
@@ -56,12 +57,12 @@ const Transaction = ({transaction}:Props) => {
       <div className='flex gap-5 hover:bg-gray-200 rounded-md p-1' hidden={open} onClick={() => setOpen(true)}>
           {/* <h5 className='flex-none text-xl'>{transaction.type === 'Expense' ? 'E' : 'I'}</h5> */}
           <div className='flex-1 flex flex-col'>
-            <h3 className='text-md'>{transaction.name}</h3>
+            <h3 className='text-lg'>{transaction.name}</h3>
             <h3 className='text-sm text-gray-700'>{transaction.category}</h3>
           </div>
           
           {/* <button id={transaction.id.toString()} onClick={e => handleDelete(e)} className='bg-red-500 rounded-md hover:bg-red-400 cursor-pointer'>Delete</button> */}
-          <h4 className={'text-right flex-none ' + (transaction.value > 0 ? 'text-green-700' : 'text-red-700')}>{transaction.value}</h4>
+          <h4 className={'text-right flex-none text-lg font-bold ' + (transaction.value > 0 ? 'text-green-700' : 'text-red-700')}>{(transaction.value < 0 ? '- $' : '$') + Math.abs(transaction.value)}</h4>
       </div>
       <form className='flex flex-col bg-gray-200 rounded-md p-1' hidden={!open}>
           <div className='flex justify-between'>
@@ -74,7 +75,7 @@ const Transaction = ({transaction}:Props) => {
             <div className='flex-1 flex flex-col gap-2 py-2'>
               <input className='text-md' placeholder='Name' value={name} onChange={e => setName(e.currentTarget.value)}/>
               <input className='text-sm text-gray-700' placeholder='Category' value={category} onChange={e => setCategory(e.currentTarget.value)}/>
-              <input className='text-sm text-gray-700' type='date' value={date} onChange={e => setDate(e.currentTarget.value)}/>
+              <input className='text-sm text-gray-700' type='date' value={dateToInputType(date)} onChange={e => setDate(new Date(e.currentTarget.value))}/>
               <select className='text-sm text-gray-700' value={type} onChange={e => setType(e.currentTarget.value as TransactionType)}>
                 <option value="Income">Income</option>
                 <option value="Expense">Expense</option>

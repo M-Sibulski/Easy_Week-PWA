@@ -1,30 +1,21 @@
 import './App.css';
 // import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db.ts';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { TransactionType } from '../db.ts';
 
 
 const CreateTransaction = () => {
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState('0');
+    const [value, setValue] = useState('');
     const [type, setType] = useState<TransactionType>('Expense');
     const [name, setName] = useState('');
     const [date, setDate] = useState('');
     const [category, setCategory] = useState('');
-    
-    const setDateToToday = () => {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        const formattedDate = `${year}-${month}-${day}`;
-        setDate(formattedDate);
-    }
 
-    useEffect(() => {
-        setDateToToday();
-    }, [])
+    // useEffect(() => {
+    //     setDateToToday();
+    // }, [])
 
     const createTransaction = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -34,7 +25,7 @@ const CreateTransaction = () => {
             value: type === 'Expense' ? 0-Number(value) : Number(value),
             name: name === ''?'Generic Transaction': name,
             account_id: 1,
-            date: date,
+            date: new Date(date),
             category: category,
             type: type
         });
@@ -46,10 +37,10 @@ const CreateTransaction = () => {
     }
 
     const clearFields = () => {
-        setValue('0');
+        setValue('');
         setType('Expense');
         setName('');
-        setDateToToday();
+        setDate('');
         setCategory('');
     }
 
@@ -60,37 +51,44 @@ const CreateTransaction = () => {
 
     console.log('CreateTransaction');
 
+    const handleValueChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setValue(e.currentTarget.value.replace(/[^0-9.]/g, ''))
+    }
+
   return (
     <div className=''>
-        {/* <button className='absolute -bottom-7 left-1/2 transform -translate-x-1/2 bg-blue-500 border-blue-200 hover:bg-blue-600 size-15 rounded-full text-center cursor-pointer'>
-            <p className='text-2xl bold'>+</p>
-        </button> */}
-        <span hidden={open} onClick={() => setOpen(true)} className='hover:bg-blue-600 absolute -bottom-7 left-1/2 transform -translate-x-1/2 bg-blue-500 size-15 rounded-full text-center cursor-pointer'>
-            <p className='text-2xl bold'>+</p>
+        <span hidden={open} onClick={() => setOpen(true)} className='flex items-center align-middle hover:bg-blue-600 absolute bottom-7 left-1/2 transform -translate-x-1/2 bg-blue-500 size-15 rounded-full shadow-lg/20 cursor-pointer'>
+            <svg className='w-full' height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
         </span>
-        <form hidden={!open} id='transaction-form' onSubmit={e => createTransaction(e)} className='absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-blue-500 p-2 rounded-t-xl flex flex-col gap-1 w-full'>
-            <h3 className='w-full text-center'>New Transaction</h3>
-            <div className='grid grid-cols-2 gap-1'>
-                <label htmlFor="name">Name</label>
-                <input type="text" placeholder="Generic Transaction" value={name} onChange={e => setName(e.currentTarget.value)} name="name" id="name" className='bg-blue-300 rounded-md hover:bg-blue-200'/>
+        <form hidden={!open} id='transaction-form' onSubmit={e => createTransaction(e)} className='absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-blue-500 p-3 rounded-t-xl flex flex-col gap-5 w-full'>
+            <div className="relative flex">
+                <h3 className='w-full text-center text-gray-50 font-bold text-lg'>New Transaction</h3>
+                <div className="absolute right-0 cursor-pointer h-full p-1 rounded-md hover:bg-blue-400">
+                    <svg onClick={handleBackButton} className='' xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M200-440v-80h560v80H200Z"/></svg>
+                </div>
+                
+            </div>
+            <div className='flex flex-col gap-3'>
+                {/* <label htmlFor="name">Name</label> */}
+                <input type="text" placeholder="Name (Generic Transaction)" value={name} onChange={e => setName(e.currentTarget.value)} name="name" id="name" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'/>
 
-                <label htmlFor="type">Type</label>
-                <select value={type} onChange={e => setType(e.currentTarget.value as TransactionType)} name="type" id="type" className='bg-blue-300 rounded-md hover:bg-blue-200'>
+                {/* <label htmlFor="type">Type</label> */}
+                <select value={type} onChange={e => setType(e.currentTarget.value as TransactionType)} name="type" id="type" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'>
                     <option value="Income">Income</option>
                     <option value="Expense">Expense</option>
                 </select>
             
-                <label htmlFor="value">Value</label>
-                <input type="text" value={value} onChange={e => setValue(e.currentTarget.value)} name="value" id="value" className='bg-blue-300 rounded-md hover:bg-blue-200'/>
+                {/* <label htmlFor="value">Value</label> */}
+                <input type="text" placeholder='$ 0.00' inputMode="numeric" value={value === '' ? '' : `$ ${value}`} onChange={e => handleValueChange(e)} name="value" id="value" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'/>
             
-                <label htmlFor="date">Date</label>
-                <input type="date" value={date} onChange={e => setDate(e.currentTarget.value)} name="date" id="date" className='bg-blue-300 rounded-md hover:bg-blue-200 w-full'/>
+                {/* <label htmlFor="date">Date</label> */}
+                <input type="date" value={date} onChange={e => setDate(e.currentTarget.value)} name="date" id="date" className='bg-blue-300 rounded-md hover:bg-blue-200 w-full p-1'/>
             
-                <label htmlFor="category">Category</label>
-                <input type="number" value={category} onChange={e => setCategory(e.currentTarget.value)} name="category" id="category" className='bg-blue-300 rounded-md hover:bg-blue-200'  />
+                {/* <label htmlFor="category">Category</label> */}
+                <input type='text' placeholder="Category" value={category} onChange={e => setCategory(e.currentTarget.value)} name="category" id="category" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'  />
             
-                <button type='reset' onClick={handleBackButton} className='border-solid border rounded-md hover:bg-blue-400 cursor-pointer'>back</button>
-                <button type='submit' className='rounded-md border rounded-md border-blue-100 bg-blue-100 text-blue-500 hover:bg-blue-400 cursor-pointer'>Save</button>
+                {/* <button type='reset' onClick={handleBackButton} className='border-solid border rounded-md hover:bg-blue-400 cursor-pointer'>back</button> */}
+                <button type='submit' className='rounded-md border rounded-md border-blue-100 bg-blue-100 text-blue-500 hover:bg-blue-400 cursor-pointer p-1'>Save</button>
             </div>
             
             
