@@ -3,6 +3,7 @@ import './App.css';
 import { db } from '../db.ts';
 import { ChangeEvent, useState } from 'react';
 import { TransactionType } from '../db.ts';
+import { dateToInputType } from './dateConversions.ts';
 
 
 const CreateTransaction = () => {
@@ -10,12 +11,8 @@ const CreateTransaction = () => {
     const [value, setValue] = useState('');
     const [type, setType] = useState<TransactionType>('Expense');
     const [name, setName] = useState('');
-    const [date, setDate] = useState('');
+    const [date, setDate] = useState(dateToInputType(new Date()));
     const [category, setCategory] = useState('');
-
-    // useEffect(() => {
-    //     setDateToToday();
-    // }, [])
 
     const createTransaction = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -40,7 +37,7 @@ const CreateTransaction = () => {
         setValue('');
         setType('Expense');
         setName('');
-        setDate('');
+        setDate(dateToInputType(new Date()));
         setCategory('');
     }
 
