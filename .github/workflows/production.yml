@@ -7,8 +7,8 @@ on:
   pull_request_target:
     types: [closed]
     branches: [main]
-  # push:
-  #   branches: [main]
+  push:
+    branches: [main]
 
 concurrency:
   group: ${{ github.ref == 'refs/heads/main' && 'prod-deploy' || github.workflow }}-${{ github.ref }}
