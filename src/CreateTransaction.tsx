@@ -66,7 +66,8 @@ const CreateTransaction = () => {
 
     useEffect(() => {
     const handleTransitionEnd = (e: TransitionEvent) => {
-      if (e.propertyName === "transition" && !open) {
+        console.log(e)
+      if (e.propertyName === "translate" && !open) {
         console.log("setShouldRender(false);")
         setShouldRender(false);
       }

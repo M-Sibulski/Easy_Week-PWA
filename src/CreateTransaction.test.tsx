@@ -1,5 +1,5 @@
 import CreateTransaction from "./CreateTransaction";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {describe, it, expect, vi} from "vitest";
 import "@testing-library/jest-dom/vitest";
@@ -98,6 +98,10 @@ describe("CreateTransaction", () => {
         expect(form).toBeInTheDocument();
         await userEvent.click(overlay);
         expect(screen.queryByRole('form')).not.toBeInTheDocument();
+        waitFor(() => {
+            expect(screen.getByRole('open')).toBeInTheDocument();
+        })
+        
     });
 
     it('closes form on close button', async () => {
