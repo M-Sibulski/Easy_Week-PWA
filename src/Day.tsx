@@ -9,7 +9,7 @@ interface Props {
 
 const Mainscreen = ({transactions, total, date}:Props) => {
   return (
-    <div className='rounded-xl bg-gray-50 shadow-md md:max-w-2x1 flex flex-col p-1 gap-1'>
+    <div data-testid="day" className='rounded-xl bg-gray-50 shadow-md md:max-w-2x1 flex flex-col p-1 gap-1'>
         <h3 className="font-bold text-lg">{date}</h3>
         <div className="h-0.5 bg-linear-to-r from-gray-50 via-gray-100 to-gray-50 w-full self-center "/>
         <div className='flex flex-col gap-3'>
