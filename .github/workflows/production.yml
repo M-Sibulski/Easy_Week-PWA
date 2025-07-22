@@ -14,7 +14,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Strict Lint
+        run: npm run lint -- --max-warnings=0
+
+      - name: Unit & component tests
+        run: npm run test
+
   preview:
+    needs: test
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
@@ -36,7 +56,7 @@ jobs:
         uses: nwtgck/actions-netlify@v3
         with:
           publish-dir: './dist'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_PAT }}
           deploy-message: "Preview deploy for PR #${{ github.event.pull_request.number }}"
           enable-pull-request-comment: true
           enable-commit-comment: false
@@ -44,25 +64,6 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-
-      - run: npm ci
-
-      - name: Strict Lint
-        run: npm run lint -- --max-warnings=0
-
-      - name: Unit & component tests
-        run: npm run test
 
   deploy:
     needs: test
