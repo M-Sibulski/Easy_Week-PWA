@@ -65,18 +65,33 @@ const CreateTransaction = () => {
     }
 
     useEffect(() => {
-    const handleTransitionEnd = (e: TransitionEvent) => {
-        console.log(e)
-      if (e.propertyName === "translate" && !open) {
-        console.log("setShouldRender(false);")
-        setShouldRender(false);
-      }
-    };
+        const handleTransitionEnd = (e: TransitionEvent) => {
+        if (e.propertyName === "translate" && !open) {
+            setShouldRender(false);
+        }
+        };
+        const node = formRef.current;
+        node?.addEventListener("transitionend", handleTransitionEnd);
+        return () => node?.removeEventListener("transitionend", handleTransitionEnd);
+    }, [open]);
 
-    const node = formRef.current;
-    node?.addEventListener("transitionend", handleTransitionEnd);
-    return () => node?.removeEventListener("transitionend", handleTransitionEnd);
-  }, [open]);
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (formRef.current && !formRef.current.contains(event.target as Node)) {
+            setOpen(false);
+            }
+        };
+
+        if (open) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [open]);
 
 
   return (
@@ -87,7 +102,6 @@ const CreateTransaction = () => {
         </button>
     :
         <>
-            <div role='background' className="z-30 absolute w-screen h-screen right-0 bottom-0" onClick={() => handleCloseButton()}></div>
             <form ref={formRef} data-testid="transaction-form" id='transaction-form' onSubmit={e => createTransaction(e)} className={'z-40 absolute bottom-0 left-1/2 transition transition-discrete duration-200 ease-in-out transform -translate-x-1/2 bg-blue-500 p-3 rounded-t-xl flex flex-col gap-5 w-full' + (open ? ' translate-y-0' : ' translate-y-100')}>
                 <div className="relative flex">
                     <button onClick={e => {handleClearButton(e)}} role='clear' name='clear' className="absolute left-0 cursor-pointer h-full p-1 rounded-md hover:bg-blue-400">
@@ -111,7 +125,6 @@ const CreateTransaction = () => {
                 
                     <input type='text' placeholder="Category" value={category} onChange={e => setCategory(e.currentTarget.value)} name="category" id="category" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'  />
                 
-                    {/* <button type='submit' className='rounded-md border rounded-md border-blue-100 bg-blue-100 text-blue-500 hover:bg-blue-400 cursor-pointer p-1'>Save</button> */}
                     <button role='submit' name='submit' type='submit' className="cursor-pointer h-full p-2 rounded-md hover:bg-blue-400 flex justify-center">
                         <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>
                     </button>

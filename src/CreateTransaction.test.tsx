@@ -93,10 +93,10 @@ describe("CreateTransaction", () => {
     it('closes form on background click', async () => {
         render(<CreateTransaction />);
         await userEvent.click(screen.getByRole('open'));
-        const overlay = screen.getByRole('background');
+        // const overlay = screen.getByRole('background');
         const form = screen.getByTestId("transaction-form");
         expect(form).toBeInTheDocument();
-        await userEvent.click(overlay);
+        await userEvent.click(document.body);
         expect(screen.queryByRole('form')).not.toBeInTheDocument();
         waitFor(() => {
             expect(screen.getByRole('open')).toBeInTheDocument();

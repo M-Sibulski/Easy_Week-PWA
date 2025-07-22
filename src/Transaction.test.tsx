@@ -36,13 +36,15 @@ describe("Transaction", () => {
     it("opens/closes edit mode", async () => {
         render(<Transaction transaction={fakeTransaction}/>);
         const transaction = screen.getByTestId("transaction");
-        const background = screen.getByTestId("background");
         const closeButton = screen.getByTestId("close");
+        const form = screen.getByTestId("edit-transaction");
         await userEvent.click(transaction);
         expect(screen.getByTestId("edit-transaction")).toBeVisible();
-        await userEvent.click(background);
+        await userEvent.click(document.body);
         expect(screen.getByTestId("edit-transaction")).not.toBeVisible();
         await userEvent.click(transaction);
+        expect(screen.getByTestId("edit-transaction")).toBeVisible();
+        await userEvent.click(form);
         expect(screen.getByTestId("edit-transaction")).toBeVisible();
         await userEvent.click(closeButton);
         expect(screen.getByTestId("edit-transaction")).not.toBeVisible();
