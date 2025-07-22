@@ -56,7 +56,7 @@ jobs:
         uses: nwtgck/actions-netlify@v3
         with:
           publish-dir: './dist'
-          github-token: ${{ secrets.GH_PAT }}
+          github-token: ${{ secrets.GH_CLASSIC_PAT }}
           deploy-message: "Preview deploy for PR #${{ github.event.pull_request.number }}"
           enable-pull-request-comment: true
           enable-commit-comment: false
