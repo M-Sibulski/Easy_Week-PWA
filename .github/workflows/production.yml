@@ -2,12 +2,19 @@ name: CI – Prod Branch
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
     branches: [main]
+  pull_request_target:
+    types: [closed]
   push:
     branches: [main]
 
+concurrency:
+  group: prod-deploy
+  cancel-in-progress: true
+
 jobs:
-  test-prod:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,11 +27,58 @@ jobs:
 
       - run: npm ci
 
-      - name: Lint
-        run: npm run lint
+      - name: Strict Lint
+        run: npm run lint -- --max-warnings=0
 
-      - name: Unit & component tests
+      - name: Unit & component tests
         run: npm run test
+
+  preview:
+    needs: test
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Build preview
+        run: npm run build:prod
+
+      - name: Deploy Netlify preview
+        id: netlify
+        uses: nwtgck/actions-netlify@v3
+        with:
+          publish-dir: './dist'
+          github-token: ${{ secrets.GH_CLASSIC_PAT }}
+          deploy-message: "Preview deploy for PR #${{ github.event.pull_request.number }}"
+          enable-pull-request-comment: true
+          enable-commit-comment: false
+          alias: pr-${{ github.event.pull_request.number }}-${{ github.sha }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+  deploy:
+    needs: test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - run: npm ci
 
       - name: Build (prod mode)
         run: npm run build:prod
@@ -33,14 +87,29 @@ jobs:
         run: node scripts/checkPwa.js
 
       - name: Deploy to Netlify
-        if: github.event_name == 'push'
         uses: nwtgck/actions-netlify@v3.0
         with:
-          publish-dir: './dist'             # folder produced by `vite build`
-          production-branch: main     # matches the branch triggering this workflow
-          production-deploy: true           # mark it as the main site, not a preview
+          publish-dir: './dist'
+          production-branch: main
+          production-deploy: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: "Prod deploy – ${{ github.sha }}"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID:     ${{ secrets.NETLIFY_SITE_ID }}
+      
+      - name: Delete merged branch
+        if: github.event.pull_request.merged == true && github.event.pull_request.head.ref != 'main'
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          REPO_NAME="${{ github.repository }}"
+          echo "Deleting branch: $BRANCH_NAME"
+
+          curl -X DELETE \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/$REPO_NAME/git/refs/heads/$BRANCH_NAME
+
+      - name: Summary
+        run: |
+          echo "✅ Build succeeded and deployed to Netlify" >> $GITHUB_STEP_SUMMARY
