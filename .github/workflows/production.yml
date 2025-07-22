@@ -36,11 +36,23 @@ jobs:
         if: github.event_name == 'push'
         uses: nwtgck/actions-netlify@v3.0
         with:
-          publish-dir: './dist'             # folder produced by `vite build`
-          production-branch: main     # matches the branch triggering this workflow
-          production-deploy: true           # mark it as the main site, not a preview
+          publish-dir: './dist'
+          production-branch: main
+          production-deploy: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: "Prod deploy – ${{ github.sha }}"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID:     ${{ secrets.NETLIFY_SITE_ID }}
+      
+      - name: Delete merged branch
+        if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          REPO_NAME="${{ github.repository }}"
+          echo "Deleting branch: $BRANCH_NAME"
+
+          curl -X DELETE \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/$REPO_NAME/git/refs/heads/$BRANCH_NAME
