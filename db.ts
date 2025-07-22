@@ -1,6 +1,8 @@
 import Dexie, { EntityTable } from 'dexie';
 
-type TransactionType = "Income" | "Expense"
+type TransactionType = "Income" | "Expense";
+
+export const transactionTypes: TransactionType[] = ['Income', 'Expense'];
 
 interface Accounts {
     id: number,
