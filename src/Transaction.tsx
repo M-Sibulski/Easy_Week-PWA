@@ -1,7 +1,7 @@
 import { db, TransactionType } from '../db.ts';
 import './App.css';
 import { Transactions } from '../db.ts';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { dateToInputType } from './dateConversions.ts';
 
 interface Props {
@@ -15,6 +15,27 @@ const Transaction = ({transaction}:Props) => {
   const [name, setName] = useState(transaction.name);
   const [date, setDate] = useState(dateToInputType(transaction.date));
   const [category, setCategory] = useState(transaction.category);
+
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (formRef.current && !formRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [open]);
+
 
   const handleDelete = async (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -52,9 +73,7 @@ const Transaction = ({transaction}:Props) => {
 
 
   return (
-    <>
-      <div data-testid='background' role='background' hidden={!open} className="z-10 absolute w-screen h-screen right-0 bottom-0" onClick={() => handleCloseButton()}></div>
-      
+    <>      
       <div data-testid="transaction" className='flex gap-5 hover:bg-gray-200 rounded-md p-1' hidden={open} onClick={() => setOpen(true)}>
             <div className='flex-1 flex flex-col'>
               <h3 className='text-lg'>{transaction.name}</h3>
@@ -64,7 +83,7 @@ const Transaction = ({transaction}:Props) => {
             <h4 className={'text-right flex-none text-lg font-bold ' + (transaction.value > 0 ? 'text-green-700' : 'text-red-700')}>{(transaction.value < 0 ? '- $' : '$') + Math.abs(transaction.value)}</h4>
       </div>
           
-      <form data-testid='edit-transaction' className='z-30 flex flex-col bg-blue-400 rounded-md' hidden={!open}>
+      <form ref={formRef} data-testid='edit-transaction' className='z-30 flex flex-col bg-blue-400 rounded-md' hidden={!open}>
         <div className='flex justify-between'>
           <button data-testid="delete" id={transaction.id.toString()} onClick={e => handleDelete(e)}  className="cursor-pointer h-full p-1 rounded-md hover:bg-blue-500">
             <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
@@ -89,7 +108,7 @@ const Transaction = ({transaction}:Props) => {
           <input data-testid="category" type='text' placeholder="Category" value={category} onChange={e => setCategory(e.currentTarget.value)} name="category" id="category" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'  />
         
           <button data-testid="submit" id={transaction.id.toString()} onClick={e => handleSaveButton(e)} className="cursor-pointer h-full p-2 rounded-md hover:bg-blue-500 flex justify-center">
-            <svg className='' xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>
+            <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>
           </button>
         </div>
       </form>
