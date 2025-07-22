@@ -6,8 +6,9 @@ on:
     branches: [main]
   pull_request_target:
     types: [closed]
-  push:
     branches: [main]
+  # push:
+  #   branches: [main]
 
 concurrency:
   group: ${{ github.ref == 'refs/heads/main' && 'prod-deploy' || github.workflow }}-${{ github.ref }}
@@ -97,19 +98,22 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID:     ${{ secrets.NETLIFY_SITE_ID }}
-      
+
+      - name: Summary
+        run: |
+          echo "✅ Build succeeded and deployed to Netlify" >> $GITHUB_STEP_SUMMARY
+
+  delete-branch:
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref != 'main'
+    runs-on: ubuntu-latest
+    steps:
       - name: Delete merged branch
-        if: github.event.pull_request.merged == true && github.event.pull_request.head.ref != 'main'
         run: |
           BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
           REPO_NAME="${{ github.repository }}"
           echo "Deleting branch: $BRANCH_NAME"
 
           curl -X DELETE \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: Bearer ${{ secrets.GH_CLASSIC_PAT }}" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/$REPO_NAME/git/refs/heads/$BRANCH_NAME
-
-      - name: Summary
-        run: |
-          echo "✅ Build succeeded and deployed to Netlify" >> $GITHUB_STEP_SUMMARY
