@@ -15,7 +15,6 @@ function App() {
       <div className='relative sm:my-1 mx-auto overflow-y-hidden h-full w-full sm:rounded-2xl shadow-lg/20'>
         <Mainscreen/>
         <PWABadge />
-        <CreateTransaction/>
       </div>
     </div>
   )

@@ -1,13 +1,20 @@
 import Dexie, { EntityTable } from 'dexie';
 
-type TransactionType = "Income" | "Expense";
+type TransactionType = "Income" | "Expense" | "Transfer";
 
-export const transactionTypes: TransactionType[] = ['Income', 'Expense'];
+export const transactionTypes: TransactionType[] = ['Income', 'Expense', 'Transfer'];
+
+type AccountType = "Everyday" | "Savings";
+
+export const accountTypes: AccountType[] = ['Everyday', 'Savings'];
 
 interface Accounts {
     id: number,
-    type: Date,
-    goal?: number
+    name: string,
+    type: AccountType,
+    goalValue?: number,
+    goalDate?: Date,
+    main: boolean
 }
 
 interface Transactions {
@@ -27,7 +34,7 @@ class AppDatabase extends Dexie {
   constructor() {
     super('easyWeekDatabase');
     this.version(1).stores({
-        accounts: '++id, type, goal',
+        accounts: '++id, type, goalValue, goalDate, main',
         transactions: '++id, value, type, name, account_id, date, category'
     });
   }

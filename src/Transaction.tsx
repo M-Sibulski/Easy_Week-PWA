@@ -6,9 +6,10 @@ import { dateToInputType } from './dateConversions.ts';
 
 interface Props {
     transaction: Transactions;
+    accountId: number;
 }
 
-const Transaction = ({transaction}:Props) => {
+const Transaction = ({transaction, accountId}:Props) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(Math.abs(transaction.value).toString());
   const [type, setType] = useState<TransactionType>(transaction.type);

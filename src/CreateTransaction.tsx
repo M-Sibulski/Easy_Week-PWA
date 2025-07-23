@@ -4,9 +4,11 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { transactionTypes, TransactionType } from '../db.ts';
 import { dateToInputType } from './dateConversions.ts';
 
+interface Props {
+    accountId: number;
+}
 
-
-const CreateTransaction = () => {
+const CreateTransaction = ({accountId}:Props) => {
     const [open, setOpen] = useState(false);
     const [shouldRender, setShouldRender] = useState(false);
     const [value, setValue] = useState('');
@@ -23,7 +25,7 @@ const CreateTransaction = () => {
         const id = await db.transactions.add({
             value: type === 'Expense' ? 0-Number(value) : Number(value),
             name: name === ''?'Generic Transaction': name,
-            account_id: 1,
+            account_id: accountId,
             date: new Date(date),
             category: category,
             type: type
