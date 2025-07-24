@@ -73,10 +73,21 @@ const EditAccount = ({open, callback, settings, account}: Props) => {
         callback();
     }
 
-    const handleClearButton = (e:React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        clearFields();
+    const handleDelete = async (e:React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault()
+        if (account) {
+            try {
+                await db.accounts.delete(account.id);
+            } catch(error) {
+                console.log(error);
+            }
+            const transactionsToDelete = await db.transactions.where("account_id").equals(account.id).toArray();
+            transactionsToDelete.map(async a => await db.transactions.delete(a.id))
+            console.log({transactionsToDelete})
+        }
         
+        clearFields();
+        callback();
     }
 
     const handleOpenButton = (e:React.MouseEvent<HTMLButtonElement>) => {
@@ -129,8 +140,8 @@ const EditAccount = ({open, callback, settings, account}: Props) => {
         <>
             <form ref={formRef} data-testid="transaction-form" id='transaction-form' onSubmit={e => editAccount(e)} className={'z-40 absolute bottom-0 left-1/2 transition transition-discrete duration-200 ease-in-out transform -translate-x-1/2 bg-blue-500 p-3 rounded-t-xl flex flex-col gap-5 w-full' + (open ? ' translate-y-0' : ' translate-y-100')}>
                 <div className="relative flex">
-                    <button onClick={e => {handleClearButton(e)}} role='clear' name='clear' className="absolute left-0 cursor-pointer h-full p-1 rounded-md hover:bg-blue-400">
-                        <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg>
+                    <button data-testid="delete" id={account?.id.toString()} onClick={e => handleDelete(e)}  className="cursor-pointer h-full p-1 rounded-md hover:bg-blue-500">
+                        <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
                     </button>
                     <h3 className='w-full text-center text-gray-50 font-bold text-lg'>Edit Account</h3>
                     <button onClick={e => {handleCloseButton(e)}} role='close' name='close' className="absolute right-0 cursor-pointer h-full p-1 rounded-md hover:bg-blue-400">

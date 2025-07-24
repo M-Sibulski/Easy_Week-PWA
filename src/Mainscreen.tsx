@@ -11,6 +11,7 @@ import CreateTransaction from './CreateTransaction.tsx';
 const Mainscreen = () => {
   const [accountId, setAccountId] = useState(0);
   const [loading, setLoading] = useState(true);
+  
   let transactions = useLiveQuery<Transactions[]>(() => db.transactions.where("name").notEqual('').sortBy('date'));
   let settingsArray = useLiveQuery<Settings[]>(() => db.settings.toArray());
   let settings = settingsArray && settingsArray[0];
@@ -20,15 +21,16 @@ const Mainscreen = () => {
   let transactionsCombined: Transactions[] = [...transactionsInAccount, ...transactionsToAccount].sort((a, b) => a.date.getTime() - b.date.getTime());
   let dateNames = transactionsCombined ? Array.from(new Set(transactionsCombined.map(t => dateToInputType(t.date)))) : [];
   let accountTotal = transactionsCombined.reduce((accumulator, transaction) => accumulator + transaction.value, 0);
-
-  useEffect(() => {
-    settings = settingsArray && settingsArray[0];
-    transactionsInAccount = transactions ? transactions.filter(t => t.account_id === accountId) : [];
-    transactionsToAccount = transactions ? transactions.filter(t => t.to_account_id === accountId).map(t => ({...t, value: 0-t.value})) : [];
-    transactionsCombined = [...transactionsInAccount, ...transactionsToAccount].sort((a, b) => a.date.getTime() - b.date.getTime());
-    dateNames = transactionsCombined ? Array.from(new Set(transactionsCombined.map(t => dateToInputType(t.date)))) : [];
-    accountTotal = transactionsCombined.reduce((accumulator, transaction) => accumulator + transaction.value, 0);
-  },[accountId])
+  // const [accountTotal, setAccountTotal] = useState(transactionsCombined.reduce((accumulator, transaction) => accumulator + transaction.value, 0));
+  // useEffect(() => {
+  //   settings = settingsArray && settingsArray[0];
+  //   transactionsInAccount = transactions ? transactions.filter(t => t.account_id === accountId) : [];
+  //   transactionsToAccount = transactions ? transactions.filter(t => t.to_account_id === accountId).map(t => ({...t, value: 0-t.value})) : [];
+  //   transactionsCombined = [...transactionsInAccount, ...transactionsToAccount].sort((a, b) => a.date.getTime() - b.date.getTime());
+  //   dateNames = transactionsCombined ? Array.from(new Set(transactionsCombined.map(t => dateToInputType(t.date)))) : [];
+  //   accountTotal = transactionsCombined.reduce((accumulator, transaction) => accumulator + transaction.value, 0);
+  //   console.log({transactionsCombined})
+  // },[accountId, accounts])
 
   const createMainAccount = async () => {
     try {
@@ -75,12 +77,25 @@ const Mainscreen = () => {
       setAccountId(settings.main_account_id);
       setLoading(false);
     }
-    
+    if (settings && accounts && accounts.length > 0 && !accounts?.find(a => a.id === accountId)) {
+      console.log('current account deleted')
+      if(accounts?.find(a => a.id === settings?.main_account_id))
+        setAccountId(settings?.main_account_id)
+      else {
+        console.log('current account deleted + new main account')
+        setAccountId(accounts?.reduce((m, c) => c.id < m.id ? c : m).id)
+        db.settings.update(settings.id, {main_account_id: accounts?.reduce((m, c) => c.id < m.id ? c : m).id})
+      }
+    }
+
   }, [accounts])
 
   const changeAccount = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setAccountId(Number(e.target.value))
   }
+  console.log({accounts})
+  console.log({accountId})
+  console.log({transactionsCombined})
 
   return (
     <>

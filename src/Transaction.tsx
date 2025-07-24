@@ -17,10 +17,37 @@ const Transaction = ({transaction, accounts}:Props) => {
   const [date, setDate] = useState(dateToInputType(transaction.date));
   const [category, setCategory] = useState(transaction.category);
   // const [accountId, setAccountId] = useState(transaction.account_id);
+  const [alert, setAlert] = useState<string[]>([]);
+  const [displayAlert, setDisplayAlert] = useState(false);
   const [accountId, setAccountId] = useState(transaction.account_id);
   const [toAccountId, setToAccountId] = useState(transaction.to_account_id);
 
+  
+
   const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    
+    if (transaction.type === "Transfer") {
+      setAlert([])
+      console.log(transaction.type)
+      console.log(transaction.account_id)
+      console.log(transaction.to_account_id)
+      console.log(accounts)
+
+      if (!accounts?.find(a => a.id === transaction.account_id)) {
+        console.log('account missing')
+        accounts && setAccountId(accounts?.filter(a => a.id != transaction.to_account_id).reduce((min, nextObj) => nextObj.id < min.id ? nextObj : min).id);
+        setAlert(() => [...alert, 'The account that this transfer is comming from does not exist anymore']);
+      }
+      if (!accounts?.find(a => a.id === transaction.to_account_id)) {
+        console.log('account missing')
+        accounts && setToAccountId(accounts?.filter(a => a.id != transaction.account_id).reduce((min, nextObj) => nextObj.id < min.id ? nextObj : min).id);
+        setAlert(() => [...alert, 'The account that this transfer is going to does not exist anymore']);
+      }
+    }
+    
+  }, [accounts, transaction])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -59,54 +86,52 @@ const Transaction = ({transaction, accounts}:Props) => {
   const handleSaveButton = async (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try {
-    //   await db.transactions.put({
-    //     id: transaction.id,
-    //     value: type === 'Expense' ? 0-Number(value) : Number(value),
-    //     name: name === ''?'Generic Transaction': name,
-    //     account_id: 1,
-    //     date: new Date(date),
-    //     category: category,
-    //     type: type
-    //   })
-    if (type === "Transfer" as TransactionType) {
-            await db.transactions.put({
-            id: transaction.id,
-            value: 0-Number(value),
-            name: name === ''?'Transfer': name,
-            account_id: accountId,
-            date: new Date(date),
-            category: category,
-            type: type,
-            to_account_id: toAccountId
-            });
-        } else {
-            await db.transactions.put({
-            id: transaction.id,
-            value: type === 'Expense' ? 0-Number(value) : Number(value),
-            name: name === ''?'Generic Transaction': name,
-            account_id: accountId,
-            date: new Date(date),
-            category: category,
-            type: type
-            });
-        }
+      if (type === "Transfer" as TransactionType) {
+        await db.transactions.put({
+        id: transaction.id,
+        value: 0-Number(value),
+        name: name === ''?'Transfer': name,
+        account_id: accountId,
+        date: new Date(date),
+        category: category,
+        type: type,
+        to_account_id: toAccountId
+        });
+      } else {
+        await db.transactions.put({
+        id: transaction.id,
+        value: type === 'Expense' ? 0-Number(value) : Number(value),
+        name: name === ''?'Generic Transaction': name,
+        account_id: accountId,
+        date: new Date(date),
+        category: category,
+        type: type
+        });
+      }
     } catch (error) {
       console.log(error)
     }
     setOpen(false);
   }
-  console.log('Transaction');
 
 
   return (
     <>      
       <div data-testid="transaction" className='flex gap-5 hover:bg-gray-200 rounded-md p-1' hidden={open} onClick={() => setOpen(true)}>
-            <div className='flex-1 flex flex-col'>
-              <h3 className='text-lg'>{transaction.name}</h3>
-              <h3 className='text-sm text-gray-700'>{transaction.category}</h3>
-            </div>
-            
-            <h4 className={'text-right flex-none text-lg font-bold ' + (transaction.value > 0 ? 'text-green-700' : 'text-red-700')}>{(transaction.value < 0 ? '- $' : '$') + Math.abs(transaction.value)}</h4>
+        <div className='flex-1 flex flex-col'>
+          <h3 className='text-lg'>{transaction.name}</h3>
+          <h3 className='text-sm text-gray-700'>{transaction.category}</h3>
+        </div>
+        {alert.length > 0 &&
+          <button className="flex cursor-pointer" onClick={(e) => {e.stopPropagation();setDisplayAlert(!displayAlert)}}>
+            {displayAlert &&
+            <p className='text-red-700'>{alert}</p>
+            }
+            <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#c10007"><path d="m40-120 440-760 440 760H40Zm138-80h604L480-720 178-200Zm302-40q17 0 28.5-11.5T520-280q0-17-11.5-28.5T480-320q-17 0-28.5 11.5T440-280q0 17 11.5 28.5T480-240Zm-40-120h80v-200h-80v200Zm40-100Z"/></svg>
+          
+          </button>
+        }
+        <h4 className={'text-right flex-none text-lg font-bold ' + (transaction.value > 0 ? 'text-green-700' : 'text-red-700')}>{(transaction.value < 0 ? '- $' : '$') + Math.abs(transaction.value)}</h4>
       </div>
           
       <form ref={formRef} data-testid='edit-transaction' className='z-30 flex flex-col bg-blue-400 rounded-md' hidden={!open}>

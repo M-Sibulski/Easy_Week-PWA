@@ -31,7 +31,7 @@ interface Transactions {
 interface Settings {
     id: number,
     dark: boolean,
-    last_account_id: number,
+    main_account_id: number,
 }
 
 class AppDatabase extends Dexie {

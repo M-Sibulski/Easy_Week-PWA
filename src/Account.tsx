@@ -18,10 +18,15 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
   const [isEditAccountOpen, setIsEditAccountOpen] = useState(false);
   const [isCreateAccountOpen, setIsCreateAccountOpen] = useState(false);
   const [currentAccount, setCurrentAccount] = useState(accounts?.find(a => a.id === accountId));
+  // const [accountTotal, setAccountTotal] = useState(total);
   // const currentAccount = accounts?.find(a => a.id === accountId);
   // const goalValue = currentAccount?.goalValue;
   // const goalDate = currentAccount?.goalDate;
   const formRef = useRef<HTMLDivElement>(null);
+
+  //   useEffect(() => {
+  //   setAccountTotal(total);
+  // }, [total])
 
   useEffect(() => {
     setCurrentAccount(accounts?.find(a => a.id === accountId));
