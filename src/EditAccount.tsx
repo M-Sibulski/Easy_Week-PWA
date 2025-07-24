@@ -2,50 +2,54 @@ import './App.css';
 import { Accounts, accountTypes, db, Settings } from '../db.ts';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { AccountType } from '../db.ts';
+import { dateToInputType } from './dateConversions.ts';
 
 interface Props {
     open: boolean;
     callback: () => void;
     settings: Settings | undefined;
+    account: Accounts | undefined;
 }
 
-const CreateAccount = ({open, callback, settings}: Props) => {
+const EditAccount = ({open, callback, settings, account}: Props) => {
     const [shouldRender, setShouldRender] = useState(false);
-    const [type, setType] = useState<AccountType>('Savings');
-    const [name, setName] = useState('');
-    const [goalDate, setGoalDate] = useState('');
-    const [goalValue, setGoalValue] = useState('');
-    const [main, setMain] = useState(false);
+    const [type, setType] = useState<AccountType>(account ? account.type : 'Everyday');
+    const [name, setName] = useState(account ? account.name : '');
+    const [goalDate, setGoalDate] = useState(account?.goalDate ? dateToInputType(account.goalDate) : '');
+    const [goalValue, setGoalValue] = useState(account?.goalValue ? account.goalValue : '0');
+    const [main, setMain] = useState(settings?.main_account_id === account?.id ? true : false);
     const formRef = useRef<HTMLFormElement>(null);
 
     useEffect(() => {
         open && setShouldRender(true);
     },[open])
 
-    const createAccount = async (e:React.FormEvent<HTMLFormElement>) => {
+    const editAccount = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        console.log('createAccount');
+        console.log('EditAccount');
         try {
             if (type === "Savings" as AccountType) {
             const newAccount: Partial<Accounts> = {
+                id: account?.id,
                 name: name,
                 type: type,
                 dateCreated: new Date(),
                 ...(Number(goalValue) > 0 ? {goalValue: Number(goalValue)} : {}),
                 ...(goalDate ? {goalDate:new Date(goalDate)} : {}),
             };            
-            const id = await db.accounts.add(newAccount as Accounts);
+            await db.accounts.put(newAccount as Accounts);
             if (main && settings) {
-                db.settings.update(settings.id, {main_account_id: id})
+                db.settings.update(settings.id, {main_account_id: account?.id})
             }
         } else {
-            const id = await db.accounts.add({
+            await db.accounts.put({
+                id: account?.id,
                 name: name,
                 type: type,
                 dateCreated: new Date(),
             });
             if (main && settings) {
-                db.settings.update(settings.id, {main_account_id: id})
+                db.settings.update(settings.id, {main_account_id: account?.id})
             }
         }
         
@@ -123,12 +127,12 @@ const CreateAccount = ({open, callback, settings}: Props) => {
         </button>
     :
         <>
-            <form ref={formRef} data-testid="transaction-form" id='transaction-form' onSubmit={e => createAccount(e)} className={'z-40 absolute bottom-0 left-1/2 transition transition-discrete duration-200 ease-in-out transform -translate-x-1/2 bg-blue-500 p-3 rounded-t-xl flex flex-col gap-5 w-full' + (open ? ' translate-y-0' : ' translate-y-100')}>
+            <form ref={formRef} data-testid="transaction-form" id='transaction-form' onSubmit={e => editAccount(e)} className={'z-40 absolute bottom-0 left-1/2 transition transition-discrete duration-200 ease-in-out transform -translate-x-1/2 bg-blue-500 p-3 rounded-t-xl flex flex-col gap-5 w-full' + (open ? ' translate-y-0' : ' translate-y-100')}>
                 <div className="relative flex">
                     <button onClick={e => {handleClearButton(e)}} role='clear' name='clear' className="absolute left-0 cursor-pointer h-full p-1 rounded-md hover:bg-blue-400">
                         <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg>
                     </button>
-                    <h3 className='w-full text-center text-gray-50 font-bold text-lg'>New Account</h3>
+                    <h3 className='w-full text-center text-gray-50 font-bold text-lg'>Edit Account</h3>
                     <button onClick={e => {handleCloseButton(e)}} role='close' name='close' className="absolute right-0 cursor-pointer h-full p-1 rounded-md hover:bg-blue-400">
                         <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M200-440v-80h560v80H200Z"/></svg>
                     </button>
@@ -161,4 +165,4 @@ const CreateAccount = ({open, callback, settings}: Props) => {
   )
 }
 
-export default CreateAccount;
+export default EditAccount;

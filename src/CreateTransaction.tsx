@@ -21,25 +21,16 @@ const CreateTransaction = ({accountId, accounts}:Props) => {
     const formRef = useRef<HTMLFormElement>(null);
 
     if(toAccountId === 0) {
-        console.log({accountId})
-        console.log({toAccountId})
         if (accountId && accountId != 0) {
             const defaultToAccount = accounts && accounts.find(a => a.id != accountId);
-            console.log({defaultToAccount})
             defaultToAccount && setToAccountId(defaultToAccount.id);
-            // console.log({defaultToAccount})
-            console.log({toAccountId})
         }
     };
 
     const createTransaction = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        console.log('createTransaction');
-        console.log({value});
         try {
         if (type === "Transfer" as TransactionType) {
-            console.log('transfer value: ' + Number(value))
-            console.log('transfer value: ' + (0-Number(value)))
             await db.transactions.add({
             value: 0-Number(value),
             name: name === ''?'Transfer': name,

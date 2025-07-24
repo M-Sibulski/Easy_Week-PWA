@@ -17,6 +17,7 @@ const Transaction = ({transaction, accounts}:Props) => {
   const [date, setDate] = useState(dateToInputType(transaction.date));
   const [category, setCategory] = useState(transaction.category);
   // const [accountId, setAccountId] = useState(transaction.account_id);
+  const [accountId, setAccountId] = useState(transaction.account_id);
   const [toAccountId, setToAccountId] = useState(transaction.to_account_id);
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -58,15 +59,37 @@ const Transaction = ({transaction, accounts}:Props) => {
   const handleSaveButton = async (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try {
-      await db.transactions.put({
-        id: transaction.id,
-        value: type === 'Expense' ? 0-Number(value) : Number(value),
-        name: name === ''?'Generic Transaction': name,
-        account_id: 1,
-        date: new Date(date),
-        category: category,
-        type: type
-      })
+    //   await db.transactions.put({
+    //     id: transaction.id,
+    //     value: type === 'Expense' ? 0-Number(value) : Number(value),
+    //     name: name === ''?'Generic Transaction': name,
+    //     account_id: 1,
+    //     date: new Date(date),
+    //     category: category,
+    //     type: type
+    //   })
+    if (type === "Transfer" as TransactionType) {
+            await db.transactions.put({
+            id: transaction.id,
+            value: 0-Number(value),
+            name: name === ''?'Transfer': name,
+            account_id: accountId,
+            date: new Date(date),
+            category: category,
+            type: type,
+            to_account_id: toAccountId
+            });
+        } else {
+            await db.transactions.put({
+            id: transaction.id,
+            value: type === 'Expense' ? 0-Number(value) : Number(value),
+            name: name === ''?'Generic Transaction': name,
+            account_id: accountId,
+            date: new Date(date),
+            category: category,
+            type: type
+            });
+        }
     } catch (error) {
       console.log(error)
     }
@@ -104,9 +127,21 @@ const Transaction = ({transaction, accounts}:Props) => {
           </select>
           
           {type === "Transfer" &&
-              <select value={toAccountId} onChange={e => setToAccountId(Number(e.currentTarget.value))} name="to-account" id="to-account" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'>
-                  {accounts && accounts.filter(a => a.id != transaction.account_id).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-              </select>
+              <>
+                <div className="flex gap-2">
+                  <label className='p-1 w-10' htmlFor="from-account">From</label>
+                  <select value={accountId} onChange={e => setAccountId(Number(e.currentTarget.value))} name="from-account" id="from-account" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1 flex-1'>
+                    {accounts && accounts.filter(a => a.id != transaction.to_account_id).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                  </select>
+                </div>
+                
+                <div className="flex gap-2">
+                  <label className='p-1 w-10' htmlFor="from-account">To</label>
+                  <select value={toAccountId} onChange={e => setToAccountId(Number(e.currentTarget.value))} name="to-account" id="to-account" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1 flex-1'>
+                    {accounts && accounts.filter(a => a.id != transaction.account_id).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                  </select>
+                </div>
+              </>
           }
       
           <input data-testid="value" type="text" placeholder='$ 0.00' inputMode="numeric" value={value === '' ? '' : `$ ${value}`} onChange={e => setValue(e.currentTarget.value.replace(/[^0-9.]/g, ''))} name="value" id="value" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'/>
