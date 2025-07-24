@@ -1,7 +1,6 @@
 import PWABadge from './PWABadge.tsx';
 import './App.css';
 import Mainscreen from './Mainscreen.tsx';
-import CreateTransaction from './CreateTransaction.tsx';
 import { useEffect } from 'react';
 import { setViewportHeightVariable } from './setViewportHeight.ts';
 

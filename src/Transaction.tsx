@@ -1,4 +1,4 @@
-import { db, TransactionType } from '../db.ts';
+import { Accounts, db, TransactionType, transactionTypes } from '../db.ts';
 import './App.css';
 import { Transactions } from '../db.ts';
 import { useState, useRef, useEffect } from 'react';
@@ -6,16 +6,18 @@ import { dateToInputType } from './dateConversions.ts';
 
 interface Props {
     transaction: Transactions;
-    accountId: number;
+    accounts: Accounts[] | undefined;
 }
 
-const Transaction = ({transaction, accountId}:Props) => {
+const Transaction = ({transaction, accounts}:Props) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(Math.abs(transaction.value).toString());
   const [type, setType] = useState<TransactionType>(transaction.type);
   const [name, setName] = useState(transaction.name);
   const [date, setDate] = useState(dateToInputType(transaction.date));
   const [category, setCategory] = useState(transaction.category);
+  // const [accountId, setAccountId] = useState(transaction.account_id);
+  const [toAccountId, setToAccountId] = useState(transaction.to_account_id);
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -98,9 +100,14 @@ const Transaction = ({transaction, accountId}:Props) => {
           <input data-testid="name" type="text" placeholder="Name (Generic Transaction)" value={name} onChange={e => setName(e.currentTarget.value)} name="name" id="name" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'/>
 
           <select data-testid="type" value={type} onChange={e => setType(e.currentTarget.value as TransactionType)} name="type" id="type" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'>
-              <option value="Income">Income</option>
-              <option value="Expense">Expense</option>
+              {transactionTypes.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
+          
+          {type === "Transfer" &&
+              <select value={toAccountId} onChange={e => setToAccountId(Number(e.currentTarget.value))} name="to-account" id="to-account" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'>
+                  {accounts && accounts.filter(a => a.id != transaction.account_id).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+              </select>
+          }
       
           <input data-testid="value" type="text" placeholder='$ 0.00' inputMode="numeric" value={value === '' ? '' : `$ ${value}`} onChange={e => setValue(e.currentTarget.value.replace(/[^0-9.]/g, ''))} name="value" id="value" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'/>
       
