@@ -21,16 +21,12 @@ const Mainscreen = () => {
   const transactionsCombined: Transactions[] = [...transactionsInAccount, ...transactionsToAccount].sort((a, b) => a.date.getTime() - b.date.getTime());
   const dateNames = transactionsCombined ? Array.from(new Set(transactionsCombined.map(t => dateToInputType(t.date)))) : [];
   const accountTotal = transactionsCombined.reduce((accumulator, transaction) => accumulator + transaction.value, 0);
-  // const [accountTotal, setAccountTotal] = useState(transactionsCombined.reduce((accumulator, transaction) => accumulator + transaction.value, 0));
-  // useEffect(() => {
-  //   settings = settingsArray && settingsArray[0];
-  //   transactionsInAccount = transactions ? transactions.filter(t => t.account_id === accountId) : [];
-  //   transactionsToAccount = transactions ? transactions.filter(t => t.to_account_id === accountId).map(t => ({...t, value: 0-t.value})) : [];
-  //   transactionsCombined = [...transactionsInAccount, ...transactionsToAccount].sort((a, b) => a.date.getTime() - b.date.getTime());
-  //   dateNames = transactionsCombined ? Array.from(new Set(transactionsCombined.map(t => dateToInputType(t.date)))) : [];
-  //   accountTotal = transactionsCombined.reduce((accumulator, transaction) => accumulator + transaction.value, 0);
-  //   console.log({transactionsCombined})
-  // },[accountId, accounts])
+
+  const clearAllCollections = () => {
+    db.accounts.clear()
+    db.transactions.clear()
+    db.settings.clear()
+  }
 
   const createMainAccount = async () => {
     try {
@@ -66,29 +62,28 @@ const Mainscreen = () => {
   }
 
   useEffect(() => {
+    //if first launch
     if(settingsArray && settingsArray.length === 0) {
-      createInitialSettings()
+      clearAllCollections();
+      createMainAccount();
+      createInitialSettings();
     }
-    if(accounts && accounts.length === 0) {
-      createMainAccount()
-    }
-    if (settings && settings.main_account_id === 0) {
-      const mainAccount = accounts?.reduce((min, current) => current.id < min.id ? current : min)
-      if (mainAccount) db.settings.update(settings.id, {main_account_id: mainAccount.id})
-    }
-    if (loading && settings) {
-      setAccountId(settings.main_account_id);
-      setLoading(false);
-    }
+    //Missing main account
     if (settings && accounts && accounts.length > 0 && !accounts?.find(a => a.id === accountId)) {
-      console.log('current account deleted')
-      if(accounts?.find(a => a.id === settings?.main_account_id))
+      if(accounts?.find(a => a.id === settings?.main_account_id)) //Just get from settings
         setAccountId(settings?.main_account_id)
-      else {
-        console.log('current account deleted + new main account')
+      else { //Settings settings.main_account_id also wrong
         setAccountId(accounts?.reduce((m, c) => c.id < m.id ? c : m).id)
         db.settings.update(settings.id, {main_account_id: accounts?.reduce((m, c) => c.id < m.id ? c : m).id})
       }
+    } else if (settings && accounts && accounts.length == 0) {
+      setAccountId(0)
+      db.settings.update(settings.id, {main_account_id: 0})
+    }
+    //All launches
+    if (loading && settings) {
+      setAccountId(settings.main_account_id);
+      setLoading(false);
     }
 
   }, [accounts, accountId, loading, settings, settingsArray])

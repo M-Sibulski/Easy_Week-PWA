@@ -30,18 +30,12 @@ const Transaction = ({transaction, accounts}:Props) => {
     
     if (transaction.type === "Transfer") {
       setAlert([])
-      console.log(transaction.type)
-      console.log(transaction.account_id)
-      console.log(transaction.to_account_id)
-      console.log(accounts)
 
       if (!accounts?.find(a => a.id === transaction.account_id)) {
-        console.log('account missing')
         if (accounts) setAccountId(accounts?.filter(a => a.id != transaction.to_account_id).reduce((min, nextObj) => nextObj.id < min.id ? nextObj : min).id);
         setAlert(prev  => [...prev , 'The account that this transfer is comming from does not exist anymore']);
       }
       if (!accounts?.find(a => a.id === transaction.to_account_id)) {
-        console.log('account missing')
         if (accounts) setToAccountId(accounts?.filter(a => a.id != transaction.account_id).reduce((min, nextObj) => nextObj.id < min.id ? nextObj : min).id);
         setAlert(prev  => [...prev , 'The account that this transfer is going to does not exist anymore']);
       }
