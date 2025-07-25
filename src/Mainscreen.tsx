@@ -34,13 +34,15 @@ const Mainscreen = () => {
 
   const createMainAccount = async () => {
     try {
-      await db.accounts.add({
+      await db.accounts.put({
+        id: 1,
         name: 'Main Account',
         type: 'Everyday',
         dateCreated: new Date()
       });
-      await db.accounts.add({
-        name: 'Savings 1',
+      await db.accounts.put({
+        id: 2,
+        name: 'Savings',
         type: 'Savings',
         goalDate: new Date("2026/05/10"),
         goalValue: 4000,
@@ -53,7 +55,8 @@ const Mainscreen = () => {
 
   const createInitialSettings = async () => {
     try {
-      await db.settings.add({
+      await db.settings.put({
+          id: 1,
           dark: true,
           main_account_id: 0,
       });
