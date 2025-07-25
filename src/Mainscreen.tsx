@@ -12,15 +12,15 @@ const Mainscreen = () => {
   const [accountId, setAccountId] = useState(0);
   const [loading, setLoading] = useState(true);
   
-  let transactions = useLiveQuery<Transactions[]>(() => db.transactions.where("name").notEqual('').sortBy('date'));
-  let settingsArray = useLiveQuery<Settings[]>(() => db.settings.toArray());
-  let settings = settingsArray && settingsArray[0];
-  let accounts = useLiveQuery<Accounts[]>(() => db.accounts.toArray());
-  let transactionsInAccount: Transactions[] = transactions ? transactions.filter(t => t.account_id === accountId) : [];
-  let transactionsToAccount: Transactions[] = transactions ? transactions.filter(t => t.to_account_id === accountId).map(t => ({...t, value: 0-t.value})) : [];
-  let transactionsCombined: Transactions[] = [...transactionsInAccount, ...transactionsToAccount].sort((a, b) => a.date.getTime() - b.date.getTime());
-  let dateNames = transactionsCombined ? Array.from(new Set(transactionsCombined.map(t => dateToInputType(t.date)))) : [];
-  let accountTotal = transactionsCombined.reduce((accumulator, transaction) => accumulator + transaction.value, 0);
+  const transactions = useLiveQuery<Transactions[]>(() => db.transactions.where("name").notEqual('').sortBy('date'));
+  const settingsArray = useLiveQuery<Settings[]>(() => db.settings.toArray());
+  const settings = settingsArray && settingsArray[0];
+  const accounts = useLiveQuery<Accounts[]>(() => db.accounts.toArray());
+  const transactionsInAccount: Transactions[] = transactions ? transactions.filter(t => t.account_id === accountId) : [];
+  const transactionsToAccount: Transactions[] = transactions ? transactions.filter(t => t.to_account_id === accountId).map(t => ({...t, value: 0-t.value})) : [];
+  const transactionsCombined: Transactions[] = [...transactionsInAccount, ...transactionsToAccount].sort((a, b) => a.date.getTime() - b.date.getTime());
+  const dateNames = transactionsCombined ? Array.from(new Set(transactionsCombined.map(t => dateToInputType(t.date)))) : [];
+  const accountTotal = transactionsCombined.reduce((accumulator, transaction) => accumulator + transaction.value, 0);
   // const [accountTotal, setAccountTotal] = useState(transactionsCombined.reduce((accumulator, transaction) => accumulator + transaction.value, 0));
   // useEffect(() => {
   //   settings = settingsArray && settingsArray[0];
@@ -88,14 +88,11 @@ const Mainscreen = () => {
       }
     }
 
-  }, [accounts])
+  }, [accounts, accountId, loading, settings, settingsArray])
 
   const changeAccount = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setAccountId(Number(e.target.value))
   }
-  console.log({accounts})
-  console.log({accountId})
-  console.log({transactionsCombined})
 
   return (
     <>

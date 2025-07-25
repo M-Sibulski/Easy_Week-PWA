@@ -1,7 +1,7 @@
 import './App.css';
-import { Accounts, accountTypes, db, Settings } from '../db.ts';
+import { Accounts, db, Settings } from '../db.ts';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { AccountType } from '../db.ts';
+import { AccountType, accountTypes } from '../types.ts';
 import { dateToInputType } from './dateConversions.ts';
 
 interface Props {
@@ -21,7 +21,7 @@ const EditAccount = ({open, callback, settings, account}: Props) => {
     const formRef = useRef<HTMLFormElement>(null);
 
     useEffect(() => {
-        open && setShouldRender(true);
+        if(open) setShouldRender(true);
     },[open])
 
     const editAccount = async (e:React.FormEvent<HTMLFormElement>) => {
@@ -64,7 +64,6 @@ const EditAccount = ({open, callback, settings, account}: Props) => {
         setType('Savings');
         setName('');
         setGoalDate('');
-        setShouldRender(false);
         setGoalValue('');
     }
 
@@ -88,12 +87,6 @@ const EditAccount = ({open, callback, settings, account}: Props) => {
         
         clearFields();
         callback();
-    }
-
-    const handleOpenButton = (e:React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        setShouldRender(true);
-        requestAnimationFrame(() => callback());
     }
 
     const handleValueChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -127,18 +120,14 @@ const EditAccount = ({open, callback, settings, account}: Props) => {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [open]);
+    }, [open, callback]);
 
 
   return (
     <>
-    {!shouldRender ? 
-        <button role="open" onClick={(e) => {handleOpenButton(e)}} className='z-30 flex items-center align-middle hover:bg-blue-600 absolute bottom-7 left-1/2 transform -translate-x-1/2 bg-blue-500 size-15 rounded-full shadow-lg/20 cursor-pointer'>
-            <svg className='w-full' height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
-        </button>
-    :
+    {shouldRender &&
         <>
-            <form ref={formRef} data-testid="transaction-form" id='transaction-form' onSubmit={e => editAccount(e)} className={'z-40 absolute bottom-0 left-1/2 transition transition-discrete duration-200 ease-in-out transform -translate-x-1/2 bg-blue-500 p-3 rounded-t-xl flex flex-col gap-5 w-full' + (open ? ' translate-y-0' : ' translate-y-100')}>
+            <form ref={formRef} data-testid="account-form" id='account-form' onSubmit={e => editAccount(e)} className={'z-40 absolute bottom-0 left-1/2 transition transition-discrete duration-200 ease-in-out transform -translate-x-1/2 bg-blue-500 p-3 rounded-t-xl flex flex-col gap-5 w-full' + (open ? ' translate-y-0' : ' translate-y-100')}>
                 <div className="relative flex">
                     <button data-testid="delete" id={account?.id.toString()} onClick={e => handleDelete(e)}  className="cursor-pointer h-full p-1 rounded-md hover:bg-blue-500">
                         <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
@@ -165,7 +154,7 @@ const EditAccount = ({open, callback, settings, account}: Props) => {
                         <label htmlFor="main-account" className='flex-1 select-none'>Make this my main account? </label>
                         <input type="checkbox" checked={main} onChange={e => setMain(e.currentTarget.checked)} name="main-account" id="main-account" className='size-6'/>
                     </div>
-                    <button role='submit' name='submit' type='submit' className="cursor-pointer h-full p-2 rounded-md hover:bg-blue-400 flex justify-center">
+                    <button data-testid='submit' name='submit' type='submit' className="cursor-pointer h-full p-2 rounded-md hover:bg-blue-400 flex justify-center">
                         <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>
                     </button>
                 </div>

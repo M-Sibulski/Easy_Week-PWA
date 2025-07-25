@@ -3,15 +3,24 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {describe, it, expect, vi} from "vitest";
 import "@testing-library/jest-dom/vitest";
-import { db, Transactions } from "../db";
+import { Accounts, db, Transactions } from "../db";
 
 vi.mock('../db', () => ({
   db: {
     transactions: {
       put: vi.fn(),
       delete: vi.fn()
+    }, 
+    accounts: {
+      put: vi.fn(),
+      delete: vi.fn()
+    },
+    settings: {
+      put: vi.fn(),
+      delete: vi.fn()
     }
-  }
+  }, 
+
 }));
 
 const fakeTransaction: Transactions = {
@@ -24,9 +33,26 @@ const fakeTransaction: Transactions = {
   account_id: 1
 };
 
+const fakeAccounts: Accounts[] = [
+  {
+    id: 1,
+    name: 'Main',
+    dateCreated: new Date('2024-01-01'),
+    type: 'Everyday',
+  },
+  {
+    id: 15,
+    name: 'Savings',
+    dateCreated: new Date('2024-10-07'),
+    type: 'Savings',
+    goalDate: new Date('2026-10-07'),
+    goalValue: 500,
+  },
+]
+
 describe("Transaction", () => {
     it("renders", () => {
-        render(<Transaction transaction={fakeTransaction}/>);
+        render(<Transaction transaction={fakeTransaction} accounts={fakeAccounts}/>);
         expect(screen.getByTestId("transaction")).toBeVisible();
         expect(screen.getByText('Groceries')).toBeInTheDocument();
         expect(screen.getByText('Food')).toBeInTheDocument();
@@ -34,7 +60,7 @@ describe("Transaction", () => {
     });
 
     it("opens/closes edit mode", async () => {
-        render(<Transaction transaction={fakeTransaction}/>);
+        render(<Transaction transaction={fakeTransaction} accounts={fakeAccounts}/>);
         const transaction = screen.getByTestId("transaction");
         const closeButton = screen.getByTestId("close");
         const form = screen.getByTestId("edit-transaction");
@@ -52,7 +78,7 @@ describe("Transaction", () => {
 
     it("submit inputs on edit mode", async () => {
         const addMock = db.transactions.put as ReturnType<typeof vi.fn>;
-        render(<Transaction transaction={fakeTransaction}/>);
+        render(<Transaction transaction={fakeTransaction} accounts={fakeAccounts}/>);
         const transaction = screen.getByTestId("transaction");
         const submit = screen.getByTestId("submit");
         await userEvent.click(transaction);
@@ -75,7 +101,7 @@ describe("Transaction", () => {
     });
 
     it("deletes transaction", async () => {
-        render(<Transaction transaction={fakeTransaction}/>);
+        render(<Transaction transaction={fakeTransaction} accounts={fakeAccounts}/>);
         const transaction = screen.getByTestId("transaction");
         const deleteBtn = screen.getByTestId("delete");
         await userEvent.click(transaction);

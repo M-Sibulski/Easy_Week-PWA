@@ -1,12 +1,5 @@
 import Dexie, { EntityTable } from 'dexie';
-
-type TransactionType = "Income" | "Expense" | "Transfer";
-
-export const transactionTypes: TransactionType[] = ['Income', 'Expense', 'Transfer'];
-
-type AccountType = "Everyday" | "Savings";
-
-export const accountTypes: AccountType[] = ['Everyday', 'Savings'];
+import { TransactionType, AccountType } from './types';
 
 interface Accounts {
     id: number,
@@ -49,5 +42,5 @@ class AppDatabase extends Dexie {
   }
 }
 
-export type { Accounts, Transactions, TransactionType, AccountType, Settings };
+export type { Accounts, Transactions, Settings };
 export const db = new AppDatabase();

@@ -1,7 +1,7 @@
 import './App.css';
 import { Accounts, db } from '../db.ts';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { transactionTypes, TransactionType } from '../db.ts';
+import { transactionTypes, TransactionType } from '../types.ts';
 import { dateToInputType } from './dateConversions.ts';
 
 interface Props {
@@ -23,7 +23,7 @@ const CreateTransaction = ({accountId, accounts}:Props) => {
     if(toAccountId === 0) {
         if (accountId && accountId != 0) {
             const defaultToAccount = accounts && accounts.find(a => a.id != accountId);
-            defaultToAccount && setToAccountId(defaultToAccount.id);
+            if (defaultToAccount) setToAccountId(defaultToAccount.id);
         }
     };
 

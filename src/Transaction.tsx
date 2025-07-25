@@ -1,4 +1,5 @@
-import { Accounts, db, TransactionType, transactionTypes } from '../db.ts';
+import { Accounts, db} from '../db.ts';
+import { TransactionType, transactionTypes } from '../types.ts';
 import './App.css';
 import { Transactions } from '../db.ts';
 import { useState, useRef, useEffect } from 'react';
@@ -16,7 +17,6 @@ const Transaction = ({transaction, accounts}:Props) => {
   const [name, setName] = useState(transaction.name);
   const [date, setDate] = useState(dateToInputType(transaction.date));
   const [category, setCategory] = useState(transaction.category);
-  // const [accountId, setAccountId] = useState(transaction.account_id);
   const [alert, setAlert] = useState<string[]>([]);
   const [displayAlert, setDisplayAlert] = useState(false);
   const [accountId, setAccountId] = useState(transaction.account_id);
@@ -37,12 +37,12 @@ const Transaction = ({transaction, accounts}:Props) => {
 
       if (!accounts?.find(a => a.id === transaction.account_id)) {
         console.log('account missing')
-        accounts && setAccountId(accounts?.filter(a => a.id != transaction.to_account_id).reduce((min, nextObj) => nextObj.id < min.id ? nextObj : min).id);
+        if (accounts) setAccountId(accounts?.filter(a => a.id != transaction.to_account_id).reduce((min, nextObj) => nextObj.id < min.id ? nextObj : min).id);
         setAlert(() => [...alert, 'The account that this transfer is comming from does not exist anymore']);
       }
       if (!accounts?.find(a => a.id === transaction.to_account_id)) {
         console.log('account missing')
-        accounts && setToAccountId(accounts?.filter(a => a.id != transaction.account_id).reduce((min, nextObj) => nextObj.id < min.id ? nextObj : min).id);
+        if (accounts) setToAccountId(accounts?.filter(a => a.id != transaction.account_id).reduce((min, nextObj) => nextObj.id < min.id ? nextObj : min).id);
         setAlert(() => [...alert, 'The account that this transfer is going to does not exist anymore']);
       }
     }
