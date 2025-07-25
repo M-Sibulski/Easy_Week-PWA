@@ -54,7 +54,7 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
 
   useEffect(() => {
     if(accounts && accounts.length === 0) setIsCreateAccountOpen(true);
-  })
+  }, [accounts])
 
   return (
     
