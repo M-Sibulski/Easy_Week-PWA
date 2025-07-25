@@ -1,13 +1,13 @@
 import Dexie, { EntityTable } from 'dexie';
-
-type TransactionType = "Income" | "Expense";
-
-export const transactionTypes: TransactionType[] = ['Income', 'Expense'];
+import { TransactionType, AccountType } from './types';
 
 interface Accounts {
     id: number,
-    type: Date,
-    goal?: number
+    name: string,
+    type: AccountType,
+    goalValue?: number,
+    goalDate?: Date,
+    dateCreated: Date
 }
 
 interface Transactions {
@@ -18,30 +18,29 @@ interface Transactions {
     account_id: number,
     date: Date,
     category?: string
+    to_account_id?: number,
+}
+
+interface Settings {
+    id: number,
+    dark: boolean,
+    main_account_id: number,
 }
 
 class AppDatabase extends Dexie {
   accounts!: EntityTable<Accounts, 'id'>; // 'id' is the primary key property
   transactions!: EntityTable<Transactions, 'id'>;
+  settings!: EntityTable<Settings, 'id'>;
 
   constructor() {
     super('easyWeekDatabase');
     this.version(1).stores({
-        accounts: '++id, type, goal',
-        transactions: '++id, value, type, name, account_id, date, category'
+        accounts: '++id, type, goalValue, goalDate, main, dateCreated',
+        transactions: '++id, value, type, name, account_id, date, category',
+        settings: '++id, dark, last_account_id',
     });
   }
 }
 
-// const db = new Dexie('easyWeekDatabase') as Dexie & {
-//     account: EntityTable<Accounts, 'id'>, transaction: EntityTable<Transactions, 'id'>
-// };
-
-// db.version(1).stores({
-//     account: '++id, type, goal',
-//     transaction: '++id, value, type, name, account_id, date, category'
-// });
-
-export type { Accounts, Transactions, TransactionType };
-// export { db };
+export type { Accounts, Transactions, Settings };
 export const db = new AppDatabase();

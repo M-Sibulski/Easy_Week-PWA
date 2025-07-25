@@ -1,4 +1,5 @@
-import { db, TransactionType } from '../db.ts';
+import { Accounts, db} from '../db.ts';
+import { TransactionType, transactionTypes } from '../types.ts';
 import './App.css';
 import { Transactions } from '../db.ts';
 import { useState, useRef, useEffect } from 'react';
@@ -6,17 +7,47 @@ import { dateToInputType } from './dateConversions.ts';
 
 interface Props {
     transaction: Transactions;
+    accounts: Accounts[] | undefined;
 }
 
-const Transaction = ({transaction}:Props) => {
+const Transaction = ({transaction, accounts}:Props) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(Math.abs(transaction.value).toString());
   const [type, setType] = useState<TransactionType>(transaction.type);
   const [name, setName] = useState(transaction.name);
   const [date, setDate] = useState(dateToInputType(transaction.date));
   const [category, setCategory] = useState(transaction.category);
+  const [alert, setAlert] = useState<string[]>([]);
+  const [displayAlert, setDisplayAlert] = useState(false);
+  const [accountId, setAccountId] = useState(transaction.account_id);
+  const [toAccountId, setToAccountId] = useState(transaction.to_account_id);
+
+  
 
   const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    
+    if (transaction.type === "Transfer") {
+      setAlert([])
+      console.log(transaction.type)
+      console.log(transaction.account_id)
+      console.log(transaction.to_account_id)
+      console.log(accounts)
+
+      if (!accounts?.find(a => a.id === transaction.account_id)) {
+        console.log('account missing')
+        if (accounts) setAccountId(accounts?.filter(a => a.id != transaction.to_account_id).reduce((min, nextObj) => nextObj.id < min.id ? nextObj : min).id);
+        setAlert(prev  => [...prev , 'The account that this transfer is comming from does not exist anymore']);
+      }
+      if (!accounts?.find(a => a.id === transaction.to_account_id)) {
+        console.log('account missing')
+        if (accounts) setToAccountId(accounts?.filter(a => a.id != transaction.account_id).reduce((min, nextObj) => nextObj.id < min.id ? nextObj : min).id);
+        setAlert(prev  => [...prev , 'The account that this transfer is going to does not exist anymore']);
+      }
+    }
+    
+  }, [accounts, transaction])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -55,32 +86,52 @@ const Transaction = ({transaction}:Props) => {
   const handleSaveButton = async (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try {
-      await db.transactions.put({
+      if (type === "Transfer" as TransactionType) {
+        await db.transactions.put({
+        id: transaction.id,
+        value: 0-Number(value),
+        name: name === ''?'Transfer': name,
+        account_id: accountId,
+        date: new Date(date),
+        category: category,
+        type: type,
+        to_account_id: toAccountId
+        });
+      } else {
+        await db.transactions.put({
         id: transaction.id,
         value: type === 'Expense' ? 0-Number(value) : Number(value),
         name: name === ''?'Generic Transaction': name,
-        account_id: 1,
+        account_id: accountId,
         date: new Date(date),
         category: category,
         type: type
-      })
+        });
+      }
     } catch (error) {
       console.log(error)
     }
     setOpen(false);
   }
-  console.log('Transaction');
 
 
   return (
     <>      
       <div data-testid="transaction" className='flex gap-5 hover:bg-gray-200 rounded-md p-1' hidden={open} onClick={() => setOpen(true)}>
-            <div className='flex-1 flex flex-col'>
-              <h3 className='text-lg'>{transaction.name}</h3>
-              <h3 className='text-sm text-gray-700'>{transaction.category}</h3>
-            </div>
-            
-            <h4 className={'text-right flex-none text-lg font-bold ' + (transaction.value > 0 ? 'text-green-700' : 'text-red-700')}>{(transaction.value < 0 ? '- $' : '$') + Math.abs(transaction.value)}</h4>
+        <div className='flex-1 flex flex-col'>
+          <h3 className='text-lg'>{transaction.name}</h3>
+          <h3 className='text-sm text-gray-700'>{transaction.category}</h3>
+        </div>
+        {alert.length > 0 &&
+          <button className="flex cursor-pointer" onClick={(e) => {e.stopPropagation();setDisplayAlert(!displayAlert)}}>
+            {displayAlert &&
+            <p className='text-red-700'>{alert}</p>
+            }
+            <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#c10007"><path d="m40-120 440-760 440 760H40Zm138-80h604L480-720 178-200Zm302-40q17 0 28.5-11.5T520-280q0-17-11.5-28.5T480-320q-17 0-28.5 11.5T440-280q0 17 11.5 28.5T480-240Zm-40-120h80v-200h-80v200Zm40-100Z"/></svg>
+          
+          </button>
+        }
+        <h4 className={'text-right flex-none text-lg font-bold ' + (transaction.value > 0 ? 'text-green-700' : 'text-red-700')}>{(transaction.value < 0 ? '- $' : '$') + Math.abs(transaction.value)}</h4>
       </div>
           
       <form ref={formRef} data-testid='edit-transaction' className='z-30 flex flex-col bg-blue-400 rounded-md' hidden={!open}>
@@ -97,9 +148,26 @@ const Transaction = ({transaction}:Props) => {
           <input data-testid="name" type="text" placeholder="Name (Generic Transaction)" value={name} onChange={e => setName(e.currentTarget.value)} name="name" id="name" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'/>
 
           <select data-testid="type" value={type} onChange={e => setType(e.currentTarget.value as TransactionType)} name="type" id="type" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'>
-              <option value="Income">Income</option>
-              <option value="Expense">Expense</option>
+              {transactionTypes.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
+          
+          {type === "Transfer" &&
+              <>
+                <div className="flex gap-2">
+                  <label className='p-1 w-10' htmlFor="from-account">From</label>
+                  <select value={accountId} onChange={e => setAccountId(Number(e.currentTarget.value))} name="from-account" id="from-account" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1 flex-1'>
+                    {accounts && accounts.filter(a => a.id != transaction.to_account_id).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                  </select>
+                </div>
+                
+                <div className="flex gap-2">
+                  <label className='p-1 w-10' htmlFor="from-account">To</label>
+                  <select value={toAccountId} onChange={e => setToAccountId(Number(e.currentTarget.value))} name="to-account" id="to-account" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1 flex-1'>
+                    {accounts && accounts.filter(a => a.id != transaction.account_id).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                  </select>
+                </div>
+              </>
+          }
       
           <input data-testid="value" type="text" placeholder='$ 0.00' inputMode="numeric" value={value === '' ? '' : `$ ${value}`} onChange={e => setValue(e.currentTarget.value.replace(/[^0-9.]/g, ''))} name="value" id="value" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'/>
       

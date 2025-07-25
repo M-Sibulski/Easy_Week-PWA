@@ -1,13 +1,17 @@
 import './App.css';
-import { db } from '../db.ts';
+import { Accounts, db } from '../db.ts';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { transactionTypes, TransactionType } from '../db.ts';
+import { transactionTypes, TransactionType } from '../types.ts';
 import { dateToInputType } from './dateConversions.ts';
 
+interface Props {
+    accountId: number;
+    accounts: Accounts[] | undefined;
+}
 
-
-const CreateTransaction = () => {
+const CreateTransaction = ({accountId, accounts}:Props) => {
     const [open, setOpen] = useState(false);
+    const [toAccountId, setToAccountId] = useState(0);
     const [shouldRender, setShouldRender] = useState(false);
     const [value, setValue] = useState('');
     const [type, setType] = useState<TransactionType>('Expense');
@@ -16,19 +20,36 @@ const CreateTransaction = () => {
     const [category, setCategory] = useState('');
     const formRef = useRef<HTMLFormElement>(null);
 
+    if(toAccountId === 0) {
+        if (accountId && accountId != 0) {
+            const defaultToAccount = accounts && accounts.find(a => a.id != accountId);
+            if (defaultToAccount) setToAccountId(defaultToAccount.id);
+        }
+    };
+
     const createTransaction = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        console.log('createTransaction');
         try {
-        const id = await db.transactions.add({
+        if (type === "Transfer" as TransactionType) {
+            await db.transactions.add({
+            value: 0-Number(value),
+            name: name === ''?'Transfer': name,
+            account_id: accountId,
+            date: new Date(date),
+            category: category,
+            type: type,
+            to_account_id: toAccountId
+            });
+        } else {
+            await db.transactions.add({
             value: type === 'Expense' ? 0-Number(value) : Number(value),
             name: name === ''?'Generic Transaction': name,
-            account_id: 1,
+            account_id: accountId,
             date: new Date(date),
             category: category,
             type: type
-        });
-        console.log(id);
+            });
+        }
         } catch(error) {
             console.log(error)
         }
@@ -118,7 +139,13 @@ const CreateTransaction = () => {
                     <select value={type} onChange={e => setType(e.currentTarget.value as TransactionType)} name="type" id="type" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'>
                         {transactionTypes.map(t => <option key={t} value={t}>{t}</option>)}
                     </select>
-                
+
+                    {type === "Transfer" &&
+                        <select value={toAccountId} onChange={e => setToAccountId(Number(e.currentTarget.value))} name="to-account" id="to-account" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'>
+                            {accounts && accounts.filter(a => a.id != accountId).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                        </select>
+                    }
+
                     <input type="text" placeholder='$ 0.00' inputMode="numeric" value={value === '' ? '' : `$ ${value}`} onChange={e => handleValueChange(e)} name="value" id="value" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'/>
                 
                     <input data-testid="date-input" type="date" value={date} onChange={e => setDate(e.currentTarget.value)} name="date" id="date" className='bg-blue-300 rounded-md hover:bg-blue-200 w-full p-1'/>

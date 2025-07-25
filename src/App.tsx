@@ -1,7 +1,6 @@
 import PWABadge from './PWABadge.tsx';
 import './App.css';
 import Mainscreen from './Mainscreen.tsx';
-import CreateTransaction from './CreateTransaction.tsx';
 import { useEffect } from 'react';
 import { setViewportHeightVariable } from './setViewportHeight.ts';
 
@@ -15,7 +14,6 @@ function App() {
       <div className='relative sm:my-1 mx-auto overflow-y-hidden h-full w-full sm:rounded-2xl shadow-lg/20'>
         <Mainscreen/>
         <PWABadge />
-        <CreateTransaction/>
       </div>
     </div>
   )
