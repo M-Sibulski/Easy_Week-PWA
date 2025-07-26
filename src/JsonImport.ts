@@ -2,9 +2,8 @@ import { db } from "../db";
 import { Transactions } from "../types";
 
 const csvToJson = (csv:string) => {
-    // console.log(csv)
     const lines = csv.trim().split('\n');
-    if (!lines[0].includes(',')) return csv;
+    if (!lines[0].includes(',') || lines[0].includes('{')) return csv;
     const headers = lines[0].split(',');
     const result = [];
 
@@ -18,19 +17,20 @@ const csvToJson = (csv:string) => {
         
     }
     
-    return JSON.stringify(result, null, 2); // Stringify for pretty-printed JSON
+    return JSON.stringify(result, null, 2);
 }
 
 const transactionsBulkAdd = async (transactions: Transactions[], accountId: number) => {
+
     const answer = confirm("This will replace all transactions on this account. Confirm?")
     if (answer) {
         const existingTransactions = await db.transactions.where("account_id").equals(accountId).toArray();
         existingTransactions.map(t => db.transactions.delete(t.id));
         transactions.map(async a => {
             try{
-                const id = await db.transactions.add(a)
+                await db.transactions.add(a)
             } catch(error) {
-                console.log(error)
+                console.error(error)
                 return
             }
         })
@@ -49,16 +49,9 @@ const jsonToDB = async (file:File | undefined, accountId: number) => {
         t.value = Number(t.value);
         t.date = new Date(t.date);
     })
-
-      if (!Array.isArray(parsed)) {
-        alert("JSON should be an array of objects.");
-        return;
-      }
-
       transactionsBulkAdd(parsed, accountId);
     } catch (error) {
       alert("Invalid JSON file.");
-      
       console.error(error);
     }
     
