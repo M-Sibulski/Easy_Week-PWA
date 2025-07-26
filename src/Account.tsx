@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Accounts, Settings } from "../db";
+import { Accounts, Settings } from "../types";
 import { dateToInputType } from "./dateConversions";
 import CreateAccount from "./CreateAccount";
 import EditAccount from "./EditAccount";
+import jsonToDB from "./JsonImport";
 
 interface Props {
     accountId: number;
@@ -56,6 +57,7 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
     if(accounts && accounts.length === 0) setIsCreateAccountOpen(true);
   }, [accounts])
 
+
   return (
     
     <div data-testid="account" className='bg-blue-500 flex flex-col p-2'>
@@ -65,6 +67,9 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
           <ul>
             <li onClick={() => {setIsEditAccountOpen(true); setIsMenuOpen(false)}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Edit Account</li>
             <li onClick={() => {setIsCreateAccountOpen(true); setIsMenuOpen(false)}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Create Account</li>
+            <label htmlFor="file-input" className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Import JSON</label>
+            <input id="file-input" type="file" accept=".json, .csv" onChange={(e) => {jsonToDB(e.target.files?.[0], accountId); setIsMenuOpen(false)}} className="hidden"/>
+            
           </ul>
         </div>
       }
@@ -80,7 +85,7 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
         </button>
       </div>
         {currentAccount?.goalValue && <p className="text-white">Goal: {'$' + Math.abs(currentAccount.goalValue)}{currentAccount?.goalDate && (" by " + dateToInputType(currentAccount.goalDate))}</p>}
-        <h3 data-testid="total" className="text-right font-bold text-lg text-gray-700 mx-1 text-white">{total && ((total < 0 ? '- $' : '$') + Math.abs(total))}</h3>
+        <h3 data-testid="total" className="text-right font-bold text-lg text-gray-700 mx-1 text-white">{total && ((total < 0 ? '- $' : '$') + Math.abs(total).toFixed(2))}</h3>
         </> : <p className="p-1 flex-1 text-white text-lg text-center select-none">Create Account</p>
       }
       {isCreateAccountOpen && <CreateAccount open={isCreateAccountOpen} callback={closeCreateMenu} settings={settings}/>}

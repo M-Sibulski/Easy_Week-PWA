@@ -3,8 +3,8 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {describe, it, expect, vi} from "vitest";
 import "@testing-library/jest-dom/vitest";
-import { Accounts, db } from "../db";
-import { transactionTypes } from "../types";
+import { db } from "../db";
+import { transactionTypes, Accounts } from "../types";
 
 vi.mock('../db', async () => {
   const actual = await vi.importActual<typeof import('../db')>('../db');
@@ -41,12 +41,12 @@ describe("CreateTransaction", () => {
     
     
     it("renders", () => {
-        render(<CreateTransaction accountId={1} accounts={fakeAccounts}/>);
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
         expect(screen.getByRole("open")).toBeInTheDocument();
     });
 
     it("renders Name input", async () => {
-        render(<CreateTransaction accountId={1} accounts={fakeAccounts}/>);
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
         const addButton = screen.getByRole('open');
         await userEvent.click(addButton);
         const nameInput = screen.getByPlaceholderText("Name (Generic Transaction)");
@@ -54,14 +54,14 @@ describe("CreateTransaction", () => {
     });
 
     it('shows form when clicking the add button', async () => {
-        render(<CreateTransaction accountId={1} accounts={fakeAccounts}/>);
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
         const addButton = screen.getByRole('open');
         await userEvent.click(addButton);
         expect(screen.getByText(/New Transaction/i)).toBeInTheDocument();
     });
 
     it('clears form when clicking the clear button', async () => {
-        render(<CreateTransaction accountId={1} accounts={fakeAccounts}/>);
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
         await userEvent.click(screen.getByRole('open'));
 
         await userEvent.type(screen.getByPlaceholderText(/Name/i), 'Test Name');
@@ -72,7 +72,7 @@ describe("CreateTransaction", () => {
 
     it('submits a transaction with correct data', async () => {
         const addMock = db.transactions.add as ReturnType<typeof vi.fn>;
-        render(<CreateTransaction accountId={1} accounts={fakeAccounts}/>);
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
         await userEvent.click(screen.getByRole('open'));
 
         await userEvent.type(screen.getByPlaceholderText(/Name/i), 'Lunch');
@@ -92,7 +92,7 @@ describe("CreateTransaction", () => {
     });
 
     it('strips non-numeric characters from value input', async () => {
-        render(<CreateTransaction accountId={1} accounts={fakeAccounts} />);
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
         await userEvent.click(screen.getByRole('open'));
         const valueInput = screen.getByPlaceholderText(/\$ 0\.00/);
         await userEvent.type(valueInput, 'a$bc123.45d;~ef');
@@ -100,7 +100,7 @@ describe("CreateTransaction", () => {
     });
 
     it('allows changing the date input', async () => {
-        render(<CreateTransaction accountId={1} accounts={fakeAccounts} />);
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
         await userEvent.click(screen.getByRole('open'));
         const dateInput = screen.getByTestId('date-input');
         fireEvent.change(dateInput, { target: { value: '2025-07-20' } });
@@ -108,7 +108,7 @@ describe("CreateTransaction", () => {
     });
 
     it('closes form on background click', async () => {
-        render(<CreateTransaction accountId={1} accounts={fakeAccounts} />);
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
         await userEvent.click(screen.getByRole('open'));
         // const overlay = screen.getByRole('background');
         const form = screen.getByTestId("transaction-form");
@@ -122,7 +122,7 @@ describe("CreateTransaction", () => {
     });
 
     it('closes form on close button', async () => {
-        render(<CreateTransaction accountId={1} accounts={fakeAccounts} />);
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
         await userEvent.click(screen.getByRole('open'));
         const close = screen.getByRole('close');
         const form = screen.getByTestId("transaction-form");
@@ -132,7 +132,7 @@ describe("CreateTransaction", () => {
     });
 
     it('not allow different types', async () => {
-        render(<CreateTransaction accountId={1} accounts={fakeAccounts}/>)
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>)
         await userEvent.click(screen.getByRole('open'));
         const typeInput = screen.getByRole('combobox');
         const options = Array.from(typeInput.querySelectorAll('option')).map(opt => opt.value);

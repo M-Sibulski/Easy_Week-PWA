@@ -1,31 +1,5 @@
 import Dexie, { EntityTable } from 'dexie';
-import { TransactionType, AccountType } from './types';
-
-interface Accounts {
-    id: number,
-    name: string,
-    type: AccountType,
-    goalValue?: number,
-    goalDate?: Date,
-    dateCreated: Date
-}
-
-interface Transactions {
-    id: number,
-    value: number,
-    type: TransactionType,
-    name: string,
-    account_id: number,
-    date: Date,
-    category?: string
-    to_account_id?: number,
-}
-
-interface Settings {
-    id: number,
-    dark: boolean,
-    main_account_id: number,
-}
+import { Accounts, Transactions, Settings } from './types';
 
 class AppDatabase extends Dexie {
   accounts!: EntityTable<Accounts, 'id'>; // 'id' is the primary key property
@@ -42,5 +16,4 @@ class AppDatabase extends Dexie {
   }
 }
 
-export type { Accounts, Transactions, Settings };
 export const db = new AppDatabase();
