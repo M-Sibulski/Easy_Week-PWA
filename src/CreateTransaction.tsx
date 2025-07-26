@@ -1,15 +1,16 @@
 import './App.css';
-import { Accounts, db } from '../db.ts';
+import { db } from '../db.ts';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { transactionTypes, TransactionType } from '../types.ts';
+import { transactionTypes, TransactionType, Accounts } from '../types.ts';
 import { dateToInputType } from './dateConversions.ts';
 
 interface Props {
     accountId: number;
     accounts: Accounts[] | undefined;
+    renderOpenButton: boolean;
 }
 
-const CreateTransaction = ({accountId, accounts}:Props) => {
+const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
     const [open, setOpen] = useState(false);
     const [toAccountId, setToAccountId] = useState(0);
     const [shouldRender, setShouldRender] = useState(false);
@@ -118,7 +119,7 @@ const CreateTransaction = ({accountId, accounts}:Props) => {
   return (
     <>
     {!shouldRender ? 
-        <button role="open" onClick={(e) => {handleOpenButton(e)}} className='z-30 flex items-center align-middle hover:bg-blue-600 absolute bottom-7 left-1/2 transform -translate-x-1/2 bg-blue-500 size-15 rounded-full shadow-lg/20 cursor-pointer'>
+        <button hidden={!renderOpenButton} role="open" onClick={(e) => {handleOpenButton(e)}} className='z-30 flex items-center align-middle hover:bg-blue-600 absolute bottom-7 left-1/2 transform -translate-x-1/2 bg-blue-500 size-15 rounded-full shadow-lg/20 cursor-pointer'>
             <svg className='w-full' height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
         </button>
     :

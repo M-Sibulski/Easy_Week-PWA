@@ -1,4 +1,4 @@
-import { Accounts, Transactions } from "../db";
+import { Accounts, Transactions } from "../types";
 import Transaction from "./Transaction";
 
 interface Props {
@@ -19,7 +19,7 @@ const Day = ({transactions, total, date, accounts}:Props) => {
         )}
         </div>
         <div className="h-0.5 bg-linear-to-r from-gray-50 via-gray-100 to-gray-50 w-full self-center "/>
-        <h3 data-testid="total" className="text-right font-bold text-lg text-gray-700 mx-1">{(total < 0 ? '- $' : '$') + Math.abs(total)}</h3>
+        <h3 data-testid="total" className="text-right font-bold text-lg text-gray-700 mx-1">{(total < 0 ? '- $' : '$') + Math.abs(total).toFixed(2)}</h3>
     </div>
   )
 }

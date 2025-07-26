@@ -3,7 +3,8 @@ import {describe, it, expect, vi, beforeEach } from "vitest";
 import type { MockInstance } from "vitest";
 import "@testing-library/jest-dom/vitest";
 import * as dexieHooks from 'dexie-react-hooks';
-import { Accounts, Settings, Transactions, db } from "../db";
+import { db } from "../db";
+import { Accounts, Settings, Transactions } from "../types";
 import Mainscreen from "./Mainscreen";
 
 const mockUseLiveQuery = (dexieHooks.useLiveQuery as unknown) as MockInstance;

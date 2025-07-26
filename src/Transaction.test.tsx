@@ -3,7 +3,8 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {describe, it, expect, vi} from "vitest";
 import "@testing-library/jest-dom/vitest";
-import { Accounts, db, Transactions } from "../db";
+import { db } from "../db";
+import { Accounts, Transactions } from "../types";
 
 vi.mock('../db', () => ({
   db: {

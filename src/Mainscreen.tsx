@@ -1,11 +1,11 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Accounts, db, Settings } from '../db.ts';
-import { Transactions } from '../db.ts';
+import { Accounts, Settings, Transactions } from '../types.ts';
+import { db } from '../db.ts';
 import './App.css';
 import Day from './Day.tsx';
 import { dateToInputType } from './dateConversions.ts';
 import Account from './Account.tsx';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import CreateTransaction from './CreateTransaction.tsx';
 
 const Mainscreen = () => {
@@ -21,6 +21,10 @@ const Mainscreen = () => {
   const transactionsCombined: Transactions[] = [...transactionsInAccount, ...transactionsToAccount].sort((a, b) => a.date.getTime() - b.date.getTime());
   const dateNames = transactionsCombined ? Array.from(new Set(transactionsCombined.map(t => dateToInputType(t.date)))) : [];
   const accountTotal = transactionsCombined.reduce((accumulator, transaction) => accumulator + transaction.value, 0);
+
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [renderOpenButton, setRenderOpenButton] = useState(true);
+  const scrollDemoRef = useRef(null);
 
   const clearAllCollections = () => {
     db.accounts.clear()
@@ -88,6 +92,15 @@ const Mainscreen = () => {
 
   }, [accounts, accountId, loading, settings, settingsArray])
 
+  const handleScroll = () => {
+    if (scrollDemoRef.current) {
+      const { scrollTop } = scrollDemoRef.current;
+      if (scrollTop > scrollPosition) setRenderOpenButton(false)
+      else setRenderOpenButton(true)
+      setScrollPosition(scrollTop);
+    }
+  }
+
   const changeAccount = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setAccountId(Number(e.target.value))
   }
@@ -95,11 +108,10 @@ const Mainscreen = () => {
   return (
     <>
       <Account accountId={accountId} total={accountTotal} accounts={accounts} changeAccount={changeAccount} settings={settings}/>
-      <div className='h-full overflow-y-auto flex flex-col gap-2 p-1 bg-gray-300'>
+      <div ref={scrollDemoRef} onScroll={handleScroll} id='statement-screen' className='flex-1 overflow-y-auto flex flex-col gap-2 p-1 bg-gray-300 box-border'>
           {dateNames.map(d => <Day key={d} date={d} transactions={transactionsCombined.filter((t2 => dateToInputType(t2.date) == d))} accounts={accounts} total={transactionsCombined.filter(t => dateToInputType(t.date) <= d).reduce((accumulator, transaction) => accumulator + transaction.value, 0)}/>)}
       </div>
-      
-      <CreateTransaction accountId={accountId} accounts={accounts}/>
+      <CreateTransaction accountId={accountId} accounts={accounts} renderOpenButton={renderOpenButton}/>
     </>
   )
 }

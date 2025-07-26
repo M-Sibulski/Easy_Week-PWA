@@ -1,15 +1,10 @@
-import { act, fireEvent, render, screen, } from '@testing-library/react'; //fireEvent, act 
+import { act, fireEvent, render, screen, } from '@testing-library/react';
 import PWABadge from './PWABadge';
 import registerPeriodicSync from './registerPeriodicSync';
 import {describe, it, expect, vi, type Mock, afterEach} from "vitest";
 import React from 'react';
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from '@testing-library/react';
-
-// interface PeriodicSyncCallbacks {
-//   /** Called every polling tick when the response is still fresh */
-//   update(): Promise<void>;
-// }
 
 afterEach(() => {
   cleanup()          // 🧹 unmount whatever the last test rendered

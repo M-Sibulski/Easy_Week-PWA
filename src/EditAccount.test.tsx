@@ -2,7 +2,8 @@ import { describe, it, vi, beforeEach, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import EditAccount from './EditAccount.tsx';
-import { Accounts, db, Settings } from '../db.ts';
+import { db } from '../db.ts';
+import { Accounts, Settings } from '../types.ts';
 import '@testing-library/jest-dom/vitest';
 
 vi.mock('../db.ts', () => {
