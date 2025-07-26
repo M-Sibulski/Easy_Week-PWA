@@ -30,4 +30,5 @@ export interface Settings {
     id: number,
     dark: boolean,
     main_account_id: number,
+    week_starting_day: number
 }
