@@ -1,5 +1,6 @@
 import './App.css';
-import { Accounts, db, Settings } from '../db.ts';
+import { db } from '../db.ts';
+import { Accounts, Settings } from '../types.ts';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { AccountType, accountTypes } from '../types.ts';
 

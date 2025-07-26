@@ -2,11 +2,10 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { Accounts, Settings, Transactions } from '../types.ts';
 import { db } from '../db.ts';
 import './App.css';
-import Day from './Day.tsx';
-import { dateToInputType } from './dateConversions.ts';
 import Account from './Account.tsx';
 import { useEffect, useRef, useState } from 'react';
 import CreateTransaction from './CreateTransaction.tsx';
+import WeekScreen from './WeekScreen.tsx';
 
 const Mainscreen = () => {
   const [accountId, setAccountId] = useState(0);
@@ -19,7 +18,6 @@ const Mainscreen = () => {
   const transactionsInAccount: Transactions[] = transactions ? transactions.filter(t => t.account_id === accountId) : [];
   const transactionsToAccount: Transactions[] = transactions ? transactions.filter(t => t.to_account_id === accountId).map(t => ({...t, value: 0-t.value})) : [];
   const transactionsCombined: Transactions[] = [...transactionsInAccount, ...transactionsToAccount].sort((a, b) => a.date.getTime() - b.date.getTime());
-  const dateNames = transactionsCombined ? Array.from(new Set(transactionsCombined.map(t => dateToInputType(t.date)))) : [];
   const accountTotal = transactionsCombined.reduce((accumulator, transaction) => accumulator + transaction.value, 0);
 
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -49,7 +47,7 @@ const Mainscreen = () => {
         dateCreated: new Date()
       });
       } catch(error) {
-          console.log(error)
+          console.error(error)
       }
   }
 
@@ -59,9 +57,10 @@ const Mainscreen = () => {
           id: 1,
           dark: true,
           main_account_id: 0,
+          week_starting_day: 2
       });
       } catch(error) {
-          console.log(error)
+          console.error(error)
       }
   }
 
@@ -89,6 +88,10 @@ const Mainscreen = () => {
       setAccountId(settings.main_account_id);
       setLoading(false);
     }
+    //Patch settings
+    if(settings && !settings.week_starting_day) {
+      db.settings.update(1, {week_starting_day: 2})
+    }
 
   }, [accounts, accountId, loading, settings, settingsArray])
 
@@ -104,13 +107,11 @@ const Mainscreen = () => {
   const changeAccount = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setAccountId(Number(e.target.value))
   }
-
   return (
     <>
       <Account accountId={accountId} total={accountTotal} accounts={accounts} changeAccount={changeAccount} settings={settings}/>
-      <div ref={scrollDemoRef} onScroll={handleScroll} id='statement-screen' className='flex-1 overflow-y-auto flex flex-col gap-2 p-1 bg-gray-300 box-border'>
-          {dateNames.map(d => <Day key={d} date={d} transactions={transactionsCombined.filter((t2 => dateToInputType(t2.date) == d))} accounts={accounts} total={transactionsCombined.filter(t => dateToInputType(t.date) <= d).reduce((accumulator, transaction) => accumulator + transaction.value, 0)}/>)}
-      </div>
+      <WeekScreen transactions={transactionsCombined} accounts={accounts} settings={settings} handleScroll={handleScroll}/>
+      
       <CreateTransaction accountId={accountId} accounts={accounts} renderOpenButton={renderOpenButton}/>
     </>
   )
