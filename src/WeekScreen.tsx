@@ -19,7 +19,7 @@ const WeekScreen = ({transactions, accounts, settings, handleScroll}:Props) => {
     const today = new Date();
     useEffect(() => {
         if (settings) setWeek(getWeek(today, settings.week_starting_day))
-    }, [settings])
+    }, [settings, today])
 
     const handleNavBack = () => {
         setWeek(getPrevWeekRange(week))
