@@ -16,10 +16,10 @@ const WeekScreen = ({transactions, accounts, settings, handleScroll}:Props) => {
     const weekTransactions: Transactions[] = transactions ? transactions.filter(t => t.date >= week.weekStart && t.date <= week.weekEnd) : [];
     const dateNames = weekTransactions ? Array.from(new Set(weekTransactions.map(t => dateToInputType(t.date)))) : [];
     const scrollDemoRef = useRef(null);
-    const today = new Date();
     useEffect(() => {
+        const today = new Date();
         if (settings) setWeek(getWeek(today, settings.week_starting_day))
-    }, [settings, today])
+    }, [settings])
 
     const handleNavBack = () => {
         setWeek(getPrevWeekRange(week))
