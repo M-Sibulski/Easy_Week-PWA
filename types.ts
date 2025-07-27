@@ -1,6 +1,6 @@
-export type TransactionType = "Income" | "Expense" | "Transfer";
+export type TransactionType = "Income" | "Expense" | "Transfer" | "Bills";
 
-export const transactionTypes: TransactionType[] = ['Income', 'Expense', 'Transfer'];
+export const transactionTypes: TransactionType[] = ['Income', 'Expense', 'Transfer', 'Bills'];
 
 export type AccountType = "Everyday" | "Savings";
 

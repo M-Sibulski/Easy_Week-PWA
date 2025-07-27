@@ -43,7 +43,7 @@ const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
             });
         } else {
             await db.transactions.add({
-            value: type === 'Expense' ? 0-Number(value) : Number(value),
+            value: type === 'Expense' || type === 'Bills' ? 0-Number(value) : Number(value),
             name: name === ''?'Generic Transaction': name,
             account_id: accountId,
             date: new Date(date),
