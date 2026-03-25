@@ -4,6 +4,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import "@testing-library/jest-dom/vitest";
 import Account from "./Account";
 import type { Accounts, Settings } from "../types";
+import jsonToDB from "./JsonImport";
+import type { ImportProgress } from "./JsonImport";
 
 vi.mock("./JsonImport", () => ({
   default: vi.fn()
@@ -70,7 +72,7 @@ describe("Account component", () => {
     
   });
 
-  /* it("opens the menu and calls jsonToDB on file import", async () => {
+  it("opens the menu and calls jsonToDB on file import", async () => {
     render(
       <Account
         accountId={1}
@@ -83,30 +85,29 @@ describe("Account component", () => {
 
     await userEvent.click(screen.getByRole("close"));
 
-    const importLabel = await screen.findByText("Import JSON");
+    const importLabel = await screen.findByText("Import File");
     expect(importLabel).toBeInTheDocument();
 
-    const fileInput = screen.getByLabelText("Import JSON");
-    // const file = new File([JSON.stringify([])], "data.json", { type: "application/json" });
-    const file = {
-        text: vi.fn().mockResolvedValue(JSON.stringify([
-            {
-            value: 100,
-            type: "Income",
-            name: "Test Transaction",
-            date: new Date().toISOString(),
-            }
-        ]))
-        } as unknown as File;
+    const fileInput = screen.getByLabelText("Import File");
+    const file = new File([JSON.stringify([])], "data.json", { type: "application/json" });
 
-    fireEvent.change(fileInput, {
-      target: { files: [file] }
+    vi.mocked(jsonToDB).mockImplementation(async (_file: File | undefined, _accountId: number, onProgress?: (progress: ImportProgress) => void) => {
+      onProgress?.({
+        stage: "importing",
+        message: "Importing transactions (1/2)...",
+        completed: 1,
+        total: 2,
+      });
     });
 
-    waitFor(() => {
-      expect(jsonToDB).toHaveBeenCalledWith(file, 1);
+    await userEvent.upload(fileInput, file);
+
+    await waitFor(() => {
+      expect(jsonToDB).toHaveBeenCalledWith(file, 1, expect.any(Function));
+      expect(screen.getByTestId("import-status")).toHaveTextContent("Importing transactions (1/2)...");
+      expect(screen.getByTestId("import-status")).toHaveTextContent("1/2");
     });
-  }); */
+  });
 
   it("displays 'Create Account' if no accounts are passed", () => {
     render(

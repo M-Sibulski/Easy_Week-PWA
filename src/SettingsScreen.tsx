@@ -20,6 +20,13 @@ const weekDays = [
   { label: 'Saturday', value: 6 }
 ];
 
+const defaultSettings = {
+  id: 1,
+  main_account_id: 0,
+  week_starting_day: 2,
+  dark: true,
+};
+
 const SettingsScreen = ({ open, callback, settings, accounts }: Props) => {
   const [shouldRender, setShouldRender] = useState(false);
   const [mainAccountId, setMainAccountId] = useState(0);
@@ -96,6 +103,28 @@ const SettingsScreen = ({ open, callback, settings, accounts }: Props) => {
     callback();
   };
 
+  const handleClearAllData = async () => {
+    const answer = confirm('This will delete all accounts and transactions. Continue?');
+    if (!answer) {
+      return;
+    }
+
+    try {
+      await db.transactions.clear();
+      await db.accounts.clear();
+      await db.settings.put({
+        id: settings?.id ?? defaultSettings.id,
+        main_account_id: defaultSettings.main_account_id,
+        week_starting_day: defaultSettings.week_starting_day,
+        dark: defaultSettings.dark,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
+    callback();
+  };
+
   return (
     <>
       {shouldRender && (
@@ -167,6 +196,15 @@ const SettingsScreen = ({ open, callback, settings, accounts }: Props) => {
                 </option>
               ))}
             </select>
+
+            <button
+              data-testid="clear-all-data"
+              type="button"
+              onClick={handleClearAllData}
+              className="cursor-pointer rounded-md border border-red-200 bg-red-500/80 p-2 text-white hover:bg-red-600"
+            >
+              Clear All Data
+            </button>
 
             <button
               data-testid="submit-settings"
