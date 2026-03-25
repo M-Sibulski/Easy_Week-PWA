@@ -12,7 +12,8 @@
     "test:dev": "vitest",
     "build:dev": "vite build --mode development",
     "build:prod": "vite build --mode production",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "repro:netlify:linux": "bash scripts/repro-netlify-linux.sh"
   },
   "dependencies": {
     "react": "^19.1.0",
