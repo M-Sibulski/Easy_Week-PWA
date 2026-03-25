@@ -18,6 +18,20 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  dependency-smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.2
+          cache: 'npm'
+
+      - name: Clean Linux install (Netlify-like)
+        run: npm ci --prefer-online --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+
   test:
     runs-on: ubuntu-latest
 
@@ -38,7 +52,7 @@ jobs:
         run: npm run test
 
   preview:
-    needs: test
+    needs: [dependency-smoke, test]
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
