@@ -49,6 +49,9 @@
   "overrides": {
     "sharp": "0.32.6",
     "sharp-ico": "0.1.5",
-    "sourcemap-codec": "npm:@jridgewell/sourcemap-codec@^1.5.4"
+    "sourcemap-codec": "npm:@jridgewell/sourcemap-codec@^1.5.4",
+    "@rollup/pluginutils@3.1.0": {
+      "picomatch": "2.3.1"
+    }
   }
 }
