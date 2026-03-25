@@ -4,6 +4,7 @@ import { dateToInputType } from "./dateConversions";
 import CreateAccount from "./CreateAccount";
 import EditAccount from "./EditAccount";
 import jsonToDB from "./JsonImport";
+import SettingsScreen from "./SettingsScreen";
 
 interface Props {
     accountId: number;
@@ -18,6 +19,7 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isEditAccountOpen, setIsEditAccountOpen] = useState(false);
   const [isCreateAccountOpen, setIsCreateAccountOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [currentAccount, setCurrentAccount] = useState(accounts?.find(a => a.id === accountId));
   const formRef = useRef<HTMLDivElement>(null);
 
@@ -32,6 +34,10 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
 
   const closeEditMenu = () => {
     setIsEditAccountOpen(false)
+  }
+
+  const closeSettingsMenu = () => {
+    setIsSettingsOpen(false)
   }
 
   useEffect(() => {
@@ -67,6 +73,7 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
           <ul>
             <li onClick={() => {setIsEditAccountOpen(true); setIsMenuOpen(false)}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Edit Account</li>
             <li onClick={() => {setIsCreateAccountOpen(true); setIsMenuOpen(false)}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Create Account</li>
+            <li onClick={() => {setIsSettingsOpen(true); setIsMenuOpen(false)}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Settings</li>
             <label htmlFor="file-input" className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Import JSON</label>
             <input id="file-input" type="file" accept=".json, .csv" onChange={(e) => {jsonToDB(e.target.files?.[0], accountId); setIsMenuOpen(false)}} className="hidden"/>
             
@@ -90,6 +97,7 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
       }
       {isCreateAccountOpen && <CreateAccount open={isCreateAccountOpen} callback={closeCreateMenu} settings={settings}/>}
       {isEditAccountOpen && <EditAccount open={isEditAccountOpen} callback={closeEditMenu} settings={settings} account={currentAccount}/>}
+      {isSettingsOpen && <SettingsScreen open={isSettingsOpen} callback={closeSettingsMenu} settings={settings} accounts={accounts}/>}
       
     </div>
   )

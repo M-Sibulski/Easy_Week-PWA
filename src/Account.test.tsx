@@ -1,5 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import "@testing-library/jest-dom/vitest";
 import Account from "./Account";
 import type { Accounts, Settings } from "../types";
 
@@ -117,5 +119,22 @@ describe("Account component", () => {
       />
     );
     waitFor(() => expect(screen.getByText("Create Account")).toBeInTheDocument())
+  });
+
+  it("opens settings screen from account menu", async () => {
+    render(
+      <Account
+        accountId={1}
+        total={0}
+        accounts={mockAccounts}
+        changeAccount={vi.fn()}
+        settings={mockSettings}
+      />
+    );
+
+    await userEvent.click(screen.getByRole("close"));
+    await userEvent.click(screen.getByText("Settings"));
+
+    expect(await screen.findByTestId("settings-form")).toBeInTheDocument();
   });
 });
