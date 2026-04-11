@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+:root {
+  --ew-bg: rgb(105, 107, 116);
+  --ew-text: #f9fafb;
+}
+
 body {
   overflow-y: hidden;
 }
@@ -10,5 +15,87 @@ body {
   margin: 0;
   padding: 0;
   overflow-y:hidden;
-  background-color: rgb(105, 107, 116);
+  background-color: var(--ew-bg);
+}
+
+.theme-light {
+  --ew-bg: rgb(105, 107, 116);
+  --ew-text: #f9fafb;
+}
+
+.theme-dark {
+  --ew-bg: rgb(18, 28, 48);
+  --ew-text: #f3f8ff;
+}
+
+.theme-dark .bg-blue-500 {
+  background-color: rgb(30, 64, 175) !important;
+}
+
+.theme-dark .bg-blue-400 {
+  background-color: rgb(29, 78, 216) !important;
+}
+
+.theme-dark .bg-blue-300 {
+  background-color: rgb(37, 99, 235) !important;
+}
+
+.theme-dark .hover\:bg-blue-600:hover {
+  background-color: rgb(30, 58, 138) !important;
+}
+
+.theme-dark .hover\:bg-blue-500:hover {
+  background-color: rgb(30, 64, 175) !important;
+}
+
+.theme-dark .hover\:bg-blue-400:hover {
+  background-color: rgb(29, 78, 216) !important;
+}
+
+.theme-dark .hover\:bg-blue-200:hover {
+  background-color: rgb(59, 130, 246) !important;
+}
+
+.theme-dark .bg-gray-50 {
+  background-color: rgb(30, 41, 75) !important;
+}
+
+.theme-dark .bg-gray-100 {
+  background-color: rgb(38, 53, 94) !important;
+}
+
+.theme-dark .bg-gray-200,
+.theme-dark .hover\:bg-gray-200:hover {
+  background-color: rgb(45, 62, 109) !important;
+}
+
+.theme-dark .bg-gray-300 {
+  background-color: rgb(20, 31, 55) !important;
+}
+
+.theme-dark .text-gray-700,
+.theme-dark .text-white,
+.theme-dark .text-black {
+  color: var(--ew-text) !important;
+}
+
+.theme-dark input,
+.theme-dark select,
+.theme-dark option,
+.theme-dark button,
+.theme-dark label,
+.theme-dark p,
+.theme-dark h1,
+.theme-dark h2,
+.theme-dark h3,
+.theme-dark h4,
+.theme-dark h5,
+.theme-dark h6,
+.theme-dark span,
+.theme-dark li {
+  color: var(--ew-text);
+}
+
+.theme-dark input::placeholder {
+  color: #dbeafe;
 }

@@ -3,7 +3,8 @@ import { Accounts, Settings } from "../types";
 import { dateToInputType } from "./dateConversions";
 import CreateAccount from "./CreateAccount";
 import EditAccount from "./EditAccount";
-import jsonToDB from "./JsonImport";
+import jsonToDB, { ImportProgress } from "./JsonImport";
+import SettingsScreen from "./SettingsScreen";
 
 interface Props {
     accountId: number;
@@ -18,7 +19,10 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isEditAccountOpen, setIsEditAccountOpen] = useState(false);
   const [isCreateAccountOpen, setIsCreateAccountOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [currentAccount, setCurrentAccount] = useState(accounts?.find(a => a.id === accountId));
+  const [importProgress, setImportProgress] = useState<ImportProgress | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
 
 
@@ -32,6 +36,10 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
 
   const closeEditMenu = () => {
     setIsEditAccountOpen(false)
+  }
+
+  const closeSettingsMenu = () => {
+    setIsSettingsOpen(false)
   }
 
   useEffect(() => {
@@ -57,6 +65,31 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
     if(accounts && accounts.length === 0) setIsCreateAccountOpen(true);
   }, [accounts])
 
+  useEffect(() => {
+    if (!importProgress || isImporting) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => setImportProgress(null), 4000);
+    return () => window.clearTimeout(timeout);
+  }, [importProgress, isImporting]);
+
+  const handleImportFile = async (file: File | undefined) => {
+    setIsMenuOpen(false);
+    if (!file) {
+      return;
+    }
+
+    setIsImporting(true);
+    setImportProgress({ stage: 'reading', message: 'Reading import file...' });
+
+    await jsonToDB(file, accountId, (progress) => {
+      setImportProgress(progress);
+    });
+
+    setIsImporting(false);
+  }
+
 
   return (
     
@@ -67,8 +100,9 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
           <ul>
             <li onClick={() => {setIsEditAccountOpen(true); setIsMenuOpen(false)}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Edit Account</li>
             <li onClick={() => {setIsCreateAccountOpen(true); setIsMenuOpen(false)}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Create Account</li>
-            <label htmlFor="file-input" className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Import JSON</label>
-            <input id="file-input" type="file" accept=".json, .csv" onChange={(e) => {jsonToDB(e.target.files?.[0], accountId); setIsMenuOpen(false)}} className="hidden"/>
+            <li onClick={() => {setIsSettingsOpen(true); setIsMenuOpen(false)}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Settings</li>
+            <label htmlFor="file-input" className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Import File</label>
+            <input id="file-input" type="file" accept=".json, .csv" onChange={(e) => {handleImportFile(e.target.files?.[0]); e.currentTarget.value = ''}} className="hidden"/>
             
           </ul>
         </div>
@@ -84,12 +118,21 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
           <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/></svg>
         </button>
       </div>
+        {importProgress &&
+          <div data-testid="import-status" aria-live="polite" className="mt-1 rounded-md bg-blue-400/70 px-2 py-1 text-sm text-white">
+            <p>{importProgress.message}</p>
+            {typeof importProgress.completed === 'number' && typeof importProgress.total === 'number' && importProgress.total > 0 &&
+              <p>{importProgress.completed}/{importProgress.total}</p>
+            }
+          </div>
+        }
         {currentAccount?.goalValue && <p className="text-white">Goal: {'$' + Math.abs(currentAccount.goalValue)}{currentAccount?.goalDate && (" by " + dateToInputType(currentAccount.goalDate))}</p>}
-        <h3 data-testid="total" className="text-right font-bold text-lg text-gray-700 mx-1 text-white">{total && ((total < 0 ? '- $' : '$') + Math.abs(total).toFixed(2))}</h3>
+        <h3 data-testid="total" className="text-right font-bold text-lg mx-1 text-white">{total && ((total < 0 ? '- $' : '$') + Math.abs(total).toFixed(2))}</h3>
         </> : <p className="p-1 flex-1 text-white text-lg text-center select-none">Create Account</p>
       }
       {isCreateAccountOpen && <CreateAccount open={isCreateAccountOpen} callback={closeCreateMenu} settings={settings}/>}
       {isEditAccountOpen && <EditAccount open={isEditAccountOpen} callback={closeEditMenu} settings={settings} account={currentAccount}/>}
+      {isSettingsOpen && <SettingsScreen open={isSettingsOpen} callback={closeSettingsMenu} settings={settings} accounts={accounts}/>}
       
     </div>
   )

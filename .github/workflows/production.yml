@@ -10,11 +10,28 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: write
+
 concurrency:
   group: ${{ github.ref == 'refs/heads/main' && 'prod-deploy' || github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
+  dependency-smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.2
+          cache: 'npm'
+
+      - name: Clean Linux install (Netlify-like)
+        run: npm ci --prefer-online --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+
   test:
     runs-on: ubuntu-latest
 
@@ -35,7 +52,7 @@ jobs:
         run: npm run test
 
   preview:
-    needs: test
+    needs: [dependency-smoke, test]
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
@@ -66,42 +83,36 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 
-  deploy:
-    needs: test
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
+  # deploy:
+  #   needs: test
+  #   if: github.event_name == 'push'
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 22
+  #         cache: 'npm'
 
-      - run: npm ci
+  #     - run: npm ci
 
-      - name: Build (prod mode)
-        run: npm run build:prod
+  #     - name: Build (prod mode)
+  #       run: npm run build:prod
 
-      - name: Validate PWA manifest
-        run: node scripts/checkPwa.js
+  #     - name: Validate PWA manifest
+  #       run: node scripts/checkPwa.js
 
-      - name: Deploy to Netlify
-        uses: nwtgck/actions-netlify@v3.0
-        with:
-          publish-dir: './dist'
-          production-branch: main
-          production-deploy: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Prod deploy – ${{ github.sha }}"
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID:     ${{ secrets.NETLIFY_SITE_ID }}
+  #     - name: Update production branch
+  #       run: |
+  #         git config user.name "github-actions[bot]"
+  #         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+  #         git push --force-with-lease origin HEAD:production
 
-      - name: Summary
-        run: |
-          echo "✅ Build succeeded and deployed to Netlify" >> $GITHUB_STEP_SUMMARY
+  #     - name: Summary
+  #       run: |
+  #         echo "✅ Build succeeded and production branch was updated" >> $GITHUB_STEP_SUMMARY
 
   delete-branch:
     if: github.event.pull_request.merged == true && github.event.pull_request.head.ref != 'main'

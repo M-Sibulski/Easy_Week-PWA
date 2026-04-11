@@ -42,6 +42,7 @@ describe('EditAccount', () => {
     id: 1,
     main_account_id: 1,
     dark: false,
+    week_starting_day: 1,
   };
 
   beforeEach(() => {

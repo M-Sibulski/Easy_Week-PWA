@@ -36,6 +36,7 @@ const mockSettings: Settings[] = [{
   id: 1,
   main_account_id: 1,
   dark: false,
+  week_starting_day: 1,
 }]
 
 vi.mock('dexie-react-hooks', async () => {
@@ -144,7 +145,7 @@ describe("Mainscreen", () => {
 
   it("updates main_account_id when it's 0", async () => {
     const updateMock = vi.fn();
-    const zeroSettings: Settings[] = [{ id: 1, main_account_id: 0, dark: true }];
+    const zeroSettings: Settings[] = [{ id: 1, main_account_id: 0, dark: true, week_starting_day: 1 }];
 
     vi.mocked(dexieHooks.useLiveQuery).mockImplementationOnce(() => mockTransactions)
       .mockImplementationOnce(() => zeroSettings)
@@ -159,7 +160,7 @@ describe("Mainscreen", () => {
   it("switches to lowest ID account if current and main account are deleted", async () => {
     const updateMock = vi.fn();
     const badAccounts: Accounts[] = [{ id: 99, name: "Only One", type: "Everyday", dateCreated: new Date() }];
-    const badSettings: Settings[] = [{ id: 1, main_account_id: 1, dark: false }];
+    const badSettings: Settings[] = [{ id: 1, main_account_id: 1, dark: false, week_starting_day: 1 }];
 
     vi.mocked(dexieHooks.useLiveQuery).mockImplementationOnce(() => mockTransactions)
       .mockImplementationOnce(() => badSettings)

@@ -2,6 +2,14 @@
 #  Netlify routing rules for a Vite PWA SPA #
 #############################################
 
+[build]
+  command = "npm run build:prod"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22.22.2"
+  NPM_FLAGS = "--prefer-online --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000"
+
 # Serve the real service‑worker script, not index.html
 [[redirects]]
   from   = "/sw.js"

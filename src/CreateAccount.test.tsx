@@ -49,7 +49,7 @@ describe('CreateAccount', () => {
     vi.mocked(db.accounts.add).mockResolvedValue(1);
     vi.mocked(db.settings.update).mockResolvedValue(1);
 
-    render(<CreateAccount open={true} callback={mockCallback} settings={{ id: 1, main_account_id: 1, dark: true }} />);
+    render(<CreateAccount open={true} callback={mockCallback} settings={{ id: 1, main_account_id: 1, dark: true, week_starting_day: 1 }} />);
 
     await userEvent.type(screen.getByTestId('name-input'), 'Emergency Fund');
     await userEvent.selectOptions(screen.getByTestId('type-input'), 'Savings');

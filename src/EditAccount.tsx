@@ -1,7 +1,7 @@
 import './App.css';
-import { Accounts, db, Settings } from '../db.ts';
+import { db } from '../db.ts';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { AccountType, accountTypes } from '../types.ts';
+import { AccountType, accountTypes, Accounts, Settings } from '../types.ts';
 import { dateToInputType } from './dateConversions.ts';
 
 interface Props {

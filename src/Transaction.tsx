@@ -1,7 +1,6 @@
-import { Accounts, db} from '../db.ts';
-import { TransactionType, transactionTypes } from '../types.ts';
+import { db } from '../db.ts';
+import { Accounts, Transactions, TransactionType, transactionTypes } from '../types.ts';
 import './App.css';
-import { Transactions } from '../db.ts';
 import { useState, useRef, useEffect } from 'react';
 import { dateToInputType } from './dateConversions.ts';
 

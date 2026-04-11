@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "packageManager": "npm@10.9.7",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -11,15 +12,16 @@
     "test:dev": "vitest",
     "build:dev": "vite build --mode development",
     "build:prod": "vite build --mode production",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "repro:netlify:linux": "bash scripts/repro-netlify-linux.sh"
   },
   "dependencies": {
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.31.0",
+    "@eslint/js": "^9.39.4",
     "@tailwindcss/vite": "^4.1.11",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -27,28 +29,34 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vite-pwa/assets-generator": "^1.0.0",
-    "@vitejs/plugin-react": "^4.6.0",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@vitejs/plugin-react": "^5.2.0",
+    "@vitest/coverage-v8": "^4.1.1",
     "dexie": "^4.0.11",
-    "dexie-react-hooks": "^1.1.7",
-    "eslint": "^9.31.0",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.20",
+    "dexie-react-hooks": "^4.2.0",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
     "fake-indexeddb": "^6.0.1",
-    "globals": "^16.3.0",
-    "jsdom": "^26.1.0",
-    "netlify-cli": "^22.2.2",
+    "globals": "^17.4.0",
+    "jsdom": "^29.0.1",
     "tailwindcss": "^4.1.11",
-    "typescript": "~5.8.3",
-    "typescript-eslint": "^8.36.0",
-    "vite": "^7.0.4",
-    "vite-plugin-pwa": "^1.0.1",
-    "workbox-core": "^7.3.0",
-    "workbox-window": "^7.3.0"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.2",
+    "vite": "^7.3.1",
+    "vite-plugin-pwa": "^1.2.0",
+    "workbox-core": "^7.4.0",
+    "workbox-window": "^7.4.0"
   },
   "overrides": {
     "sharp": "0.32.6",
     "sharp-ico": "0.1.5",
-    "sourcemap-codec": "npm:@jridgewell/sourcemap-codec@^1.5.4"
+    "sourcemap-codec": "npm:@jridgewell/sourcemap-codec@^1.5.4",
+    "picomatch": "4.0.3",
+    "minimatch@10.2.4": {
+      "brace-expansion": "5.0.4"
+    },
+    "@rollup/pluginutils@3.1.0": {
+      "picomatch": "2.3.1"
+    }
   }
 }
