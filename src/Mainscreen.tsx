@@ -1,6 +1,6 @@
 import { useAccounts, useSettingsArray, useTransactions } from './hooks/useAppData';
 import { repository } from './repository';
-import { Accounts, Settings, Transactions } from '../types.ts';
+import { Accounts, Transactions } from '../types.ts';
 import './App.css';
 import Account from './Account.tsx';
 import { useEffect, useRef, useState } from 'react';

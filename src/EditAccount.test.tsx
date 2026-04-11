@@ -32,6 +32,7 @@ describe('EditAccount', () => {
   const mockCallback = vi.fn();
   const mockAccount: Accounts = {
     id: 1,
+    syncId: 'acc-vacation',
     name: 'Vacation Fund',
     type: 'Savings',
     createdAt: new Date('2024-01-01'),
@@ -41,6 +42,7 @@ describe('EditAccount', () => {
   };
   const mockSettings: Settings = {
     id: 1,
+    syncId: 'set-main',
     main_account_id: 1,
     dark: false,
     week_starting_day: 1,

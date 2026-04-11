@@ -7,23 +7,27 @@ import Day from "./Day";
 const fakeTransactions: Transactions[] = [
   {
   id: 1,
+  syncId: 'txn-groceries',
   value: -50,
   name: 'Groceries',
   date: new Date('2024-01-01'),
   category: 'Food',
   type: 'Expense',
   account_id: 1,
+  account_sync_id: 'acc-main',
   createdAt: new Date('2024-01-01'),
   updatedAt: new Date('2024-01-01'),
 },
   {
   id: 2,
+  syncId: 'txn-wage-1',
   value: 200,
   name: 'Wage1',
   date: new Date('2024-01-01'),
   category: 'Wages',
   type: 'Income',
   account_id: 1,
+  account_sync_id: 'acc-main',
   createdAt: new Date('2024-01-01'),
   updatedAt: new Date('2024-01-01'),
 },
@@ -32,6 +36,7 @@ const fakeTransactions: Transactions[] = [
 const mockAccounts: Accounts[] = [
   {
     id: 1,
+    syncId: 'acc-main',
     name: 'Main',
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
@@ -39,6 +44,7 @@ const mockAccounts: Accounts[] = [
   },
   {
     id: 15,
+    syncId: 'acc-savings',
     name: 'Savings',
     createdAt: new Date('2024-10-07'),
     updatedAt: new Date('2024-10-07'),

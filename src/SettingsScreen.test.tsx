@@ -39,7 +39,7 @@ describe('SettingsScreen', () => {
       <SettingsScreen
         open={true}
         callback={mockCallback}
-        settings={{ id: 3, dark: false, main_account_id: 2, week_starting_day: 4, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') }}
+        settings={{ id: 3, syncId: 'set-clear', dark: false, main_account_id: 2, week_starting_day: 4, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') }}
         accounts={[]}
       />
     );
@@ -65,7 +65,7 @@ describe('SettingsScreen', () => {
       <SettingsScreen
         open={true}
         callback={mockCallback}
-        settings={{ id: 1, dark: true, main_account_id: 1, week_starting_day: 2, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') }}
+        settings={{ id: 1, syncId: 'set-existing', dark: true, main_account_id: 1, week_starting_day: 2, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') }}
         accounts={[]}
       />
     );

@@ -14,6 +14,7 @@ vi.mock("./JsonImport", () => ({
 const mockAccounts: Accounts[] = [
   {
     id: 1,
+    syncId: "acc-main",
     name: "Main",
     createdAt: new Date("2024-01-01"),
     updatedAt: new Date("2024-01-01"),
@@ -21,6 +22,7 @@ const mockAccounts: Accounts[] = [
   },
   {
     id: 2,
+    syncId: "acc-savings",
     name: "Savings",
     createdAt: new Date("2024-02-01"),
     updatedAt: new Date("2024-02-01"),
@@ -32,6 +34,7 @@ const mockAccounts: Accounts[] = [
 
 const mockSettings: Settings = {
   id: 1,
+  syncId: "set-main",
   main_account_id: 1,
   dark: false,
   week_starting_day: 1,

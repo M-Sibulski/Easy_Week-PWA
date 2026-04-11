@@ -2,7 +2,8 @@ import { repository } from './repository';
 import { Transactions } from "../types";
 import { createSyncId } from '../syncIds';
 
-type TransactionInsert = Omit<Transactions, "id">;
+type TransactionInsert = Omit<Transactions, "id" | "createdAt" | "updatedAt"> &
+    Partial<Pick<Transactions, "createdAt" | "updatedAt">>;
 type RawTransaction = Record<string, unknown>;
 type ImportStage = "reading" | "parsing" | "preparing" | "replacing" | "importing" | "complete" | "cancelled" | "error";
 

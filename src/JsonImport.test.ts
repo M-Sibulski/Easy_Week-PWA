@@ -28,12 +28,14 @@ describe('jsonToDB', () => {
   const sampleData: Transactions[] = [
     {
       id: 1,
+      syncId: 'txn-salary',
       name: 'Salary',
       value: 1000,
       date: new Date('2024-01-01'),
       category: 'Work',
       type: 'Income',
       account_id: 1,
+      account_sync_id: 'acc-main',
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-01'),
     },
@@ -48,6 +50,7 @@ describe('jsonToDB', () => {
     vi.mocked(db.accounts.toArray).mockResolvedValue([
       {
         id: 1,
+        syncId: 'acc-main',
         name: 'Main Account',
         type: 'Everyday',
         createdAt: new Date('2024-01-01'),
@@ -169,6 +172,7 @@ describe('jsonToDB', () => {
     vi.mocked(db.accounts.toArray).mockResolvedValue([
       {
         id: 1,
+        syncId: 'acc-main',
         name: 'Main Account',
         type: 'Everyday',
         createdAt: new Date('2024-01-01'),
@@ -176,6 +180,7 @@ describe('jsonToDB', () => {
       },
       {
         id: 2,
+        syncId: 'acc-savings',
         name: 'Savings Account',
         type: 'Everyday',
         createdAt: new Date('2024-01-01'),
@@ -227,12 +232,14 @@ describe('jsonToDB', () => {
     vi.mocked(db.transactions.toArray).mockResolvedValue([
       {
         id: 10,
+        syncId: 'txn-existing-income',
         value: 100,
         type: 'Income',
         name: 'Test Transaction',
         date: new Date('2024-01-01'),
         category: 'Salary',
         account_id: 1,
+        account_sync_id: 'acc-main',
         createdAt: new Date('2024-01-01'),
         updatedAt: new Date('2024-01-01'),
       },
@@ -253,6 +260,7 @@ describe('jsonToDB', () => {
     vi.mocked(db.accounts.toArray).mockResolvedValue([
       {
         id: 1,
+        syncId: 'acc-moto',
         name: 'Moto',
         type: 'Everyday',
         createdAt: new Date('2024-01-01'),
@@ -260,6 +268,7 @@ describe('jsonToDB', () => {
       },
       {
         id: 2,
+        syncId: 'acc-bills',
         name: 'Bills',
         type: 'Everyday',
         createdAt: new Date('2024-01-01'),
@@ -269,12 +278,15 @@ describe('jsonToDB', () => {
     vi.mocked(db.transactions.toArray).mockResolvedValue([
       {
         id: 12,
+        syncId: 'txn-existing-transfer',
         name: 'Transfer',
         type: 'Transfer',
         value: -1700,
         date: new Date(2026, 2, 7),
         account_id: 2,
+        account_sync_id: 'acc-bills',
         to_account_id: 1,
+        to_account_sync_id: 'acc-moto',
         category: 'FT',
         createdAt: new Date(2026, 2, 7),
         updatedAt: new Date(2026, 2, 7),

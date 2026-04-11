@@ -26,12 +26,14 @@ vi.mock('../db', () => ({
 
 const fakeTransaction: Transactions = {
   id: 1,
+  syncId: 'txn-groceries',
   value: -50,
   name: 'Groceries',
   date: new Date('2024-01-01'),
   category: 'Food',
   type: 'Expense',
   account_id: 1,
+  account_sync_id: 'acc-main',
   createdAt: new Date('2024-01-01'),
   updatedAt: new Date('2024-01-01'),
 };
@@ -39,6 +41,7 @@ const fakeTransaction: Transactions = {
 const fakeAccounts: Accounts[] = [
   {
     id: 1,
+    syncId: 'acc-main',
     name: 'Main',
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
@@ -46,6 +49,7 @@ const fakeAccounts: Accounts[] = [
   },
   {
     id: 15,
+    syncId: 'acc-savings',
     name: 'Savings',
     createdAt: new Date('2024-10-07'),
     updatedAt: new Date('2024-10-07'),

@@ -22,6 +22,7 @@ vi.mock('../db', async () => {
 const fakeAccounts: Accounts[] = [
   {
     id: 1,
+    syncId: 'acc-main',
     name: 'Main',
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
@@ -29,6 +30,7 @@ const fakeAccounts: Accounts[] = [
   },
   {
     id: 15,
+    syncId: 'acc-savings',
     name: 'Savings',
     createdAt: new Date('2024-10-07'),
     updatedAt: new Date('2024-10-07'),

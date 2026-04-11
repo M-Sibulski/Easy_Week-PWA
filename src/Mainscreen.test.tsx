@@ -10,14 +10,15 @@ import Mainscreen from "./Mainscreen";
 const mockUseLiveQuery = (dexieHooks.useLiveQuery as unknown) as MockInstance;
 
 const mockTransactions: Transactions[] = [
-  { id: 1, name: 'Salary', value: 1000, date: new Date('2024-01-01'), category: 'Work', type: 'Income', account_id: 1, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-  { id: 2, name: 'Groceries', value: -200, date: new Date('2024-01-01'), category: 'Food', type: 'Expense', account_id: 1, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-  { id: 3, name: 'Book', value: -50, date: new Date('2024-01-02'), category: 'Education', type: 'Expense', account_id: 1, createdAt: new Date('2024-01-02'), updatedAt: new Date('2024-01-02') }
+  { id: 1, syncId: 'txn-salary', name: 'Salary', value: 1000, date: new Date('2024-01-01'), category: 'Work', type: 'Income', account_id: 1, account_sync_id: 'acc-main', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
+  { id: 2, syncId: 'txn-groceries', name: 'Groceries', value: -200, date: new Date('2024-01-01'), category: 'Food', type: 'Expense', account_id: 1, account_sync_id: 'acc-main', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
+  { id: 3, syncId: 'txn-book', name: 'Book', value: -50, date: new Date('2024-01-02'), category: 'Education', type: 'Expense', account_id: 1, account_sync_id: 'acc-main', createdAt: new Date('2024-01-02'), updatedAt: new Date('2024-01-02') }
 ];
 
 const mockAccounts: Accounts[] = [
   {
     id: 1,
+    syncId: 'acc-main',
     name: 'Main',
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
@@ -25,6 +26,7 @@ const mockAccounts: Accounts[] = [
   },
   {
     id: 15,
+    syncId: 'acc-savings',
     name: 'Savings',
     createdAt: new Date('2024-10-07'),
     updatedAt: new Date('2024-10-07'),
@@ -36,6 +38,7 @@ const mockAccounts: Accounts[] = [
 
 const mockSettings: Settings[] = [{
   id: 1,
+  syncId: 'set-main',
   main_account_id: 1,
   dark: false,
   week_starting_day: 1,
@@ -106,7 +109,7 @@ describe("Mainscreen", () => {
   });
 
   it("handles missing current account by switching to main or lowest id", async () => {
-    const brokenAccounts = [{ id: 2, name: "Spare", createdAt: new Date(), updatedAt: new Date(), type: "Everyday" }];
+    const brokenAccounts = [{ id: 2, syncId: 'acc-spare', name: "Spare", createdAt: new Date(), updatedAt: new Date(), type: "Everyday" }];
     vi.clearAllMocks();
     let call = 0;
     mockUseLiveQuery.mockImplementation(() => {
@@ -149,7 +152,7 @@ describe("Mainscreen", () => {
 
   it("updates main_account_id when it's 0", async () => {
     const updateMock = vi.fn();
-    const zeroSettings: Settings[] = [{ id: 1, main_account_id: 0, dark: true, week_starting_day: 1, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') }];
+    const zeroSettings: Settings[] = [{ id: 1, syncId: 'set-zero', main_account_id: 0, dark: true, week_starting_day: 1, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') }];
 
     vi.mocked(dexieHooks.useLiveQuery).mockImplementationOnce(() => mockTransactions)
       .mockImplementationOnce(() => zeroSettings)
@@ -163,8 +166,8 @@ describe("Mainscreen", () => {
 
   it("switches to lowest ID account if current and main account are deleted", async () => {
     const updateMock = vi.fn();
-    const badAccounts: Accounts[] = [{ id: 99, name: "Only One", type: "Everyday", createdAt: new Date(), updatedAt: new Date() }];
-    const badSettings: Settings[] = [{ id: 1, main_account_id: 1, dark: false, week_starting_day: 1, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') }];
+    const badAccounts: Accounts[] = [{ id: 99, syncId: 'acc-only-one', name: "Only One", type: "Everyday", createdAt: new Date(), updatedAt: new Date() }];
+    const badSettings: Settings[] = [{ id: 1, syncId: 'set-bad', main_account_id: 1, dark: false, week_starting_day: 1, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') }];
 
     vi.mocked(dexieHooks.useLiveQuery).mockImplementationOnce(() => mockTransactions)
       .mockImplementationOnce(() => badSettings)
