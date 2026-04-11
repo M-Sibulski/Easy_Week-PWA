@@ -1,0 +1,200 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Accounts, Settings, Transactions } from '../../types';
+import { db } from '../../db';
+import { DexieRepository } from './DexieRepository';
+
+vi.mock('../../db', () => ({
+  db: {
+    accounts: {
+      toArray: vi.fn(),
+      get: vi.fn(),
+      add: vi.fn(),
+      put: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      clear: vi.fn(),
+    },
+    transactions: {
+      where: vi.fn(),
+      toArray: vi.fn(),
+      add: vi.fn(),
+      put: vi.fn(),
+      delete: vi.fn(),
+      clear: vi.fn(),
+    },
+    settings: {
+      toArray: vi.fn(),
+      put: vi.fn(),
+      update: vi.fn(),
+      clear: vi.fn(),
+    },
+  },
+}));
+
+vi.mock('../../syncIds', () => ({
+  createSyncId: vi.fn((prefix: string) => `${prefix}-generated`),
+}));
+
+describe('DexieRepository', () => {
+  const repository = new DexieRepository();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('adds accounts with generated sync and timestamp fields when they are missing', async () => {
+    vi.mocked(db.accounts.add).mockResolvedValue(5);
+
+    const result = await repository.addAccount({
+      name: 'Emergency Fund',
+      type: 'Savings',
+      goalValue: 1000,
+      goalDate: new Date('2025-12-31'),
+    });
+
+    expect(result).toBe(5);
+    expect(db.accounts.add).toHaveBeenCalledWith(expect.objectContaining({
+      name: 'Emergency Fund',
+      type: 'Savings',
+      syncId: 'acc-generated',
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    }));
+  });
+
+  it('reads visible transactions through the indexed name query and sorts by date', async () => {
+    const transactions: Transactions[] = [
+      {
+        id: 1,
+        syncId: 'txn-1',
+        value: 10,
+        type: 'Income',
+        name: 'Salary',
+        account_id: 1,
+        account_sync_id: 'acc-main',
+        date: new Date('2024-01-01'),
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
+      },
+    ];
+    const sortBy = vi.fn().mockResolvedValue(transactions);
+    const notEqual = vi.fn().mockReturnValue({ sortBy });
+    vi.mocked(db.transactions.where).mockReturnValue({ notEqual } as unknown as ReturnType<typeof db.transactions.where>);
+
+    const result = await repository.getTransactions();
+
+    expect(db.transactions.where).toHaveBeenCalledWith('name');
+    expect(notEqual).toHaveBeenCalledWith('');
+    expect(sortBy).toHaveBeenCalledWith('date');
+    expect(result).toEqual(transactions);
+  });
+
+  it('returns the first settings row when loading settings', async () => {
+    const settings: Settings[] = [
+      {
+        id: 1,
+        syncId: 'set-main',
+        dark: true,
+        main_account_id: 1,
+        main_account_sync_id: 'acc-main',
+        week_starting_day: 2,
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
+      },
+      {
+        id: 2,
+        syncId: 'set-secondary',
+        dark: false,
+        main_account_id: 2,
+        main_account_sync_id: 'acc-secondary',
+        week_starting_day: 1,
+        createdAt: new Date('2024-01-02'),
+        updatedAt: new Date('2024-01-02'),
+      },
+    ];
+    vi.mocked(db.settings.toArray).mockResolvedValue(settings);
+
+    const result = await repository.getSettings();
+
+    expect(result).toEqual(settings[0]);
+  });
+
+  it('updates settings with a fresh updatedAt timestamp', async () => {
+    vi.mocked(db.settings.update).mockResolvedValue(1);
+
+    await repository.updateSettings(7, { dark: false, week_starting_day: 5 });
+
+    expect(db.settings.update).toHaveBeenCalledWith(7, expect.objectContaining({
+      dark: false,
+      week_starting_day: 5,
+      updatedAt: expect.any(Date),
+    }));
+  });
+
+  it('puts settings while refreshing updatedAt and filling a missing sync id', async () => {
+    vi.mocked(db.settings.put).mockResolvedValue(1);
+
+    await repository.putSettings({
+      id: 1,
+      syncId: undefined as unknown as string,
+      dark: true,
+      main_account_id: 0,
+      main_account_sync_id: undefined,
+      week_starting_day: 2,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    });
+
+    expect(db.settings.put).toHaveBeenCalledWith(expect.objectContaining({
+      id: 1,
+      syncId: 'set-generated',
+      createdAt: new Date('2024-01-01'),
+      updatedAt: expect.any(Date),
+    }));
+  });
+
+  it('loads account-scoped transactions through the account_id index', async () => {
+    const transactions: Transactions[] = [
+      {
+        id: 2,
+        syncId: 'txn-2',
+        value: -20,
+        type: 'Expense',
+        name: 'Coffee',
+        account_id: 4,
+        account_sync_id: 'acc-4',
+        date: new Date('2024-01-02'),
+        category: 'Food',
+        createdAt: new Date('2024-01-02'),
+        updatedAt: new Date('2024-01-02'),
+      },
+    ];
+    const toArray = vi.fn().mockResolvedValue(transactions);
+    const equals = vi.fn().mockReturnValue({ toArray });
+    vi.mocked(db.transactions.where).mockReturnValue({ equals } as unknown as ReturnType<typeof db.transactions.where>);
+
+    const result = await repository.getTransactionsByAccountId(4);
+
+    expect(db.transactions.where).toHaveBeenCalledWith('account_id');
+    expect(equals).toHaveBeenCalledWith(4);
+    expect(toArray).toHaveBeenCalled();
+    expect(result).toEqual(transactions);
+  });
+
+  it('passes through account retrieval by id', async () => {
+    const account: Accounts = {
+      id: 9,
+      syncId: 'acc-9',
+      name: 'Travel',
+      type: 'Everyday',
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    };
+    vi.mocked(db.accounts.get).mockResolvedValue(account);
+
+    const result = await repository.getAccountById(9);
+
+    expect(db.accounts.get).toHaveBeenCalledWith(9);
+    expect(result).toEqual(account);
+  });
+});
