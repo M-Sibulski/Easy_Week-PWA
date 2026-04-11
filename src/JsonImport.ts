@@ -33,6 +33,18 @@ const reportProgress = (callback: ImportProgressCallback | undefined, progress: 
     callback?.(progress);
 };
 
+const readFileText = async (file: File): Promise<string> => {
+    if (typeof file.text === "function") {
+        return file.text();
+    }
+
+    if (typeof Blob !== "undefined" && file instanceof Blob) {
+        return await new Response(file).text();
+    }
+
+    throw new Error("Unable to read file contents.");
+};
+
 const parseCsvLine = (line: string): string[] => {
     const values: string[] = [];
     let current = "";
@@ -397,7 +409,7 @@ const jsonToDB = async (file: File | undefined, accountId: number, onProgress?: 
             stage: "reading",
             message: "Reading import file...",
         });
-        const text = await file.text();
+        const text = await readFileText(file);
         reportProgress(onProgress, {
             stage: "parsing",
             message: "Parsing import data...",
