@@ -23,13 +23,15 @@ const fakeAccounts: Accounts[] = [
   {
     id: 1,
     name: 'Main',
-    dateCreated: new Date('2024-01-01'),
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
     type: 'Everyday',
   },
   {
     id: 15,
     name: 'Savings',
-    dateCreated: new Date('2024-10-07'),
+    createdAt: new Date('2024-10-07'),
+    updatedAt: new Date('2024-10-07'),
     type: 'Savings',
     goalDate: new Date('2026-10-07'),
     goalValue: 500,

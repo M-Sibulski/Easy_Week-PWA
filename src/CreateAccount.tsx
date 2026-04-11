@@ -1,8 +1,9 @@
 import './App.css';
-import { db } from '../db.ts';
+import { repository } from './repository';
 import { Accounts, Settings } from '../types.ts';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { AccountType, accountTypes } from '../types.ts';
+import { createSyncId } from '../syncIds.ts';
 
 interface Props {
     open: boolean;
@@ -27,26 +28,33 @@ const CreateAccount = ({open, callback, settings}: Props) => {
         e.preventDefault()
         console.log('createAccount');
         try {
+            const now = new Date();
+            const syncId = createSyncId('acc');
+
             if (type === "Savings" as AccountType) {
             const newAccount: Partial<Accounts> = {
+                syncId,
                 name: name,
                 type: type,
-                dateCreated: new Date(),
+                createdAt: now,
+                updatedAt: now,
                 ...(Number(goalValue) > 0 ? {goalValue: Number(goalValue)} : {}),
                 ...(goalDate ? {goalDate:new Date(goalDate)} : {}),
             };            
-            const id = await db.accounts.add(newAccount as Accounts);
+            const id = await repository.addAccount(newAccount as Accounts);
             if (main && settings) {
-                db.settings.update(settings.id, {main_account_id: id})
+                repository.updateSettings(settings.id, {main_account_id: id, main_account_sync_id: syncId})
             }
         } else {
-            const id = await db.accounts.add({
+            const id = await repository.addAccount({
+                syncId,
                 name: name,
                 type: type,
-                dateCreated: new Date(),
+                createdAt: now,
+                updatedAt: now,
             });
             if (main && settings) {
-                db.settings.update(settings.id, {main_account_id: id})
+                repository.updateSettings(settings.id, {main_account_id: id, main_account_sync_id: syncId})
             }
         }
         

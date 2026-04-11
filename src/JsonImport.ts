@@ -1,5 +1,6 @@
-import { db } from "../db";
+import { repository } from './repository';
 import { Transactions } from "../types";
+import { createSyncId } from '../syncIds';
 
 type TransactionInsert = Omit<Transactions, "id">;
 type RawTransaction = Record<string, unknown>;
@@ -15,7 +16,8 @@ export interface ImportProgress {
 type ImportProgressCallback = (progress: ImportProgress) => void;
 interface ImportContext {
     accountId: number;
-    accountsByName: Map<string, number>;
+    accountSyncId: string;
+    accountsByName: Map<string, { id: number; syncId: string }>;
 }
 
 const normalizeAccountName = (value: string) => value.trim().toLowerCase();
@@ -150,14 +152,20 @@ const parseTypeValue = (raw: unknown, value: number): Transactions["type"] => {
 };
 
 const createImportContext = async (accountId: number): Promise<ImportContext> => {
-    const accounts = await db.accounts.toArray();
-    const accountsByName = new Map<string, number>();
+    const accounts = await repository.getAccounts();
+    const currentAccount = accounts.find((account) => account.id === accountId);
+
+    if (!currentAccount) {
+        throw new Error('Selected account not found.');
+    }
+
+    const accountsByName = new Map<string, { id: number; syncId: string }>();
 
     accounts.forEach((account) => {
-        accountsByName.set(normalizeAccountName(account.name), account.id);
+        accountsByName.set(normalizeAccountName(account.name), { id: account.id, syncId: account.syncId });
     });
 
-    return { accountId, accountsByName };
+    return { accountId, accountSyncId: currentAccount.syncId, accountsByName };
 };
 
 const resolveTransferAccountId = async (
@@ -166,10 +174,10 @@ const resolveTransferAccountId = async (
     onProgress?: ImportProgressCallback,
 ): Promise<number> => {
     const normalizedName = normalizeAccountName(accountName);
-    const existingAccountId = context.accountsByName.get(normalizedName);
+    const existingAccount = context.accountsByName.get(normalizedName);
 
-    if (existingAccountId !== undefined) {
-        return existingAccountId;
+    if (existingAccount !== undefined) {
+        return existingAccount.id;
     }
 
     reportProgress(onProgress, {
@@ -177,13 +185,16 @@ const resolveTransferAccountId = async (
         message: `Creating account ${accountName}...`,
     });
 
-    const accountId = await db.accounts.add({
+    const syncId = createSyncId('acc');
+    const accountId = await repository.addAccount({
+        syncId,
         name: accountName,
         type: "Everyday",
-        dateCreated: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
     });
 
-    context.accountsByName.set(normalizedName, accountId);
+    context.accountsByName.set(normalizedName, { id: accountId, syncId });
     return accountId;
 };
 
@@ -215,6 +226,9 @@ const parseTransactionRow = async (
             : undefined;
 
     const toAccountId = parseNumberValue(transaction.to_account_id);
+    const toAccount = toAccountId === null
+        ? undefined
+        : Array.from(context.accountsByName.values()).find((account) => account.id === toAccountId);
 
     if (parsedType === "Transfer") {
         const otherAccountName = payee || particulars;
@@ -223,39 +237,54 @@ const parseTransactionRow = async (
         }
 
         const otherAccountId = await resolveTransferAccountId(otherAccountName, context, onProgress);
+        const otherAccount = Array.from(context.accountsByName.values()).find((account) => account.id === otherAccountId);
+
+        if (!otherAccount) {
+            return null;
+        }
+
         const transferValue = -Math.abs(value);
 
         if (value < 0) {
             return {
+                syncId: createSyncId('txn'),
                 value: transferValue,
                 type: "Transfer",
                 name,
                 account_id: context.accountId,
+                account_sync_id: context.accountSyncId,
                 date,
                 category,
                 to_account_id: otherAccountId,
+                to_account_sync_id: otherAccount.syncId,
             };
         }
 
         return {
+            syncId: createSyncId('txn'),
             value: transferValue,
             type: "Transfer",
             name,
             account_id: otherAccountId,
+            account_sync_id: otherAccount.syncId,
             date,
             category,
             to_account_id: context.accountId,
+            to_account_sync_id: context.accountSyncId,
         };
     }
 
     return {
+        syncId: createSyncId('txn'),
         value,
         type: parsedType,
         name,
         account_id: context.accountId,
+        account_sync_id: context.accountSyncId,
         date,
         category,
         to_account_id: toAccountId === null ? undefined : toAccountId,
+        to_account_sync_id: toAccount?.syncId,
     };
 };
 
@@ -312,7 +341,7 @@ const transactionsBulkAdd = async (
         return;
     }
 
-    const existingTransactions = await db.transactions.toArray();
+    const existingTransactions = await repository.getAllTransactions();
     const skipBudget = new Map<string, number>();
     for (const t of existingTransactions) {
         const sig = buildTransactionSignature(t);
@@ -340,7 +369,7 @@ const transactionsBulkAdd = async (
                 continue;
             }
 
-            await db.transactions.add(transaction);
+            await repository.addTransaction(transaction);
             addedCount++;
         }
 

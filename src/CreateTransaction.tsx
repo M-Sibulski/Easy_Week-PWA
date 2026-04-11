@@ -1,5 +1,5 @@
 import './App.css';
-import { db } from '../db.ts';
+import { repository } from './repository';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { transactionTypes, TransactionType, Accounts } from '../types.ts';
 import { dateToInputType } from './dateConversions.ts';
@@ -31,21 +31,35 @@ const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
     const createTransaction = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         try {
+        const fromAccount = accounts?.find(a => a.id === accountId);
+        const targetAccount = accounts?.find(a => a.id === toAccountId);
+
+        if (!fromAccount) {
+            return;
+        }
+
         if (type === "Transfer" as TransactionType) {
-            await db.transactions.add({
+            if (!targetAccount) {
+                return;
+            }
+
+            await repository.addTransaction({
             value: 0-Number(value),
             name: name === ''?'Transfer': name,
             account_id: accountId,
+            account_sync_id: fromAccount.syncId,
             date: new Date(date),
             category: category,
             type: type,
-            to_account_id: toAccountId
+            to_account_id: toAccountId,
+            to_account_sync_id: targetAccount.syncId,
             });
         } else {
-            await db.transactions.add({
+            await repository.addTransaction({
             value: type === 'Expense' || type === 'Bills' ? 0-Number(value) : Number(value),
             name: name === ''?'Generic Transaction': name,
             account_id: accountId,
+            account_sync_id: fromAccount.syncId,
             date: new Date(date),
             category: category,
             type: type

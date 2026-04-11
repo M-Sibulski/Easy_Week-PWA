@@ -1,7 +1,8 @@
 import './App.css';
-import { db } from '../db.ts';
+import { repository } from './repository';
 import { Accounts, Settings } from '../types.ts';
 import { useEffect, useRef, useState } from 'react';
+import { createSyncId } from '../syncIds.ts';
 
 interface Props {
   open: boolean;
@@ -22,9 +23,13 @@ const weekDays = [
 
 const defaultSettings = {
   id: 1,
+  syncId: '',
   main_account_id: 0,
+  main_account_sync_id: undefined,
   week_starting_day: 2,
   dark: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
 };
 
 const SettingsScreen = ({ open, callback, settings, accounts }: Props) => {
@@ -76,19 +81,28 @@ const SettingsScreen = ({ open, callback, settings, accounts }: Props) => {
   const saveSettings = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const mainAccountSyncId = accounts?.find(account => account.id === mainAccountId)?.syncId;
+
     try {
       if (settings) {
-        await db.settings.update(settings.id, {
+        await repository.updateSettings(settings.id, {
           main_account_id: mainAccountId,
+          main_account_sync_id: mainAccountSyncId,
           week_starting_day: weekStartingDay,
           dark: darkMode
         });
       } else {
-        await db.settings.put({
+        const now = new Date();
+
+        await repository.putSettings({
           id: 1,
+          syncId: createSyncId('set'),
           main_account_id: mainAccountId,
+          main_account_sync_id: mainAccountSyncId,
           week_starting_day: weekStartingDay,
-          dark: darkMode
+          dark: darkMode,
+          createdAt: now,
+          updatedAt: now,
         });
       }
     } catch (error) {
@@ -110,13 +124,17 @@ const SettingsScreen = ({ open, callback, settings, accounts }: Props) => {
     }
 
     try {
-      await db.transactions.clear();
-      await db.accounts.clear();
-      await db.settings.put({
+      await repository.clearTransactions();
+      await repository.clearAccounts();
+      await repository.putSettings({
         id: settings?.id ?? defaultSettings.id,
+        syncId: settings?.syncId ?? createSyncId('set'),
         main_account_id: defaultSettings.main_account_id,
+        main_account_sync_id: defaultSettings.main_account_sync_id,
         week_starting_day: defaultSettings.week_starting_day,
         dark: defaultSettings.dark,
+        createdAt: settings?.createdAt ?? defaultSettings.createdAt,
+        updatedAt: new Date(),
       });
     } catch (error) {
       console.log(error);

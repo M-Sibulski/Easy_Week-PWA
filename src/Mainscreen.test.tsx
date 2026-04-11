@@ -10,22 +10,24 @@ import Mainscreen from "./Mainscreen";
 const mockUseLiveQuery = (dexieHooks.useLiveQuery as unknown) as MockInstance;
 
 const mockTransactions: Transactions[] = [
-  { id: 1, name: 'Salary', value: 1000, date: new Date('2024-01-01'), category: 'Work', type: 'Income', account_id: 1 },
-  { id: 2, name: 'Groceries', value: -200, date: new Date('2024-01-01'), category: 'Food', type: 'Expense', account_id: 1 },
-  { id: 3, name: 'Book', value: -50, date: new Date('2024-01-02'), category: 'Education', type: 'Expense', account_id: 1 }
+  { id: 1, name: 'Salary', value: 1000, date: new Date('2024-01-01'), category: 'Work', type: 'Income', account_id: 1, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
+  { id: 2, name: 'Groceries', value: -200, date: new Date('2024-01-01'), category: 'Food', type: 'Expense', account_id: 1, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
+  { id: 3, name: 'Book', value: -50, date: new Date('2024-01-02'), category: 'Education', type: 'Expense', account_id: 1, createdAt: new Date('2024-01-02'), updatedAt: new Date('2024-01-02') }
 ];
 
 const mockAccounts: Accounts[] = [
   {
     id: 1,
     name: 'Main',
-    dateCreated: new Date('2024-01-01'),
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
     type: 'Everyday',
   },
   {
     id: 15,
     name: 'Savings',
-    dateCreated: new Date('2024-10-07'),
+    createdAt: new Date('2024-10-07'),
+    updatedAt: new Date('2024-10-07'),
     type: 'Savings',
     goalDate: new Date('2026-10-07'),
     goalValue: 500,
@@ -37,6 +39,8 @@ const mockSettings: Settings[] = [{
   main_account_id: 1,
   dark: false,
   week_starting_day: 1,
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
 }]
 
 vi.mock('dexie-react-hooks', async () => {
@@ -102,7 +106,7 @@ describe("Mainscreen", () => {
   });
 
   it("handles missing current account by switching to main or lowest id", async () => {
-    const brokenAccounts = [{ id: 2, name: "Spare", dateCreated: new Date(), type: "Everyday" }];
+    const brokenAccounts = [{ id: 2, name: "Spare", createdAt: new Date(), updatedAt: new Date(), type: "Everyday" }];
     vi.clearAllMocks();
     let call = 0;
     mockUseLiveQuery.mockImplementation(() => {
@@ -145,7 +149,7 @@ describe("Mainscreen", () => {
 
   it("updates main_account_id when it's 0", async () => {
     const updateMock = vi.fn();
-    const zeroSettings: Settings[] = [{ id: 1, main_account_id: 0, dark: true, week_starting_day: 1 }];
+    const zeroSettings: Settings[] = [{ id: 1, main_account_id: 0, dark: true, week_starting_day: 1, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') }];
 
     vi.mocked(dexieHooks.useLiveQuery).mockImplementationOnce(() => mockTransactions)
       .mockImplementationOnce(() => zeroSettings)
@@ -159,8 +163,8 @@ describe("Mainscreen", () => {
 
   it("switches to lowest ID account if current and main account are deleted", async () => {
     const updateMock = vi.fn();
-    const badAccounts: Accounts[] = [{ id: 99, name: "Only One", type: "Everyday", dateCreated: new Date() }];
-    const badSettings: Settings[] = [{ id: 1, main_account_id: 1, dark: false, week_starting_day: 1 }];
+    const badAccounts: Accounts[] = [{ id: 99, name: "Only One", type: "Everyday", createdAt: new Date(), updatedAt: new Date() }];
+    const badSettings: Settings[] = [{ id: 1, main_account_id: 1, dark: false, week_starting_day: 1, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') }];
 
     vi.mocked(dexieHooks.useLiveQuery).mockImplementationOnce(() => mockTransactions)
       .mockImplementationOnce(() => badSettings)

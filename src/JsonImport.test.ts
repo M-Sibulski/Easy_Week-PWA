@@ -34,6 +34,8 @@ describe('jsonToDB', () => {
       category: 'Work',
       type: 'Income',
       account_id: 1,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
     },
   ];
 
@@ -48,7 +50,8 @@ describe('jsonToDB', () => {
         id: 1,
         name: 'Main Account',
         type: 'Everyday',
-        dateCreated: new Date('2024-01-01'),
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
       },
     ]);
   });
@@ -168,13 +171,15 @@ describe('jsonToDB', () => {
         id: 1,
         name: 'Main Account',
         type: 'Everyday',
-        dateCreated: new Date('2024-01-01'),
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
       },
       {
         id: 2,
         name: 'Savings Account',
         type: 'Everyday',
-        dateCreated: new Date('2024-01-01'),
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
       },
     ]);
 
@@ -228,6 +233,8 @@ describe('jsonToDB', () => {
         date: new Date('2024-01-01'),
         category: 'Salary',
         account_id: 1,
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
       },
     ]);
 
@@ -248,13 +255,15 @@ describe('jsonToDB', () => {
         id: 1,
         name: 'Moto',
         type: 'Everyday',
-        dateCreated: new Date('2024-01-01'),
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
       },
       {
         id: 2,
         name: 'Bills',
         type: 'Everyday',
-        dateCreated: new Date('2024-01-01'),
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
       },
     ]);
     vi.mocked(db.transactions.toArray).mockResolvedValue([
@@ -267,6 +276,8 @@ describe('jsonToDB', () => {
         account_id: 2,
         to_account_id: 1,
         category: 'FT',
+        createdAt: new Date(2026, 2, 7),
+        updatedAt: new Date(2026, 2, 7),
       },
     ]);
 

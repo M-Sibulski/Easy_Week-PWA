@@ -1,20 +1,21 @@
-import { useLiveQuery } from 'dexie-react-hooks';
+import { useAccounts, useSettingsArray, useTransactions } from './hooks/useAppData';
+import { repository } from './repository';
 import { Accounts, Settings, Transactions } from '../types.ts';
-import { db } from '../db.ts';
 import './App.css';
 import Account from './Account.tsx';
 import { useEffect, useRef, useState } from 'react';
 import CreateTransaction from './CreateTransaction.tsx';
 import WeekScreen from './WeekScreen.tsx';
+import { createSyncId } from '../syncIds.ts';
 
 const Mainscreen = () => {
   const [accountId, setAccountId] = useState(0);
   const [loading, setLoading] = useState(true);
   
-  const transactions = useLiveQuery<Transactions[]>(() => db.transactions.where("name").notEqual('').sortBy('date'));
-  const settingsArray = useLiveQuery<Settings[]>(() => db.settings.toArray());
+  const transactions = useTransactions();
+  const settingsArray = useSettingsArray();
   const settings = settingsArray && settingsArray[0];
-  const accounts = useLiveQuery<Accounts[]>(() => db.accounts.toArray());
+  const accounts = useAccounts();
   const transactionsInAccount: Transactions[] = transactions ? transactions.filter(t => t.account_id === accountId) : [];
   const transactionsToAccount: Transactions[] = transactions ? transactions.filter(t => t.to_account_id === accountId).map(t => ({...t, value: 0-t.value})) : [];
   const transactionsCombined: Transactions[] = [...transactionsInAccount, ...transactionsToAccount].sort((a, b) => a.date.getTime() - b.date.getTime());
@@ -24,27 +25,37 @@ const Mainscreen = () => {
   const [renderOpenButton, setRenderOpenButton] = useState(true);
   const scrollDemoRef = useRef(null);
 
+  const findFallbackAccount = (items: Accounts[]) => items.reduce((best, current) => current.id < best.id ? current : best);
+
   const clearAllCollections = () => {
-    db.accounts.clear()
-    db.transactions.clear()
-    db.settings.clear()
+    repository.clearAccounts();
+    repository.clearTransactions();
+    repository.clearSettings();
   }
 
   const createMainAccount = async () => {
+    const now = new Date();
+    const mainAccountSyncId = createSyncId('acc');
+    const savingsAccountSyncId = createSyncId('acc');
+
     try {
-      await db.accounts.put({
+      await repository.putAccount({
         id: 1,
+        syncId: mainAccountSyncId,
         name: 'Main Account',
         type: 'Everyday',
-        dateCreated: new Date()
+        createdAt: now,
+        updatedAt: now,
       });
-      await db.accounts.put({
+      await repository.putAccount({
         id: 2,
+        syncId: savingsAccountSyncId,
         name: 'Savings',
         type: 'Savings',
         goalDate: new Date("2026/05/10"),
         goalValue: 4000,
-        dateCreated: new Date()
+        createdAt: now,
+        updatedAt: now,
       });
       } catch(error) {
           console.error(error)
@@ -52,12 +63,18 @@ const Mainscreen = () => {
   }
 
   const createInitialSettings = async () => {
+    const now = new Date();
+
     try {
-      await db.settings.put({
+      await repository.putSettings({
           id: 1,
+          syncId: createSyncId('set'),
           dark: true,
           main_account_id: 0,
-          week_starting_day: 2
+          main_account_sync_id: undefined,
+          week_starting_day: 2,
+          createdAt: now,
+          updatedAt: now,
       });
       } catch(error) {
           console.error(error)
@@ -76,12 +93,13 @@ const Mainscreen = () => {
       if(accounts?.find(a => a.id === settings?.main_account_id)) //Just get from settings
         setAccountId(settings?.main_account_id)
       else { //Settings settings.main_account_id also wrong
-        setAccountId(accounts?.reduce((m, c) => c.id < m.id ? c : m).id)
-        db.settings.update(settings.id, {main_account_id: accounts?.reduce((m, c) => c.id < m.id ? c : m).id})
+        const fallbackAccount = findFallbackAccount(accounts)
+        setAccountId(fallbackAccount.id)
+        repository.updateSettings(settings.id, {main_account_id: fallbackAccount.id, main_account_sync_id: fallbackAccount.syncId})
       }
     } else if (settings && accounts && accounts.length == 0) {
       setAccountId(0)
-      db.settings.update(settings.id, {main_account_id: 0})
+      repository.updateSettings(settings.id, {main_account_id: 0, main_account_sync_id: undefined})
     }
     //All launches
     if (loading && settings) {
@@ -90,7 +108,7 @@ const Mainscreen = () => {
     }
     //Patch settings
     if(settings && !settings.week_starting_day) {
-      db.settings.update(1, {week_starting_day: 2})
+      repository.updateSettings(1, {week_starting_day: 2})
     }
 
   }, [accounts, accountId, loading, settings, settingsArray])

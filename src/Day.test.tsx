@@ -12,7 +12,9 @@ const fakeTransactions: Transactions[] = [
   date: new Date('2024-01-01'),
   category: 'Food',
   type: 'Expense',
-  account_id: 1
+  account_id: 1,
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
 },
   {
   id: 2,
@@ -21,7 +23,9 @@ const fakeTransactions: Transactions[] = [
   date: new Date('2024-01-01'),
   category: 'Wages',
   type: 'Income',
-  account_id: 1
+  account_id: 1,
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
 },
 ]
 
@@ -29,13 +33,15 @@ const mockAccounts: Accounts[] = [
   {
     id: 1,
     name: 'Main',
-    dateCreated: new Date('2024-01-01'),
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
     type: 'Everyday',
   },
   {
     id: 15,
     name: 'Savings',
-    dateCreated: new Date('2024-10-07'),
+    createdAt: new Date('2024-10-07'),
+    updatedAt: new Date('2024-10-07'),
     type: 'Savings',
     goalDate: new Date('2026-10-07'),
     goalValue: 500,

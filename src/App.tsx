@@ -3,12 +3,10 @@ import './App.css';
 import Mainscreen from './Mainscreen.tsx';
 import { useEffect } from 'react';
 import { setViewportHeightVariable } from './setViewportHeight.ts';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../db.ts';
-import { Settings } from '../types.ts';
+import { useSettingsArray } from './hooks/useAppData';
 
 function App() {
-  const settingsArray = useLiveQuery<Settings[]>(() => db.settings.toArray());
+  const settingsArray = useSettingsArray();
   const isDarkMode = settingsArray?.[0]?.dark ?? true;
 
   useEffect(() => {

@@ -51,37 +51,37 @@ jobs:
       - name: Unit & component tests
         run: npm run test
 
-  preview:
-    needs: [dependency-smoke, test]
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+  # preview:
+  #   needs: [dependency-smoke, test]
+  #   if: github.event_name == 'pull_request'
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 22
+  #         cache: 'npm'
 
-      - run: npm ci
+  #     - run: npm ci
 
-      - name: Build preview
-        run: npm run build:prod
+  #     - name: Build preview
+  #       run: npm run build:prod
 
-      - name: Deploy Netlify preview
-        id: netlify
-        uses: nwtgck/actions-netlify@v3
-        with:
-          publish-dir: './dist'
-          github-token: ${{ secrets.GH_CLASSIC_PAT }}
-          deploy-message: "Preview deploy for PR #${{ github.event.pull_request.number }}"
-          enable-pull-request-comment: true
-          enable-commit-comment: false
-          alias: pr-${{ github.event.pull_request.number }}-${{ github.sha }}
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+  #     - name: Deploy Netlify preview
+  #       id: netlify
+  #       uses: nwtgck/actions-netlify@v3
+  #       with:
+  #         publish-dir: './dist'
+  #         github-token: ${{ secrets.GH_CLASSIC_PAT }}
+  #         deploy-message: "Preview deploy for PR #${{ github.event.pull_request.number }}"
+  #         enable-pull-request-comment: true
+  #         enable-commit-comment: false
+  #         alias: pr-${{ github.event.pull_request.number }}-${{ github.sha }}
+  #       env:
+  #         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+  #         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 
   # deploy:
   #   needs: test

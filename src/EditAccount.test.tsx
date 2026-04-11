@@ -34,7 +34,8 @@ describe('EditAccount', () => {
     id: 1,
     name: 'Vacation Fund',
     type: 'Savings',
-    dateCreated: new Date('2024-01-01'),
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
     goalDate: new Date('2025-12-31'),
     goalValue: 5000,
   };
@@ -43,6 +44,8 @@ describe('EditAccount', () => {
     main_account_id: 1,
     dark: false,
     week_starting_day: 1,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
   };
 
   beforeEach(() => {
@@ -80,7 +83,7 @@ describe('EditAccount', () => {
         goalDate: new Date('2025-12-31'),
     })
     );
-    expect(db.settings.update).toHaveBeenCalledWith(1, { main_account_id: 1 });
+    expect(db.settings.update).toHaveBeenCalledWith(1, expect.objectContaining({ main_account_id: 1 }));
     expect(mockCallback).toHaveBeenCalled();
     
   });

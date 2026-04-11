@@ -1,4 +1,4 @@
-import { db } from '../db.ts';
+import { repository } from './repository';
 import { Accounts, Transactions, TransactionType, transactionTypes } from '../types.ts';
 import './App.css';
 import { useState, useRef, useEffect } from 'react';
@@ -63,9 +63,9 @@ const Transaction = ({transaction, accounts}:Props) => {
 
   const handleDelete = async (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    const id=Number(e.currentTarget.id);
+    const id = transaction.id;
     try {
-      await db.transactions.delete(id);
+      await repository.deleteTransaction(id);
     } catch(error) {
       console.log(error);
     }
@@ -79,26 +79,47 @@ const Transaction = ({transaction, accounts}:Props) => {
   const handleSaveButton = async (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try {
+      const fromAccount = accounts?.find(a => a.id === accountId);
+      const targetAccount = accounts?.find(a => a.id === toAccountId);
+
+      if (!fromAccount) {
+        return;
+      }
+
       if (type === "Transfer" as TransactionType) {
-        await db.transactions.put({
+        if (!targetAccount) {
+          return;
+        }
+
+        await repository.putTransaction({
         id: transaction.id,
+        syncId: transaction.syncId,
         value: 0-Number(value),
         name: name === ''?'Transfer': name,
         account_id: accountId,
+        account_sync_id: fromAccount.syncId,
         date: new Date(date),
         category: category,
         type: type,
-        to_account_id: toAccountId
+        to_account_id: toAccountId,
+        to_account_sync_id: targetAccount.syncId,
+        createdAt: transaction.createdAt,
+        updatedAt: new Date(),
         });
       } else {
-        await db.transactions.put({
+        await repository.putTransaction({
         id: transaction.id,
+        syncId: transaction.syncId,
         value: type === 'Expense' ? 0-Number(value) : Number(value),
         name: name === ''?'Generic Transaction': name,
         account_id: accountId,
+        account_sync_id: fromAccount.syncId,
         date: new Date(date),
         category: category,
-        type: type
+        type: type,
+        to_account_sync_id: undefined,
+        createdAt: transaction.createdAt,
+        updatedAt: new Date(),
         });
       }
     } catch (error) {

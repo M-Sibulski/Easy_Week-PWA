@@ -39,7 +39,7 @@ describe('SettingsScreen', () => {
       <SettingsScreen
         open={true}
         callback={mockCallback}
-        settings={{ id: 3, dark: false, main_account_id: 2, week_starting_day: 4 }}
+        settings={{ id: 3, dark: false, main_account_id: 2, week_starting_day: 4, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') }}
         accounts={[]}
       />
     );
@@ -48,12 +48,13 @@ describe('SettingsScreen', () => {
 
     expect(db.transactions.clear).toHaveBeenCalled();
     expect(db.accounts.clear).toHaveBeenCalled();
-    expect(db.settings.put).toHaveBeenCalledWith({
+    expect(db.settings.put).toHaveBeenCalledWith(expect.objectContaining({
       id: 3,
       main_account_id: 0,
       week_starting_day: 2,
       dark: true,
-    });
+      createdAt: new Date('2024-01-01'),
+    }));
     expect(mockCallback).toHaveBeenCalled();
   });
 
@@ -64,7 +65,7 @@ describe('SettingsScreen', () => {
       <SettingsScreen
         open={true}
         callback={mockCallback}
-        settings={{ id: 1, dark: true, main_account_id: 1, week_starting_day: 2 }}
+        settings={{ id: 1, dark: true, main_account_id: 1, week_starting_day: 2, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') }}
         accounts={[]}
       />
     );
