@@ -4,9 +4,10 @@ import Mainscreen from './Mainscreen.tsx';
 import { useEffect, useState } from 'react';
 import { setViewportHeightVariable } from './setViewportHeight.ts';
 import { useSettingsArray } from './hooks/useAppData';
-import { AuthProvider, useAuth } from './auth/AuthProvider';
+import { AuthProvider } from './auth/AuthProvider';
 import AuthScreen from './auth/AuthScreen';
 import { runFullSync } from './sync/syncService';
+import { useAuth } from './auth/useAuth';
 
 function LoadingScreen({ message }: { message: string }) {
   return (

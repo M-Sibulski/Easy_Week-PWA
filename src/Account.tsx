@@ -5,7 +5,7 @@ import CreateAccount from "./CreateAccount";
 import EditAccount from "./EditAccount";
 import jsonToDB, { ImportProgress } from "./JsonImport";
 import SettingsScreen from "./SettingsScreen";
-import { useAuth } from "./auth/AuthProvider";
+import { useAuth } from "./auth/useAuth";
 
 interface Props {
     accountId: number;

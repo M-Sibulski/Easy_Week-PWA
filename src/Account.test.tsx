@@ -13,7 +13,7 @@ vi.mock("./JsonImport", () => ({
   default: vi.fn()
 }));
 
-vi.mock("./auth/AuthProvider", () => ({
+vi.mock("./auth/useAuth", () => ({
   useAuth: () => ({
     signOut: mockSignOut,
   }),

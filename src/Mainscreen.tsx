@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import CreateTransaction from './CreateTransaction.tsx';
 import WeekScreen from './WeekScreen.tsx';
 import { createSyncId } from '../syncIds.ts';
-import { useAuth } from './auth/AuthProvider.tsx';
+import { useAuth } from './auth/useAuth';
 
 interface Props {
   syncReady?: boolean;

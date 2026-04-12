@@ -9,6 +9,9 @@ const mockRunFullSync = vi.fn();
 
 vi.mock('./auth/AuthProvider', () => ({
   AuthProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
+}));
+
+vi.mock('./auth/useAuth', () => ({
   useAuth: () => mockUseAuth(),
 }));
 

@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { useAuth } from './AuthProvider';
+import { useAuth } from './useAuth';
 
 type Mode = 'sign-in' | 'sign-up' | 'magic-link';
 
