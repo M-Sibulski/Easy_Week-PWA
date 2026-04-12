@@ -1,5 +1,5 @@
-import type { Accounts, Settings, Transactions } from '../../types';
-import type { AccountInsert, IRepository, TransactionInsert } from './IRepository';
+import type { Accounts, CategorySuggestion, Settings, Transactions } from '../../types';
+import type { AccountInsert, CategorySuggestionInsert, IRepository, TransactionInsert } from './IRepository';
 import { scheduleSync } from '../sync/syncService';
 
 export class SyncingRepository implements IRepository {
@@ -70,6 +70,30 @@ export class SyncingRepository implements IRepository {
 
   clearTransactions(): Promise<void> {
     return this.innerRepository.clearTransactions();
+  }
+
+  getCategorySuggestionsByTokens(tokens: string[]): Promise<CategorySuggestion[]> {
+    return this.innerRepository.getCategorySuggestionsByTokens(tokens);
+  }
+
+  getAllCategorySuggestions(): Promise<CategorySuggestion[]> {
+    return this.innerRepository.getAllCategorySuggestions();
+  }
+
+  async addCategorySuggestion(suggestion: CategorySuggestionInsert): Promise<number> {
+    const result = await this.innerRepository.addCategorySuggestion(suggestion);
+    void scheduleSync();
+    return result;
+  }
+
+  async putCategorySuggestion(suggestion: CategorySuggestion): Promise<number> {
+    const result = await this.innerRepository.putCategorySuggestion(suggestion);
+    void scheduleSync();
+    return result;
+  }
+
+  clearCategorySuggestions(): Promise<void> {
+    return this.innerRepository.clearCategorySuggestions();
   }
 
   getSettings(): Promise<Settings | undefined> {

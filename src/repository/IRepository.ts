@@ -1,7 +1,8 @@
-import { Accounts, Settings, Transactions } from '../../types';
+import { Accounts, CategorySuggestion, Settings, Transactions } from '../../types';
 
 export type AccountInsert = Omit<Accounts, 'id' | 'syncId' | 'createdAt' | 'updatedAt'> & Partial<Pick<Accounts, 'syncId' | 'createdAt' | 'updatedAt'>>;
 export type TransactionInsert = Omit<Transactions, 'id' | 'syncId' | 'createdAt' | 'updatedAt'> & Partial<Pick<Transactions, 'syncId' | 'createdAt' | 'updatedAt'>>;
+export type CategorySuggestionInsert = Omit<CategorySuggestion, 'id' | 'syncId' | 'createdAt' | 'updatedAt'> & Partial<Pick<CategorySuggestion, 'syncId' | 'createdAt' | 'updatedAt'>>;
 
 /**
  * Abstraction layer for all persistent data operations.
@@ -31,6 +32,14 @@ export interface IRepository {
   putTransaction(transaction: Transactions): Promise<number>;
   deleteTransaction(id: number): Promise<void>;
   clearTransactions(): Promise<void>;
+
+  // ── Category Suggestions ───────────────────────────────────────────────────
+  getCategorySuggestionsByTokens(tokens: string[]): Promise<CategorySuggestion[]>;
+  getAllCategorySuggestions(): Promise<CategorySuggestion[]>;
+  addCategorySuggestion(suggestion: CategorySuggestionInsert): Promise<number>;
+  /** Full replace (upsert by id). */
+  putCategorySuggestion(suggestion: CategorySuggestion): Promise<number>;
+  clearCategorySuggestions(): Promise<void>;
 
   // ── Settings ──────────────────────────────────────────────────────────────
   getSettings(): Promise<Settings | undefined>;

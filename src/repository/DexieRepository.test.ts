@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Accounts, Settings, Transactions } from '../../types';
+import type { Accounts, CategorySuggestion, Settings, Transactions } from '../../types';
 import { db } from '../../db';
 import { DexieRepository } from './DexieRepository';
 
@@ -21,6 +21,13 @@ vi.mock('../../db', () => ({
       put: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
+      clear: vi.fn(),
+    },
+    categorySuggestions: {
+      where: vi.fn(),
+      toArray: vi.fn(),
+      add: vi.fn(),
+      put: vi.fn(),
       clear: vi.fn(),
     },
     settings: {
@@ -233,6 +240,74 @@ describe('DexieRepository', () => {
 
     expect(db.transactions.update).toHaveBeenCalledWith(12, expect.objectContaining({
       deletedAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    }));
+  });
+
+  it('loads category suggestions by token through the token index', async () => {
+    const suggestions: CategorySuggestion[] = [
+      {
+        id: 1,
+        syncId: 'cat-1',
+        token: 'uber',
+        category: 'Transport',
+        score: 3,
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
+      },
+    ];
+    const toArray = vi.fn().mockResolvedValue(suggestions);
+    const anyOf = vi.fn().mockReturnValue({ toArray });
+    vi.mocked(db.categorySuggestions.where).mockReturnValue({ anyOf } as unknown as ReturnType<typeof db.categorySuggestions.where>);
+
+    const result = await repository.getCategorySuggestionsByTokens(['uber', 'eats']);
+
+    expect(db.categorySuggestions.where).toHaveBeenCalledWith('token');
+    expect(anyOf).toHaveBeenCalledWith(['uber', 'eats']);
+    expect(toArray).toHaveBeenCalled();
+    expect(result).toEqual(suggestions);
+  });
+
+  it('adds category suggestions with generated sync and timestamp fields when missing', async () => {
+    vi.mocked(db.categorySuggestions.add).mockResolvedValue(6);
+
+    const result = await repository.addCategorySuggestion({
+      token: 'uber',
+      category: 'Transport',
+      score: 1,
+    });
+
+    expect(result).toBe(6);
+    expect(db.categorySuggestions.add).toHaveBeenCalledWith(expect.objectContaining({
+      token: 'uber',
+      category: 'Transport',
+      score: 1,
+      syncId: 'cat-generated',
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    }));
+  });
+
+  it('puts category suggestions while refreshing updatedAt and keeping createdAt', async () => {
+    vi.mocked(db.categorySuggestions.put).mockResolvedValue(1);
+
+    await repository.putCategorySuggestion({
+      id: 3,
+      syncId: 'cat-3',
+      token: 'uber',
+      category: 'Transport',
+      score: 4,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    });
+
+    expect(db.categorySuggestions.put).toHaveBeenCalledWith(expect.objectContaining({
+      id: 3,
+      syncId: 'cat-3',
+      token: 'uber',
+      category: 'Transport',
+      score: 4,
+      createdAt: new Date('2024-01-01'),
       updatedAt: expect.any(Date),
     }));
   });

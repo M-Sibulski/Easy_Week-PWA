@@ -1,10 +1,11 @@
 import Dexie, { EntityTable } from 'dexie';
-import { Accounts, Transactions, Settings } from './types';
+import { Accounts, CategorySuggestion, Transactions, Settings } from './types';
 import { createSyncId } from './syncIds';
 
 class AppDatabase extends Dexie {
   accounts!: EntityTable<Accounts, 'id'>; // 'id' is the primary key property
   transactions!: EntityTable<Transactions, 'id'>;
+  categorySuggestions!: EntityTable<CategorySuggestion, 'id'>;
   settings!: EntityTable<Settings, 'id'>;
 
   constructor() {
@@ -117,6 +118,24 @@ class AppDatabase extends Dexie {
         await tx.table('accounts').toCollection().modify(normalizeDeletedAt);
         await tx.table('transactions').toCollection().modify(normalizeDeletedAt);
         await tx.table('settings').toCollection().modify(normalizeDeletedAt);
+      });
+
+    this.version(5)
+      .stores({
+        accounts: '++id, &syncId, type, goalValue, goalDate, createdAt, updatedAt, deletedAt',
+        transactions: '++id, &syncId, value, type, name, account_id, account_sync_id, to_account_id, to_account_sync_id, date, category, createdAt, updatedAt, deletedAt',
+        categorySuggestions: '++id, &syncId, &[token+category], token, category, score, createdAt, updatedAt, deletedAt',
+        settings: '++id, &syncId, dark, main_account_id, main_account_sync_id, createdAt, updatedAt, deletedAt',
+      })
+      .upgrade(async (tx) => {
+        await tx.table('categorySuggestions').toCollection().modify((suggestion: Record<string, unknown>) => {
+          const createdAt = suggestion.createdAt instanceof Date ? suggestion.createdAt : new Date();
+          suggestion.syncId = typeof suggestion.syncId === 'string' ? suggestion.syncId : createSyncId('cat');
+          suggestion.score = typeof suggestion.score === 'number' ? suggestion.score : 0;
+          suggestion.createdAt = createdAt;
+          suggestion.updatedAt = suggestion.updatedAt instanceof Date ? suggestion.updatedAt : createdAt;
+          suggestion.deletedAt = suggestion.deletedAt instanceof Date ? suggestion.deletedAt : undefined;
+        });
       });
   }
 }

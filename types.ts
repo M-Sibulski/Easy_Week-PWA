@@ -35,6 +35,17 @@ export interface Transactions {
     deletedAt?: Date,
 }
 
+export interface CategorySuggestion {
+    id: number,
+    syncId: string,
+    token: string,
+    category: string,
+    score: number,
+    createdAt: Date,
+    updatedAt: Date,
+    deletedAt?: Date,
+}
+
 export interface Settings {
     id: number,
     syncId: string,

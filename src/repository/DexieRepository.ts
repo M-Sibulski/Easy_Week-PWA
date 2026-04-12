@@ -1,6 +1,6 @@
 import { db } from '../../db';
-import { Accounts, Settings, Transactions } from '../../types';
-import { AccountInsert, IRepository, TransactionInsert } from './IRepository';
+import { Accounts, CategorySuggestion, Settings, Transactions } from '../../types';
+import { AccountInsert, CategorySuggestionInsert, IRepository, TransactionInsert } from './IRepository';
 import { createSyncId } from '../../syncIds';
 
 const stampForCreate = <T extends { syncId?: string; createdAt?: Date; updatedAt?: Date }>(resource: T, prefix: string) => {
@@ -81,6 +81,33 @@ export class DexieRepository implements IRepository {
 
   async clearTransactions(): Promise<void> {
     await db.transactions.clear();
+  }
+
+  // ── Category Suggestions ───────────────────────────────────────────────────
+  async getCategorySuggestionsByTokens(tokens: string[]): Promise<CategorySuggestion[]> {
+    if (tokens.length === 0) {
+      return [];
+    }
+
+    const suggestions = await db.categorySuggestions.where('token').anyOf(tokens).toArray();
+    return suggestions.filter((suggestion) => !suggestion.deletedAt);
+  }
+
+  async getAllCategorySuggestions(): Promise<CategorySuggestion[]> {
+    const suggestions = await db.categorySuggestions.toArray();
+    return suggestions.filter((suggestion) => !suggestion.deletedAt);
+  }
+
+  addCategorySuggestion(suggestion: CategorySuggestionInsert): Promise<number> {
+    return db.categorySuggestions.add(stampForCreate(suggestion, 'cat') as CategorySuggestion);
+  }
+
+  putCategorySuggestion(suggestion: CategorySuggestion): Promise<number> {
+    return db.categorySuggestions.put(stampForPut(suggestion, 'cat'));
+  }
+
+  async clearCategorySuggestions(): Promise<void> {
+    await db.categorySuggestions.clear();
   }
 
   // ── Settings ──────────────────────────────────────────────────────────────

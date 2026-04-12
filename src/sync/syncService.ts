@@ -1,9 +1,10 @@
 import { db } from '../../db';
-import type { Accounts, Settings, Transactions } from '../../types';
+import type { Accounts, CategorySuggestion, Settings, Transactions } from '../../types';
 import { supabase } from '../lib/supabaseClient';
 
 type LocalAccountCandidate = Omit<Accounts, 'id'> & Partial<Pick<Accounts, 'id'>>;
 type LocalTransactionCandidate = Omit<Transactions, 'id'> & Partial<Pick<Transactions, 'id'>>;
+type LocalCategorySuggestionCandidate = Omit<CategorySuggestion, 'id'> & Partial<Pick<CategorySuggestion, 'id'>>;
 type LocalSettingsCandidate = Omit<Settings, 'id'> & Partial<Pick<Settings, 'id'>>;
 
 type TimestampedRecord = {
@@ -31,6 +32,16 @@ type RemoteTransactionRow = {
   date: string;
   category: string | null;
   to_account_sync_id: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+};
+
+type RemoteCategorySuggestionRow = {
+  sync_id: string;
+  token: string;
+  category: string;
+  score: number;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -132,6 +143,18 @@ function mapRemoteTransaction(
   };
 }
 
+export function mapRemoteCategorySuggestion(row: RemoteCategorySuggestionRow): LocalCategorySuggestionCandidate {
+  return {
+    syncId: row.sync_id,
+    token: row.token,
+    category: row.category,
+    score: row.score,
+    createdAt: new Date(row.created_at),
+    updatedAt: new Date(row.updated_at),
+    deletedAt: toDate(row.deleted_at),
+  };
+}
+
 function mapRemoteSettings(
   row: RemoteSettingsRow,
   accountIdBySyncId: Map<string, number>,
@@ -179,6 +202,19 @@ function serializeTransaction(userId: string, row: Transactions) {
   };
 }
 
+export function serializeCategorySuggestion(userId: string, row: CategorySuggestion) {
+  return {
+    user_id: userId,
+    sync_id: row.syncId,
+    token: row.token,
+    category: row.category,
+    score: row.score,
+    created_at: row.createdAt.toISOString(),
+    updated_at: row.updatedAt.toISOString(),
+    deleted_at: row.deletedAt ? row.deletedAt.toISOString() : null,
+  };
+}
+
 function serializeSettings(userId: string, row: Settings) {
   return {
     user_id: userId,
@@ -210,6 +246,16 @@ async function upsertLocalTransaction(row: LocalTransactionCandidate) {
   }
 
   await db.transactions.add(row as Transactions);
+}
+
+async function upsertLocalCategorySuggestion(row: LocalCategorySuggestionCandidate) {
+  const existing = await db.categorySuggestions.where('syncId').equals(row.syncId).first();
+  if (existing) {
+    await db.categorySuggestions.put({ ...row, id: existing.id } as CategorySuggestion);
+    return;
+  }
+
+  await db.categorySuggestions.add(row as CategorySuggestion);
 }
 
 async function upsertLocalSettings(row: LocalSettingsCandidate) {
@@ -256,6 +302,23 @@ async function pullRemoteTransactions(userId: string, accountIdBySyncId: Map<str
   return (data ?? []).map((row) => mapRemoteTransaction(row as RemoteTransactionRow, accountIdBySyncId) as Transactions);
 }
 
+async function pullRemoteCategorySuggestions(userId: string): Promise<CategorySuggestion[]> {
+  if (!supabase) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from('category_suggestions')
+    .select('sync_id,token,category,score,created_at,updated_at,deleted_at')
+    .eq('user_id', userId);
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []).map((row) => mapRemoteCategorySuggestion(row as RemoteCategorySuggestionRow) as CategorySuggestion);
+}
+
 async function pullRemoteSettings(userId: string, accountIdBySyncId: Map<string, number>): Promise<Settings[]> {
   if (!supabase) {
     return [];
@@ -295,6 +358,21 @@ async function pushTransactions(userId: string, transactions: Transactions[]) {
 
   const { error } = await supabase.from('transactions').upsert(
     transactions.map((transaction) => serializeTransaction(userId, transaction)),
+    { onConflict: 'user_id,sync_id' },
+  );
+
+  if (error) {
+    throw error;
+  }
+}
+
+async function pushCategorySuggestions(userId: string, categorySuggestions: CategorySuggestion[]) {
+  if (!supabase || categorySuggestions.length === 0) {
+    return;
+  }
+
+  const { error } = await supabase.from('category_suggestions').upsert(
+    categorySuggestions.map((suggestion) => serializeCategorySuggestion(userId, suggestion)),
     { onConflict: 'user_id,sync_id' },
   );
 
@@ -357,6 +435,15 @@ export async function runFullSync() {
     await upsertLocalTransaction(remoteTransaction);
   }
   await pushTransactions(user.id, transactionPlan.pushRemote);
+
+  const localCategorySuggestions = await db.categorySuggestions.toArray();
+  const remoteCategorySuggestions = await pullRemoteCategorySuggestions(user.id);
+  const categorySuggestionPlan = buildSyncPlan(localCategorySuggestions, remoteCategorySuggestions);
+
+  for (const remoteCategorySuggestion of categorySuggestionPlan.applyLocal) {
+    await upsertLocalCategorySuggestion(remoteCategorySuggestion);
+  }
+  await pushCategorySuggestions(user.id, categorySuggestionPlan.pushRemote);
 
   const localSettings = await db.settings.toArray();
   const remoteSettings = await pullRemoteSettings(user.id, accountIdBySyncId);

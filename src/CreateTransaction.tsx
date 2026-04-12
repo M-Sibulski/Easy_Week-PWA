@@ -3,6 +3,7 @@ import { repository } from './repository';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { transactionTypes, TransactionType, Accounts } from '../types.ts';
 import { dateToInputType } from './dateConversions.ts';
+import { getSuggestedCategory, learnCategorySuggestion } from './categorySuggestions.ts';
 
 interface Props {
     accountId: number;
@@ -19,6 +20,7 @@ const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
     const [name, setName] = useState('');
     const [date, setDate] = useState(dateToInputType(new Date()));
     const [category, setCategory] = useState('');
+    const [categoryManuallyEdited, setCategoryManuallyEdited] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
 
     if(toAccountId === 0) {
@@ -65,6 +67,9 @@ const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
             type: type
             });
         }
+        if (category.trim() !== '') {
+            await learnCategorySuggestion(name, category, repository);
+        }
         } catch(error) {
             console.log(error)
         }
@@ -77,6 +82,7 @@ const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
         setName('');
         setDate(dateToInputType(new Date()));
         setCategory('');
+        setCategoryManuallyEdited(false);
     }
 
     const handleCloseButton = (e?:React.MouseEvent<HTMLButtonElement>) => {
@@ -100,6 +106,11 @@ const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
         setValue(e.currentTarget.value.replace(/[^0-9.]/g, ''))
     }
 
+    const handleCategoryChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setCategory(e.currentTarget.value);
+        setCategoryManuallyEdited(true);
+    }
+
     useEffect(() => {
         const handleTransitionEnd = (e: TransitionEvent) => {
         if (e.propertyName === "translate" && !open) {
@@ -110,6 +121,32 @@ const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
         node?.addEventListener("transitionend", handleTransitionEnd);
         return () => node?.removeEventListener("transitionend", handleTransitionEnd);
     }, [open]);
+
+    useEffect(() => {
+        let isCancelled = false;
+
+        const updateSuggestedCategory = async () => {
+            if (categoryManuallyEdited) {
+                return;
+            }
+
+            if (name.trim() === '') {
+                setCategory('');
+                return;
+            }
+
+            const suggestedCategory = await getSuggestedCategory(name, repository);
+            if (!isCancelled) {
+                setCategory(suggestedCategory ?? '');
+            }
+        };
+
+        void updateSuggestedCategory();
+
+        return () => {
+            isCancelled = true;
+        };
+    }, [name, categoryManuallyEdited]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -165,7 +202,7 @@ const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
                 
                     <input data-testid="date-input" type="date" value={date} onChange={e => setDate(e.currentTarget.value)} name="date" id="date" className='bg-blue-300 rounded-md hover:bg-blue-200 w-full p-1'/>
                 
-                    <input type='text' placeholder="Category" value={category} onChange={e => setCategory(e.currentTarget.value)} name="category" id="category" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'  />
+                    <input type='text' placeholder="Category" value={category} onChange={e => handleCategoryChange(e)} name="category" id="category" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'  />
                 
                     <button role='submit' name='submit' type='submit' className="cursor-pointer h-full p-2 rounded-md hover:bg-blue-400 flex justify-center">
                         <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>

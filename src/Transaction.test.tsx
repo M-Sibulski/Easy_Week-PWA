@@ -11,6 +11,11 @@ vi.mock('../db', () => ({
     transactions: {
       put: vi.fn(),
       update: vi.fn()
+    },
+    categorySuggestions: {
+      where: vi.fn(),
+      add: vi.fn(),
+      put: vi.fn()
     }, 
     accounts: {
       put: vi.fn(),
@@ -58,6 +63,21 @@ const fakeAccounts: Accounts[] = [
     goalValue: 500,
   },
 ]
+
+const mockCategorySuggestionQuery = (results: Array<{
+  id: number;
+  syncId: string;
+  token: string;
+  category: string;
+  score: number;
+  createdAt: Date;
+  updatedAt: Date;
+}>) => {
+  const toArray = vi.fn().mockResolvedValue(results);
+  const anyOf = vi.fn().mockReturnValue({ toArray });
+  (db.categorySuggestions.where as ReturnType<typeof vi.fn>).mockReturnValue({ anyOf });
+  return { anyOf, toArray };
+};
 
 describe("Transaction", () => {
     it("renders", () => {
@@ -120,7 +140,52 @@ describe("Transaction", () => {
           deletedAt: expect.any(Date),
           updatedAt: expect.any(Date),
         }));
-        waitFor(() => expect(screen.getByTestId("edit-transaction")).not.toBeInTheDocument())
+    });
+
+    it('preserves an existing category instead of overriding it with a suggestion', async () => {
+        mockCategorySuggestionQuery([
+          {
+            id: 1,
+            syncId: 'cat-uber-transport',
+            token: 'uber',
+            category: 'Transport',
+            score: 3,
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01'),
+          },
+        ]);
+
+        render(<Transaction transaction={fakeTransaction} accounts={fakeAccounts}/>);
+        await userEvent.click(screen.getByTestId("transaction"));
+        await userEvent.clear(screen.getByTestId("name"));
+        await userEvent.type(screen.getByTestId("name"), 'Uber Ride');
+
+        await waitFor(() => {
+          expect(screen.getByTestId("category")).toHaveValue('Food');
+        });
+    });
+
+    it('prefills a blank category when editing and a confident suggestion exists', async () => {
+        mockCategorySuggestionQuery([
+          {
+            id: 1,
+            syncId: 'cat-uber-transport',
+            token: 'uber',
+            category: 'Transport',
+            score: 3,
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01'),
+          },
+        ]);
+
+        render(<Transaction transaction={{ ...fakeTransaction, category: undefined }} accounts={fakeAccounts}/>);
+        await userEvent.click(screen.getByTestId("transaction"));
+        await userEvent.clear(screen.getByTestId("name"));
+        await userEvent.type(screen.getByTestId("name"), 'Uber Ride');
+
+        await waitFor(() => {
+          expect(screen.getByTestId("category")).toHaveValue('Transport');
+        });
     });
 
 })

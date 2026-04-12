@@ -10,6 +10,9 @@ vi.mock('./repository', () => {
       addAccount: vi.fn(),
       getAllTransactions: vi.fn(),
       addTransaction: vi.fn(),
+      getCategorySuggestionsByTokens: vi.fn(),
+      addCategorySuggestion: vi.fn(),
+      putCategorySuggestion: vi.fn(),
     }
   };
 });
@@ -53,6 +56,7 @@ describe('jsonToDB', () => {
         updatedAt: new Date('2024-01-01'),
       },
     ]);
+    vi.mocked(repository.getCategorySuggestionsByTokens).mockResolvedValue([]);
   });
 
   it('should parse a valid JSON file and insert transactions into the DB', async () => {
@@ -290,6 +294,68 @@ describe('jsonToDB', () => {
     await jsonToDB(file, 2);
 
     expect(repository.addTransaction).not.toHaveBeenCalled();
+  });
+
+  it('fills a missing category only when the confidence score is high', async () => {
+    const file = createMockFile(JSON.stringify([
+      {
+        value: -18,
+        type: 'Expense',
+        name: 'Uber Ride',
+        date: new Date('2024-01-01').toISOString(),
+      },
+    ]));
+
+    mockConfirm.mockReturnValue(true);
+    vi.mocked(repository.getAllTransactions).mockResolvedValue([]);
+    vi.mocked(repository.getCategorySuggestionsByTokens).mockResolvedValue([
+      {
+        id: 1,
+        syncId: 'cat-1',
+        token: 'uber',
+        category: 'Transport',
+        score: 2,
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
+      },
+    ]);
+
+    await jsonToDB(file, 1);
+
+    expect(repository.addTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'Uber Ride',
+        category: 'Transport',
+      })
+    );
+  });
+
+  it('learns from imported rows that already include a category', async () => {
+    const file = createMockFile(JSON.stringify([
+      {
+        value: -22,
+        type: 'Expense',
+        name: 'Uber Eats',
+        date: new Date('2024-01-01').toISOString(),
+        category: 'Food',
+      },
+    ]));
+
+    mockConfirm.mockReturnValue(true);
+    vi.mocked(repository.getAllTransactions).mockResolvedValue([]);
+
+    await jsonToDB(file, 1);
+
+    expect(repository.addCategorySuggestion).toHaveBeenCalledWith(expect.objectContaining({
+      token: 'uber',
+      category: 'Food',
+      score: 1,
+    }));
+    expect(repository.addCategorySuggestion).toHaveBeenCalledWith(expect.objectContaining({
+      token: 'eats',
+      category: 'Food',
+      score: 1,
+    }));
   });
 
 });

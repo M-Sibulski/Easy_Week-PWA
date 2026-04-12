@@ -1,7 +1,7 @@
 import CreateTransaction from "./CreateTransaction";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {describe, it, expect, vi} from "vitest";
+import {beforeEach, describe, it, expect, vi} from "vitest";
 import "@testing-library/jest-dom/vitest";
 import { db } from "../db";
 import { transactionTypes, Accounts } from "../types";
@@ -14,6 +14,11 @@ vi.mock('../db', async () => {
     db: {
       transactions: {
         add: vi.fn()
+      },
+      categorySuggestions: {
+        where: vi.fn(),
+        add: vi.fn(),
+        put: vi.fn(),
       }
     }
   };
@@ -42,6 +47,31 @@ const fakeAccounts: Accounts[] = [
 
 
 describe("CreateTransaction", () => {
+    const categorySuggestions = [
+      {
+        id: 1,
+        syncId: 'cat-uber-transport',
+        token: 'uber',
+        category: 'Transport',
+        score: 2,
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
+      },
+    ];
+
+    const mockCategorySuggestionQuery = (results = categorySuggestions) => {
+        const toArray = vi.fn().mockResolvedValue(results);
+        const anyOf = vi.fn().mockReturnValue({ toArray });
+        (db.categorySuggestions.where as ReturnType<typeof vi.fn>).mockReturnValue({ anyOf });
+        return { anyOf, toArray };
+    };
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        mockCategorySuggestionQuery([]);
+        (db.categorySuggestions.add as ReturnType<typeof vi.fn>).mockResolvedValue(1);
+        (db.categorySuggestions.put as ReturnType<typeof vi.fn>).mockResolvedValue(1);
+    });
     
     
     it("renders", () => {
@@ -142,4 +172,40 @@ describe("CreateTransaction", () => {
         const options = Array.from(typeInput.querySelectorAll('option')).map(opt => opt.value);
         expect(options).toEqual(transactionTypes);
     })
+
+    it('prefills category when a confident suggestion exists', async () => {
+        mockCategorySuggestionQuery();
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
+
+        await userEvent.click(screen.getByRole('open'));
+        await userEvent.type(screen.getByPlaceholderText(/Name/i), 'Uber Ride');
+
+        await waitFor(() => {
+            expect(screen.getByPlaceholderText(/Category/i)).toHaveValue('Transport');
+        });
+    });
+
+    it('learns manual categories when submitting a transaction', async () => {
+        mockCategorySuggestionQuery([]);
+        const addCategorySuggestion = db.categorySuggestions.add as ReturnType<typeof vi.fn>;
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
+
+        await userEvent.click(screen.getByRole('open'));
+        await userEvent.type(screen.getByPlaceholderText(/Name/i), 'Uber Eats');
+        await userEvent.type(screen.getByPlaceholderText(/\$ 0\.00/), '18');
+        await userEvent.type(screen.getByPlaceholderText(/Category/i), 'Transport');
+        await userEvent.click(screen.getByRole('submit'));
+
+        expect(addCategorySuggestion).toHaveBeenCalledTimes(2);
+        expect(addCategorySuggestion).toHaveBeenCalledWith(expect.objectContaining({
+            token: 'uber',
+            category: 'Transport',
+            score: 1,
+        }));
+        expect(addCategorySuggestion).toHaveBeenCalledWith(expect.objectContaining({
+            token: 'eats',
+            category: 'Transport',
+            score: 1,
+        }));
+    });
 })

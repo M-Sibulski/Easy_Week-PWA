@@ -1,6 +1,7 @@
 import { repository } from './repository';
 import { Transactions } from "../types";
 import { createSyncId } from '../syncIds';
+import { getSuggestedCategory, learnCategorySuggestion } from './categorySuggestions';
 
 type TransactionInsert = Omit<Transactions, "id" | "createdAt" | "updatedAt"> &
     Partial<Pick<Transactions, "createdAt" | "updatedAt">>;
@@ -19,6 +20,11 @@ interface ImportContext {
     accountId: number;
     accountSyncId: string;
     accountsByName: Map<string, { id: number; syncId: string }>;
+}
+
+interface PreparedTransaction {
+    transaction: TransactionInsert;
+    shouldLearnFromCategory: boolean;
 }
 
 const normalizeAccountName = (value: string) => value.trim().toLowerCase();
@@ -215,7 +221,7 @@ const parseTransactionRow = async (
     transaction: RawTransaction,
     context: ImportContext,
     onProgress?: ImportProgressCallback,
-): Promise<TransactionInsert | null> => {
+): Promise<PreparedTransaction | null> => {
     const value = parseNumberValue(transaction.value ?? transaction.Amount);
     const date = parseDateValue(transaction.date ?? transaction.Date ?? transaction["Processed Date"]);
 
@@ -229,7 +235,7 @@ const parseTransactionRow = async (
     const parsedType = parseTypeValue(transaction.type ?? transaction["Tran Type"], value);
     const name = parsedType === "Transfer" ? "Transfer" : rawName || payee || particulars || "Imported Transaction";
 
-    const category =
+    const explicitCategory =
         typeof transaction.category === "string"
             ? transaction.category
             : typeof transaction["Tran Type"] === "string"
@@ -237,6 +243,7 @@ const parseTransactionRow = async (
             : typeof transaction.Code === "string"
             ? transaction.Code
             : undefined;
+    const category = explicitCategory ?? (parsedType === "Transfer" ? undefined : await getSuggestedCategory(name, repository));
 
     const toAccountId = parseNumberValue(transaction.to_account_id);
     const toAccount = toAccountId === null
@@ -260,44 +267,53 @@ const parseTransactionRow = async (
 
         if (value < 0) {
             return {
-                syncId: createSyncId('txn'),
-                value: transferValue,
-                type: "Transfer",
-                name,
-                account_id: context.accountId,
-                account_sync_id: context.accountSyncId,
-                date,
-                category,
-                to_account_id: otherAccountId,
-                to_account_sync_id: otherAccount.syncId,
+                shouldLearnFromCategory: explicitCategory !== undefined,
+                transaction: {
+                    syncId: createSyncId('txn'),
+                    value: transferValue,
+                    type: "Transfer",
+                    name,
+                    account_id: context.accountId,
+                    account_sync_id: context.accountSyncId,
+                    date,
+                    category,
+                    to_account_id: otherAccountId,
+                    to_account_sync_id: otherAccount.syncId,
+                },
             };
         }
 
         return {
-            syncId: createSyncId('txn'),
-            value: transferValue,
-            type: "Transfer",
-            name,
-            account_id: otherAccountId,
-            account_sync_id: otherAccount.syncId,
-            date,
-            category,
-            to_account_id: context.accountId,
-            to_account_sync_id: context.accountSyncId,
+            shouldLearnFromCategory: explicitCategory !== undefined,
+            transaction: {
+                syncId: createSyncId('txn'),
+                value: transferValue,
+                type: "Transfer",
+                name,
+                account_id: otherAccountId,
+                account_sync_id: otherAccount.syncId,
+                date,
+                category,
+                to_account_id: context.accountId,
+                to_account_sync_id: context.accountSyncId,
+            },
         };
     }
 
     return {
-        syncId: createSyncId('txn'),
-        value,
-        type: parsedType,
-        name,
-        account_id: context.accountId,
-        account_sync_id: context.accountSyncId,
-        date,
-        category,
-        to_account_id: toAccountId === null ? undefined : toAccountId,
-        to_account_sync_id: toAccount?.syncId,
+        shouldLearnFromCategory: explicitCategory !== undefined,
+        transaction: {
+            syncId: createSyncId('txn'),
+            value,
+            type: parsedType,
+            name,
+            account_id: context.accountId,
+            account_sync_id: context.accountSyncId,
+            date,
+            category,
+            to_account_id: toAccountId === null ? undefined : toAccountId,
+            to_account_sync_id: toAccount?.syncId,
+        },
     };
 };
 
@@ -342,7 +358,7 @@ const buildTransactionSignature = (transaction: TransactionInsert | Transactions
 };
 
 const transactionsBulkAdd = async (
-    transactions: TransactionInsert[],
+    transactions: PreparedTransaction[],
     onProgress?: ImportProgressCallback,
 ) => {
     const answer = confirm("This will import new transactions and skip duplicates. Confirm?");
@@ -365,8 +381,8 @@ const transactionsBulkAdd = async (
 
     try {
         for (let index = 0; index < transactions.length; index++) {
-            const transaction = transactions[index];
-            const signature = buildTransactionSignature(transaction);
+            const preparedTransaction = transactions[index];
+            const signature = buildTransactionSignature(preparedTransaction.transaction);
 
             reportProgress(onProgress, {
                 stage: "importing",
@@ -382,7 +398,14 @@ const transactionsBulkAdd = async (
                 continue;
             }
 
-            await repository.addTransaction(transaction);
+            await repository.addTransaction(preparedTransaction.transaction);
+            if (preparedTransaction.shouldLearnFromCategory && preparedTransaction.transaction.category) {
+                await learnCategorySuggestion(
+                    preparedTransaction.transaction.name,
+                    preparedTransaction.transaction.category,
+                    repository,
+                );
+            }
             addedCount++;
         }
 
@@ -416,7 +439,7 @@ const jsonToDB = async (file: File | undefined, accountId: number, onProgress?: 
         });
         const rows = textToRows(text);
         const context = await createImportContext(accountId);
-        const transactions: TransactionInsert[] = [];
+        const transactions: PreparedTransaction[] = [];
 
         for (let index = 0; index < rows.length; index++) {
             reportProgress(onProgress, {

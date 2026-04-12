@@ -1,8 +1,9 @@
 import { repository } from './repository';
 import { Accounts, Transactions, TransactionType, transactionTypes } from '../types.ts';
 import './App.css';
-import { useState, useRef, useEffect } from 'react';
+import { ChangeEvent, useState, useRef, useEffect } from 'react';
 import { dateToInputType } from './dateConversions.ts';
+import { getSuggestedCategory, learnCategorySuggestion } from './categorySuggestions.ts';
 
 interface Props {
     transaction: Transactions;
@@ -16,6 +17,7 @@ const Transaction = ({transaction, accounts}:Props) => {
   const [name, setName] = useState(transaction.name);
   const [date, setDate] = useState(dateToInputType(transaction.date));
   const [category, setCategory] = useState(transaction.category);
+  const [categoryManuallyEdited, setCategoryManuallyEdited] = useState(Boolean(transaction.category));
   const [alert, setAlert] = useState<string[]>([]);
   const [displayAlert, setDisplayAlert] = useState(false);
   const [accountId, setAccountId] = useState(transaction.account_id);
@@ -43,6 +45,13 @@ const Transaction = ({transaction, accounts}:Props) => {
   }, [accounts, transaction])
 
   useEffect(() => {
+    setName(transaction.name);
+    setDate(dateToInputType(transaction.date));
+    setCategory(transaction.category);
+    setCategoryManuallyEdited(Boolean(transaction.category));
+  }, [transaction]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (formRef.current && !formRef.current.contains(event.target as Node)) {
         setOpen(false);
@@ -59,6 +68,32 @@ const Transaction = ({transaction, accounts}:Props) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [open]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const updateSuggestedCategory = async () => {
+      if (categoryManuallyEdited || !open) {
+        return;
+      }
+
+      if (name.trim() === '') {
+        setCategory('');
+        return;
+      }
+
+      const suggestedCategory = await getSuggestedCategory(name, repository);
+      if (!isCancelled) {
+        setCategory(suggestedCategory);
+      }
+    };
+
+    void updateSuggestedCategory();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [name, open, categoryManuallyEdited]);
 
 
   const handleDelete = async (e:React.MouseEvent<HTMLButtonElement>) => {
@@ -122,10 +157,22 @@ const Transaction = ({transaction, accounts}:Props) => {
         updatedAt: new Date(),
         });
       }
+
+      if (
+        category?.trim() &&
+        (name !== transaction.name || category !== transaction.category)
+      ) {
+        await learnCategorySuggestion(name, category, repository);
+      }
     } catch (error) {
       console.log(error)
     }
     setOpen(false);
+  }
+
+  const handleCategoryChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setCategory(e.currentTarget.value);
+    setCategoryManuallyEdited(true);
   }
 
 
@@ -187,7 +234,7 @@ const Transaction = ({transaction, accounts}:Props) => {
       
           <input data-testid="date" type="date" value={date} onChange={e => setDate(e.currentTarget.value)} name="date" id="date" className='bg-blue-300 rounded-md hover:bg-blue-200 w-full p-1'/>
       
-          <input data-testid="category" type='text' placeholder="Category" value={category} onChange={e => setCategory(e.currentTarget.value)} name="category" id="category" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'  />
+          <input data-testid="category" type='text' placeholder="Category" value={category} onChange={e => handleCategoryChange(e)} name="category" id="category" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'  />
         
           <button data-testid="submit" id={transaction.id.toString()} onClick={e => handleSaveButton(e)} className="cursor-pointer h-full p-2 rounded-md hover:bg-blue-500 flex justify-center">
             <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>
