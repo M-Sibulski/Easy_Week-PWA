@@ -2,7 +2,7 @@ import { repository } from './repository';
 import { Accounts, Transactions, TransactionType, transactionTypes } from '../types.ts';
 import './App.css';
 import { ChangeEvent, useState, useRef, useEffect } from 'react';
-import { dateToInputType } from './dateConversions.ts';
+import { dateToInputType, parseInputDate } from './dateConversions.ts';
 import { getSuggestedCategory, learnCategorySuggestion } from './categorySuggestions.ts';
 
 interface Props {
@@ -133,7 +133,7 @@ const Transaction = ({transaction, accounts}:Props) => {
         name: name === ''?'Transfer': name,
         account_id: accountId,
         account_sync_id: fromAccount.syncId,
-        date: new Date(date),
+        date: parseInputDate(date),
         category: category,
         type: type,
         to_account_id: toAccountId,
@@ -149,7 +149,7 @@ const Transaction = ({transaction, accounts}:Props) => {
         name: name === ''?'Generic Transaction': name,
         account_id: accountId,
         account_sync_id: fromAccount.syncId,
-        date: new Date(date),
+        date: parseInputDate(date),
         category: category,
         type: type,
         to_account_sync_id: undefined,

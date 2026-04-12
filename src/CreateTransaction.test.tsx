@@ -5,6 +5,7 @@ import {beforeEach, describe, it, expect, vi} from "vitest";
 import "@testing-library/jest-dom/vitest";
 import { db } from "../db";
 import { transactionTypes, Accounts } from "../types";
+import { dateToInputType } from "./dateConversions";
 
 vi.mock('../db', async () => {
   const actual = await vi.importActual<typeof import('../db')>('../db');
@@ -94,6 +95,16 @@ describe("CreateTransaction", () => {
         expect(screen.getByText(/New Transaction/i)).toBeInTheDocument();
     });
 
+    it('focuses the name input when opening the form', async () => {
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
+
+        await userEvent.click(screen.getByRole('open'));
+
+        await waitFor(() => {
+            expect(screen.getByPlaceholderText(/Name/i)).toHaveFocus();
+        });
+    });
+
     it('clears form when clicking the clear button', async () => {
         render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
         await userEvent.click(screen.getByRole('open'));
@@ -112,6 +123,7 @@ describe("CreateTransaction", () => {
         await userEvent.type(screen.getByPlaceholderText(/Name/i), 'Lunch');
         await userEvent.selectOptions(screen.getByRole('combobox'), 'Expense');
         await userEvent.type(screen.getByPlaceholderText(/\$ 0\.00/), '15.5');
+        fireEvent.change(screen.getByTestId('date-input'), { target: { value: '2025-07-20' } });
         await userEvent.type(screen.getByPlaceholderText(/Category/i), 'Food');
 
         const saveButton = screen.getByRole('submit');
@@ -123,6 +135,23 @@ describe("CreateTransaction", () => {
         expect(saved.value).toBeCloseTo(-15.5);
         expect(saved.type).toBe('Expense');
         expect(saved.category).toBe('Food');
+        expect(dateToInputType(saved.date)).toBe('2025-07-20');
+    });
+
+    it('focuses the name input again after submitting and clearing the form', async () => {
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
+
+        await userEvent.click(screen.getByRole('open'));
+        await userEvent.type(screen.getByPlaceholderText(/Name/i), 'Refocus Test');
+        await userEvent.type(screen.getByPlaceholderText(/\$ 0\.00/), '8');
+        await userEvent.type(screen.getByPlaceholderText(/Category/i), 'Food');
+
+        await userEvent.click(screen.getByRole('submit'));
+
+        await waitFor(() => {
+            expect(screen.getByPlaceholderText(/Name/i)).toHaveValue('');
+            expect(screen.getByPlaceholderText(/Name/i)).toHaveFocus();
+        });
     });
 
     it('strips non-numeric characters from value input', async () => {
@@ -196,7 +225,12 @@ describe("CreateTransaction", () => {
         await userEvent.type(screen.getByPlaceholderText(/Category/i), 'Transport');
         await userEvent.click(screen.getByRole('submit'));
 
-        expect(addCategorySuggestion).toHaveBeenCalledTimes(2);
+        expect(addCategorySuggestion).toHaveBeenCalledTimes(3);
+        expect(addCategorySuggestion).toHaveBeenCalledWith(expect.objectContaining({
+            token: '__exact_name__:uber eats',
+            category: 'Transport',
+            score: 1,
+        }));
         expect(addCategorySuggestion).toHaveBeenCalledWith(expect.objectContaining({
             token: 'uber',
             category: 'Transport',
@@ -206,6 +240,66 @@ describe("CreateTransaction", () => {
             token: 'eats',
             category: 'Transport',
             score: 1,
+        }));
+    });
+
+    it('does not clear the form when the selected account cannot be resolved', async () => {
+        render(<CreateTransaction accountId={0} accounts={fakeAccounts} renderOpenButton={true}/>);
+
+        await userEvent.click(screen.getByRole('open'));
+        await userEvent.type(screen.getByPlaceholderText(/Name/i), 'Broken Save');
+        await userEvent.type(screen.getByPlaceholderText(/\$ 0\.00/), '10');
+        await userEvent.type(screen.getByPlaceholderText(/Category/i), 'Food');
+        await userEvent.click(screen.getByRole('submit'));
+
+        expect(db.transactions.add).not.toHaveBeenCalled();
+        expect(screen.getByPlaceholderText(/Name/i)).toHaveValue('Broken Save');
+        expect(screen.getByPlaceholderText(/\$ 0\.00/)).toHaveValue('$ 10');
+        expect(screen.getByPlaceholderText(/Category/i)).toHaveValue('Food');
+    });
+
+    it('moves focus to the next field when pressing Enter before the category field', async () => {
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
+
+        await userEvent.click(screen.getByRole('open'));
+
+        const nameInput = screen.getByPlaceholderText(/Name/i);
+        const typeSelect = screen.getByRole('combobox');
+        const valueInput = screen.getByPlaceholderText(/\$ 0\.00/);
+        const dateInput = screen.getByTestId('date-input');
+        const categoryInput = screen.getByPlaceholderText(/Category/i);
+
+        nameInput.focus();
+        await userEvent.keyboard('{Enter}');
+        expect(typeSelect).toHaveFocus();
+
+        await userEvent.keyboard('{Enter}');
+        expect(valueInput).toHaveFocus();
+
+        await userEvent.keyboard('{Enter}');
+        expect(dateInput).toHaveFocus();
+
+        await userEvent.keyboard('{Enter}');
+        expect(categoryInput).toHaveFocus();
+    });
+
+    it('submits the form when pressing Enter on the category field', async () => {
+        const addMock = db.transactions.add as ReturnType<typeof vi.fn>;
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
+
+        await userEvent.click(screen.getByRole('open'));
+        await userEvent.type(screen.getByPlaceholderText(/Name/i), 'Keyboard Submit');
+        await userEvent.type(screen.getByPlaceholderText(/\$ 0\.00/), '12');
+        const categoryInput = screen.getByPlaceholderText(/Category/i);
+        await userEvent.type(categoryInput, 'Food');
+
+        categoryInput.focus();
+        await userEvent.keyboard('{Enter}');
+
+        expect(addMock).toHaveBeenCalledTimes(1);
+        expect(addMock.mock.calls[0][0]).toEqual(expect.objectContaining({
+            name: 'Keyboard Submit',
+            category: 'Food',
         }));
     });
 })

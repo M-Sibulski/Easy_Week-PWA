@@ -44,7 +44,7 @@ describe('App', () => {
     vi.clearAllMocks();
   });
 
-  it('renders the auth screen when the user is signed out', () => {
+  it('keeps the main screen available when the user is signed out', () => {
     mockUseAuth.mockReturnValue({
       loading: false,
       user: null,
@@ -54,7 +54,9 @@ describe('App', () => {
     render(<App />);
 
     expect(screen.getByTestId('app')).toBeInTheDocument();
-    expect(screen.getByText('Auth screen')).toBeInTheDocument();
+    expect(screen.getByText('Main screen ready')).toBeInTheDocument();
+    expect(screen.queryByText('Auth screen')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Syncing with Supabase')).not.toBeInTheDocument();
   });
 
   it('runs the initial sync before showing the main screen', async () => {

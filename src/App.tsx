@@ -5,17 +5,8 @@ import { useEffect, useState } from 'react';
 import { setViewportHeightVariable } from './setViewportHeight.ts';
 import { useSettingsArray } from './hooks/useAppData';
 import { AuthProvider } from './auth/AuthProvider';
-import AuthScreen from './auth/AuthScreen';
 import { runFullSync } from './sync/syncService';
 import { useAuth } from './auth/useAuth';
-
-function LoadingScreen({ message }: { message: string }) {
-  return (
-    <div className='flex h-full items-center justify-center bg-slate-100 p-4 text-center text-sm font-medium text-slate-600'>
-      {message}
-    </div>
-  );
-}
 
 function SyncIndicator() {
   return (
@@ -35,14 +26,15 @@ export function AppShell() {
   const isDarkMode = settingsArray?.[0]?.dark ?? true;
   const [initialSyncComplete, setInitialSyncComplete] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
+  const shouldSync = Boolean(user) && !loading;
 
   useEffect(() => {
     setViewportHeightVariable();
   }, []);
 
   useEffect(() => {
-    if (!user) {
-      setInitialSyncComplete(false);
+    if (!shouldSync || !user) {
+      setInitialSyncComplete(true);
       setSyncError(null);
       return;
     }
@@ -68,34 +60,13 @@ export function AppShell() {
     return () => {
       cancelled = true;
     };
-  }, [user]);
-
-  if (loading) {
-    return (
-      <div data-testid='app' className='sm:mx-auto sm:max-w-lg sm:py-5 overflow-y-hidden h-[calc(var(--vh,1vh)*100)]'>
-        <div className='relative sm:my-1 mx-auto overflow-y-hidden h-full w-full sm:rounded-2xl shadow-lg/20 flex flex-col'>
-          <LoadingScreen message='Restoring your Supabase session...' />
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div data-testid='app' className='sm:mx-auto sm:max-w-lg sm:py-5 overflow-y-hidden h-[calc(var(--vh,1vh)*100)]'>
-        <div className='relative sm:my-1 mx-auto overflow-y-hidden h-full w-full sm:rounded-2xl shadow-lg/20 flex flex-col'>
-          <AuthScreen />
-          <PWABadge />
-        </div>
-      </div>
-    );
-  }
+  }, [shouldSync, user]);
 
   return (
     <div data-testid='app' className={(isDarkMode ? 'theme-dark ' : 'theme-light ') + 'sm:mx-auto sm:max-w-lg sm:py-5 overflow-y-hidden h-[calc(var(--vh,1vh)*100)]'}>
       <div className='relative sm:my-1 mx-auto overflow-y-hidden h-full w-full sm:rounded-2xl shadow-lg/20 flex flex-col'>
         <div className='absolute right-2 top-2 z-20 flex items-center gap-2'>
-          {!initialSyncComplete && <SyncIndicator />}
+          {shouldSync && !initialSyncComplete && <SyncIndicator />}
           {syncError && (
             <p className='rounded-md bg-amber-100 px-2 py-1 text-xs text-amber-800'>
               Last sync issue: {syncError}

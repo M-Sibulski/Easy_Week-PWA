@@ -11,6 +11,19 @@ describe('categorySuggestions', () => {
     expect(tokenizeTransactionName('UBER uber 1234 to NZ CBD')).toEqual(['uber']);
   });
 
+  it('prefers exact previous transaction names when shared tokens are ambiguous', () => {
+    const suggestions: CategorySuggestion[] = [
+      buildSuggestionRow({ token: '__exact_name__:uber', category: 'Transport', score: 1 }),
+      buildSuggestionRow({ token: '__exact_name__:uber eats', category: 'Food', score: 1 }),
+      buildSuggestionRow({ token: 'uber', category: 'Transport', score: 0 }),
+      buildSuggestionRow({ token: 'uber', category: 'Food', score: 1 }),
+      buildSuggestionRow({ token: 'eats', category: 'Food', score: 1 }),
+    ];
+
+    expect(recommendCategoryFromName('Uber', suggestions)).toBe('Transport');
+    expect(recommendCategoryFromName('Uber Eats', suggestions)).toBe('Food');
+  });
+
   it('recommends the strongest category when it clears the confidence threshold', () => {
     const suggestions: CategorySuggestion[] = [
       buildSuggestionRow({ token: 'uber', category: 'Transport', score: 2 }),
@@ -38,12 +51,25 @@ describe('categorySuggestions', () => {
       buildSuggestionRow({ id: 4, syncId: 'cat-4', token: 'eats', category: 'Transport', score: 0 }),
     ];
 
-    expect(buildCategorySuggestionUpdates('Uber Eats', 'Transport', existing)).toEqual([
-      expect.objectContaining({ id: 1, token: 'uber', category: 'Transport', score: 3 }),
-      expect.objectContaining({ id: 2, token: 'uber', category: 'Food', score: 0 }),
-      expect.objectContaining({ id: 4, token: 'eats', category: 'Transport', score: 1 }),
-      expect.objectContaining({ id: 3, token: 'eats', category: 'Food', score: 2 }),
-    ]);
+    expect(buildCategorySuggestionUpdates('Uber Eats', 'Transport', existing)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ token: '__exact_name__:uber eats', category: 'Transport', score: 1 }),
+        expect.objectContaining({ id: 1, token: 'uber', category: 'Transport', score: 3 }),
+        expect.objectContaining({ id: 2, token: 'uber', category: 'Food', score: 0 }),
+        expect.objectContaining({ id: 4, token: 'eats', category: 'Transport', score: 1 }),
+        expect.objectContaining({ id: 3, token: 'eats', category: 'Food', score: 2 }),
+      ]),
+    );
+  });
+
+  it('learns an exact-name key alongside the word keys', () => {
+    expect(buildCategorySuggestionUpdates('Uber Eats', 'Food', [])).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ token: '__exact_name__:uber eats', category: 'Food', score: 1 }),
+        expect.objectContaining({ token: 'uber', category: 'Food', score: 1 }),
+        expect.objectContaining({ token: 'eats', category: 'Food', score: 1 }),
+      ]),
+    );
   });
 });
 

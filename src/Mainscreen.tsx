@@ -7,14 +7,12 @@ import { useEffect, useRef, useState } from 'react';
 import CreateTransaction from './CreateTransaction.tsx';
 import WeekScreen from './WeekScreen.tsx';
 import { createSyncId } from '../syncIds.ts';
-import { useAuth } from './auth/useAuth';
 
 interface Props {
   syncReady?: boolean;
 }
 
 const Mainscreen = ({ syncReady = true }: Props) => {
-  const { loading: authLoading, user } = useAuth();
   const [accountId, setAccountId] = useState(0);
   const [loading, setLoading] = useState(true);
   
@@ -36,6 +34,7 @@ const Mainscreen = ({ syncReady = true }: Props) => {
   const clearAllCollections = () => {
     repository.clearAccounts();
     repository.clearTransactions();
+    repository.clearCategorySuggestions();
     repository.clearSettings();
   }
 
@@ -88,10 +87,6 @@ const Mainscreen = ({ syncReady = true }: Props) => {
   }
 
   useEffect(() => {
-    if (authLoading || !user) {
-      return;
-    }
-
     //if first launch
     if(syncReady && settingsArray && settingsArray.length === 0) {
       clearAllCollections();
@@ -121,7 +116,7 @@ const Mainscreen = ({ syncReady = true }: Props) => {
       repository.updateSettings(1, {week_starting_day: 2})
     }
 
-  }, [accounts, accountId, authLoading, loading, settings, settingsArray, syncReady, user])
+  }, [accounts, accountId, loading, settings, settingsArray, syncReady])
 
   const handleScroll = () => {
     if (scrollDemoRef.current) {
