@@ -23,8 +23,9 @@ const stampForPut = <T extends { syncId?: string; createdAt?: Date; updatedAt?: 
 
 export class DexieRepository implements IRepository {
   // ── Accounts ──────────────────────────────────────────────────────────────
-  getAccounts(): Promise<Accounts[]> {
-    return db.accounts.toArray();
+  async getAccounts(): Promise<Accounts[]> {
+    const accounts = await db.accounts.toArray();
+    return accounts.filter((account) => !account.deletedAt);
   }
 
   getAccountById(id: number): Promise<Accounts | undefined> {
@@ -44,7 +45,7 @@ export class DexieRepository implements IRepository {
   }
 
   async deleteAccount(id: number): Promise<void> {
-    await db.accounts.delete(id);
+    await db.accounts.update(id, { deletedAt: new Date(), updatedAt: new Date() });
   }
 
   async clearAccounts(): Promise<void> {
@@ -52,16 +53,18 @@ export class DexieRepository implements IRepository {
   }
 
   // ── Transactions ──────────────────────────────────────────────────────────
-  getTransactions(): Promise<Transactions[]> {
-    return db.transactions.where('name').notEqual('').sortBy('date');
+  async getTransactions(): Promise<Transactions[]> {
+    const transactions = await db.transactions.where('name').notEqual('').sortBy('date');
+    return transactions.filter((transaction) => !transaction.deletedAt);
   }
 
   getAllTransactions(): Promise<Transactions[]> {
     return db.transactions.toArray();
   }
 
-  getTransactionsByAccountId(accountId: number): Promise<Transactions[]> {
-    return db.transactions.where('account_id').equals(accountId).toArray();
+  async getTransactionsByAccountId(accountId: number): Promise<Transactions[]> {
+    const transactions = await db.transactions.where('account_id').equals(accountId).toArray();
+    return transactions.filter((transaction) => !transaction.deletedAt);
   }
 
   addTransaction(transaction: TransactionInsert): Promise<number> {
@@ -73,7 +76,7 @@ export class DexieRepository implements IRepository {
   }
 
   async deleteTransaction(id: number): Promise<void> {
-    await db.transactions.delete(id);
+    await db.transactions.update(id, { deletedAt: new Date(), updatedAt: new Date() });
   }
 
   async clearTransactions(): Promise<void> {
@@ -83,7 +86,7 @@ export class DexieRepository implements IRepository {
   // ── Settings ──────────────────────────────────────────────────────────────
   async getSettings(): Promise<Settings | undefined> {
     const all = await db.settings.toArray();
-    return all[0];
+    return all.find((settings) => !settings.deletedAt);
   }
 
   async putSettings(settings: Settings): Promise<void> {

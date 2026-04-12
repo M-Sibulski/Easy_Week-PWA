@@ -19,6 +19,7 @@ vi.mock('../../db', () => ({
       toArray: vi.fn(),
       add: vi.fn(),
       put: vi.fn(),
+      update: vi.fn(),
       delete: vi.fn(),
       clear: vi.fn(),
     },
@@ -196,5 +197,43 @@ describe('DexieRepository', () => {
 
     expect(db.accounts.get).toHaveBeenCalledWith(9);
     expect(result).toEqual(account);
+  });
+
+  it('filters soft-deleted accounts out of regular account reads', async () => {
+    vi.mocked(db.accounts.toArray).mockResolvedValue([
+      {
+        id: 1,
+        syncId: 'acc-visible',
+        name: 'Visible',
+        type: 'Everyday',
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
+      },
+      {
+        id: 2,
+        syncId: 'acc-deleted',
+        name: 'Deleted',
+        type: 'Savings',
+        createdAt: new Date('2024-01-02'),
+        updatedAt: new Date('2024-01-02'),
+        deletedAt: new Date('2024-01-03'),
+      },
+    ] as Accounts[]);
+
+    const result = await repository.getAccounts();
+
+    expect(result).toHaveLength(1);
+    expect(result[0]?.syncId).toBe('acc-visible');
+  });
+
+  it('soft-deletes transactions so tombstones can sync', async () => {
+    vi.mocked(db.transactions.update).mockResolvedValue(1);
+
+    await repository.deleteTransaction(12);
+
+    expect(db.transactions.update).toHaveBeenCalledWith(12, expect.objectContaining({
+      deletedAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    }));
   });
 });

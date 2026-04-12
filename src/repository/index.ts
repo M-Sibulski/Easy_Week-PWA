@@ -1,4 +1,5 @@
 import { DexieRepository } from './DexieRepository';
+import { SyncingRepository } from './SyncingRepository';
 
 export type { IRepository, AccountInsert, TransactionInsert } from './IRepository';
 
@@ -6,4 +7,4 @@ export type { IRepository, AccountInsert, TransactionInsert } from './IRepositor
  * The active repository instance used throughout the app.
  * Swap this for a SupabaseRepository (or a multi-backend composite) to enable cloud sync.
  */
-export const repository = new DexieRepository();
+export const repository = new SyncingRepository(new DexieRepository());

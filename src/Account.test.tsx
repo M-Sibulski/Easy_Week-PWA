@@ -7,8 +7,16 @@ import type { Accounts, Settings } from "../types";
 import jsonToDB from "./JsonImport";
 import type { ImportProgress } from "./JsonImport";
 
+const mockSignOut = vi.fn().mockResolvedValue({});
+
 vi.mock("./JsonImport", () => ({
   default: vi.fn()
+}));
+
+vi.mock("./auth/AuthProvider", () => ({
+  useAuth: () => ({
+    signOut: mockSignOut,
+  }),
 }));
 
 const mockAccounts: Accounts[] = [
@@ -144,5 +152,22 @@ describe("Account component", () => {
     await userEvent.click(screen.getByText("Settings"));
 
     expect(await screen.findByTestId("settings-form")).toBeInTheDocument();
+  });
+
+  it("signs out from the account menu", async () => {
+    render(
+      <Account
+        accountId={1}
+        total={0}
+        accounts={mockAccounts}
+        changeAccount={vi.fn()}
+        settings={mockSettings}
+      />
+    );
+
+    await userEvent.click(screen.getByRole("close"));
+    await userEvent.click(screen.getByText("Sign out"));
+
+    expect(mockSignOut).toHaveBeenCalled();
   });
 });

@@ -1,21 +1,27 @@
 import { useAccounts, useSettingsArray, useTransactions } from './hooks/useAppData';
 import { repository } from './repository';
-import { Accounts, Transactions } from '../types.ts';
+import { Accounts, Settings, Transactions } from '../types.ts';
 import './App.css';
 import Account from './Account.tsx';
 import { useEffect, useRef, useState } from 'react';
 import CreateTransaction from './CreateTransaction.tsx';
 import WeekScreen from './WeekScreen.tsx';
 import { createSyncId } from '../syncIds.ts';
+import { useAuth } from './auth/AuthProvider.tsx';
 
-const Mainscreen = () => {
+interface Props {
+  syncReady?: boolean;
+}
+
+const Mainscreen = ({ syncReady = true }: Props) => {
+  const { loading: authLoading, user } = useAuth();
   const [accountId, setAccountId] = useState(0);
   const [loading, setLoading] = useState(true);
   
-  const transactions = useTransactions();
-  const settingsArray = useSettingsArray();
+  const transactions: Transactions[] | undefined = useTransactions();
+  const settingsArray: Settings[] | undefined = useSettingsArray();
   const settings = settingsArray && settingsArray[0];
-  const accounts = useAccounts();
+  const accounts: Accounts[] | undefined = useAccounts();
   const transactionsInAccount: Transactions[] = transactions ? transactions.filter(t => t.account_id === accountId) : [];
   const transactionsToAccount: Transactions[] = transactions ? transactions.filter(t => t.to_account_id === accountId).map(t => ({...t, value: 0-t.value})) : [];
   const transactionsCombined: Transactions[] = [...transactionsInAccount, ...transactionsToAccount].sort((a, b) => a.date.getTime() - b.date.getTime());
@@ -82,8 +88,12 @@ const Mainscreen = () => {
   }
 
   useEffect(() => {
+    if (authLoading || !user) {
+      return;
+    }
+
     //if first launch
-    if(settingsArray && settingsArray.length === 0) {
+    if(syncReady && settingsArray && settingsArray.length === 0) {
       clearAllCollections();
       createMainAccount();
       createInitialSettings();
@@ -111,7 +121,7 @@ const Mainscreen = () => {
       repository.updateSettings(1, {week_starting_day: 2})
     }
 
-  }, [accounts, accountId, loading, settings, settingsArray])
+  }, [accounts, accountId, authLoading, loading, settings, settingsArray, syncReady, user])
 
   const handleScroll = () => {
     if (scrollDemoRef.current) {

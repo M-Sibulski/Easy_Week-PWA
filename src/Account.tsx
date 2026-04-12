@@ -5,6 +5,7 @@ import CreateAccount from "./CreateAccount";
 import EditAccount from "./EditAccount";
 import jsonToDB, { ImportProgress } from "./JsonImport";
 import SettingsScreen from "./SettingsScreen";
+import { useAuth } from "./auth/AuthProvider";
 
 interface Props {
     accountId: number;
@@ -16,6 +17,7 @@ interface Props {
 
 
 const Account = ({accountId, total, accounts, changeAccount, settings}:Props) => {
+  const { signOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isEditAccountOpen, setIsEditAccountOpen] = useState(false);
   const [isCreateAccountOpen, setIsCreateAccountOpen] = useState(false);
@@ -101,6 +103,7 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
             <li onClick={() => {setIsEditAccountOpen(true); setIsMenuOpen(false)}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Edit Account</li>
             <li onClick={() => {setIsCreateAccountOpen(true); setIsMenuOpen(false)}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Create Account</li>
             <li onClick={() => {setIsSettingsOpen(true); setIsMenuOpen(false)}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Settings</li>
+            <li onClick={() => {setIsMenuOpen(false); void signOut();}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Sign out</li>
             <label htmlFor="file-input" className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Import File</label>
             <input id="file-input" type="file" accept=".json, .csv" onChange={(e) => {handleImportFile(e.target.files?.[0]); e.currentTarget.value = ''}} className="hidden"/>
             

@@ -15,6 +15,7 @@ export interface Accounts {
     goalDate?: Date,
     createdAt: Date,
     updatedAt: Date,
+    deletedAt?: Date,
 }
 
 export interface Transactions {
@@ -31,6 +32,7 @@ export interface Transactions {
     to_account_sync_id?: string,
     createdAt: Date,
     updatedAt: Date,
+    deletedAt?: Date,
 }
 
 export interface Settings {
@@ -42,4 +44,5 @@ export interface Settings {
     week_starting_day: number,
     createdAt: Date,
     updatedAt: Date,
+    deletedAt?: Date,
 }

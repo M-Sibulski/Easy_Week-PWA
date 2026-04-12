@@ -10,7 +10,7 @@ vi.mock('../db', () => ({
   db: {
     transactions: {
       put: vi.fn(),
-      delete: vi.fn()
+      update: vi.fn()
     }, 
     accounts: {
       put: vi.fn(),
@@ -116,7 +116,10 @@ describe("Transaction", () => {
         await userEvent.click(transaction);
         expect(screen.getByTestId("edit-transaction")).toBeVisible();
         await userEvent.click(deleteBtn);
-        expect(db.transactions.delete).toHaveBeenCalledWith(fakeTransaction.id);
+        expect(db.transactions.update).toHaveBeenCalledWith(fakeTransaction.id, expect.objectContaining({
+          deletedAt: expect.any(Date),
+          updatedAt: expect.any(Date),
+        }));
         waitFor(() => expect(screen.getByTestId("edit-transaction")).not.toBeInTheDocument())
     });
 

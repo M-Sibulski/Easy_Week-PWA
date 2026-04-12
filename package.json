@@ -16,6 +16,7 @@
     "repro:netlify:linux": "bash scripts/repro-netlify-linux.sh"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.103.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "vitest": "^4.1.1"

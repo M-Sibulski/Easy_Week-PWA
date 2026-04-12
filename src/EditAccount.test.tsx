@@ -11,7 +11,7 @@ vi.mock('../db.ts', () => {
     db: {
       accounts: {
         put: vi.fn(),
-        delete: vi.fn(),
+        update: vi.fn(),
       },
       settings: {
         update: vi.fn(),
@@ -22,7 +22,7 @@ vi.mock('../db.ts', () => {
             toArray: vi.fn().mockResolvedValue([{ id: 101 }, { id: 102 }]),
           })),
         })),
-        delete: vi.fn(),
+        update: vi.fn(),
       },
     },
   };
@@ -112,9 +112,18 @@ describe('EditAccount', () => {
     await userEvent.click(screen.getByTestId('delete'));
 
     
-    expect(db.accounts.delete).toHaveBeenCalledWith(1);
-    expect(db.transactions.delete).toHaveBeenCalledWith(101);
-    expect(db.transactions.delete).toHaveBeenCalledWith(102);
+    expect(db.accounts.update).toHaveBeenCalledWith(1, expect.objectContaining({
+      deletedAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    }));
+    expect(db.transactions.update).toHaveBeenCalledWith(101, expect.objectContaining({
+      deletedAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    }));
+    expect(db.transactions.update).toHaveBeenCalledWith(102, expect.objectContaining({
+      deletedAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    }));
     expect(mockCallback).toHaveBeenCalled();
     
   });

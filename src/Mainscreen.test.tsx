@@ -62,6 +62,13 @@ vi.mock('dexie-react-hooks', async () => {
   };
 });
 
+vi.mock('./auth/AuthProvider.tsx', () => ({
+  useAuth: () => ({
+    loading: false,
+    user: { id: 'user-1' },
+  }),
+}));
+
 describe("Mainscreen", () => {
   beforeEach(() => {
     vi.clearAllMocks();

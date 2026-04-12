@@ -102,6 +102,22 @@ class AppDatabase extends Dexie {
           }
         });
       });
+
+    this.version(4)
+      .stores({
+        accounts: '++id, &syncId, type, goalValue, goalDate, createdAt, updatedAt, deletedAt',
+        transactions: '++id, &syncId, value, type, name, account_id, account_sync_id, to_account_id, to_account_sync_id, date, category, createdAt, updatedAt, deletedAt',
+        settings: '++id, &syncId, dark, main_account_id, main_account_sync_id, createdAt, updatedAt, deletedAt',
+      })
+      .upgrade(async (tx) => {
+        const normalizeDeletedAt = (resource: Record<string, unknown>) => {
+          resource.deletedAt = resource.deletedAt instanceof Date ? resource.deletedAt : undefined;
+        };
+
+        await tx.table('accounts').toCollection().modify(normalizeDeletedAt);
+        await tx.table('transactions').toCollection().modify(normalizeDeletedAt);
+        await tx.table('settings').toCollection().modify(normalizeDeletedAt);
+      });
   }
 }
 

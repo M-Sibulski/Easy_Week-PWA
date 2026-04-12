@@ -9,15 +9,22 @@ import { Accounts, Settings, Transactions } from '../../types';
  */
 
 export function useAccounts() {
-  return useLiveQuery<Accounts[]>(() => db.accounts.toArray());
+  return useLiveQuery<Accounts[]>(async () => {
+    const accounts = await db.accounts.toArray();
+    return accounts.filter((account) => !account.deletedAt);
+  });
 }
 
 export function useTransactions() {
-  return useLiveQuery<Transactions[]>(() =>
-    db.transactions.where('name').notEqual('').sortBy('date')
-  );
+  return useLiveQuery<Transactions[]>(async () => {
+    const transactions = await db.transactions.where('name').notEqual('').sortBy('date');
+    return transactions.filter((transaction) => !transaction.deletedAt);
+  });
 }
 
 export function useSettingsArray() {
-  return useLiveQuery<Settings[]>(() => db.settings.toArray());
+  return useLiveQuery<Settings[]>(async () => {
+    const settings = await db.settings.toArray();
+    return settings.filter((row) => !row.deletedAt);
+  });
 }
