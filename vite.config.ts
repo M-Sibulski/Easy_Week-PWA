@@ -4,6 +4,31 @@ import react from '@vitejs/plugin-react';
 import tailwind from '@tailwindcss/vite';
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) {
+            return;
+          }
+          const normalized = id.replace(/\\/g, '/');
+          if (normalized.includes('@supabase')) {
+            return 'supabase';
+          }
+          if (normalized.includes('dexie')) {
+            return 'dexie';
+          }
+          if (
+            normalized.includes('node_modules/react-dom') ||
+            normalized.includes('node_modules/react/') ||
+            normalized.includes('node_modules/scheduler/')
+          ) {
+            return 'react-vendor';
+          }
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     tailwind(), 
