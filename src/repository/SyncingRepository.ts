@@ -1,6 +1,6 @@
 import type { Accounts, CategorySuggestion, Settings, Transactions } from '../../types';
 import type { AccountInsert, CategorySuggestionInsert, IRepository, TransactionInsert } from './IRepository';
-import { scheduleSync } from '../sync/syncService';
+import { hardDeleteRemoteCategorySuggestions, scheduleSync } from '../sync/syncService';
 
 export class SyncingRepository implements IRepository {
   constructor(private readonly innerRepository: IRepository) {}
@@ -90,6 +90,11 @@ export class SyncingRepository implements IRepository {
     const result = await this.innerRepository.putCategorySuggestion(suggestion);
     void scheduleSync();
     return result;
+  }
+
+  async deleteCategorySuggestionsBySyncIds(syncIds: string[]): Promise<void> {
+    await hardDeleteRemoteCategorySuggestions(syncIds);
+    await this.innerRepository.deleteCategorySuggestionsBySyncIds(syncIds);
   }
 
   clearCategorySuggestions(): Promise<void> {

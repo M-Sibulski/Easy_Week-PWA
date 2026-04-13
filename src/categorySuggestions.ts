@@ -42,6 +42,10 @@ function getSuggestionLookupKeys(name: string): string[] {
   return exactNameKey ? [exactNameKey, ...tokens] : tokens;
 }
 
+function isExactNameKey(token: string): boolean {
+  return token.startsWith(EXACT_NAME_PREFIX);
+}
+
 function rankCategoriesForKey(
   suggestions: CategorySuggestion[],
   matchingKey: string,
@@ -150,6 +154,27 @@ export function buildCategorySuggestionUpdates(
     const tokenSuggestions = existingSuggestions.filter((suggestion) => suggestion.token === token && !suggestion.deletedAt);
     const matchingSuggestion = tokenSuggestions.find((suggestion) => suggestion.category === normalizedCategory);
 
+    if (isExactNameKey(token)) {
+      if (matchingSuggestion) {
+        updates.push({
+          ...matchingSuggestion,
+          score: 1,
+        });
+      } else {
+        updates.push({
+          id: 0,
+          syncId: '',
+          token,
+          category: normalizedCategory,
+          score: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      }
+
+      return;
+    }
+
     if (matchingSuggestion) {
       updates.push({
         ...matchingSuggestion,
@@ -178,6 +203,26 @@ export function buildCategorySuggestionUpdates(
   });
 
   return updates;
+}
+
+function getExactNameHardDeleteSyncIds(
+  name: string,
+  category: string,
+  existingSuggestions: CategorySuggestion[],
+): string[] {
+  const exactNameKey = getExactNameKey(name);
+  const normalizedCategory = category.trim();
+
+  if (!exactNameKey || normalizedCategory === '') {
+    return [];
+  }
+
+  const exactNameSuggestions = existingSuggestions.filter((suggestion) => suggestion.token === exactNameKey && !suggestion.deletedAt);
+  const matchingSuggestion = exactNameSuggestions.find((suggestion) => suggestion.category === normalizedCategory);
+
+  return exactNameSuggestions
+    .filter((suggestion) => suggestion.category !== normalizedCategory || (matchingSuggestion ? suggestion.syncId !== matchingSuggestion.syncId : false))
+    .map((suggestion) => suggestion.syncId);
 }
 
 export async function getSuggestedCategory(
@@ -211,7 +256,7 @@ export async function learnCategorySuggestion(
   category: string,
   categorySuggestionRepository: Pick<
     IRepository,
-    'getCategorySuggestionsByTokens' | 'addCategorySuggestion' | 'putCategorySuggestion'
+    'getCategorySuggestionsByTokens' | 'addCategorySuggestion' | 'putCategorySuggestion' | 'deleteCategorySuggestionsBySyncIds'
   >,
 ): Promise<void> {
   const lookupKeys = getSuggestionLookupKeys(name);
@@ -225,11 +270,13 @@ export async function learnCategorySuggestion(
   }
 
   const existingSuggestions = await categorySuggestionRepository.getCategorySuggestionsByTokens(lookupKeys);
+  const exactNameDeleteSyncIds = getExactNameHardDeleteSyncIds(name, category, existingSuggestions);
   const updates = buildCategorySuggestionUpdates(name, category, existingSuggestions);
   logCategorySuggestionDebug('Learning category suggestion updates from submitted transaction.', {
     name,
     category,
     lookupKeys,
+    exactNameDeleteSyncIds,
     updates: updates.map((suggestion) => ({
       id: suggestion.id,
       token: suggestion.token,
@@ -237,6 +284,10 @@ export async function learnCategorySuggestion(
       score: suggestion.score,
     })),
   });
+
+  if (exactNameDeleteSyncIds.length > 0) {
+    await categorySuggestionRepository.deleteCategorySuggestionsBySyncIds(exactNameDeleteSyncIds);
+  }
 
   for (const suggestion of updates) {
     if (suggestion.id === 0) {

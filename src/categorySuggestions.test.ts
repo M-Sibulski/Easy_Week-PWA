@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { CategorySuggestion } from '../types';
 import {
   buildCategorySuggestionUpdates,
+  learnCategorySuggestion,
   recommendCategoryFromName,
   tokenizeTransactionName,
 } from './categorySuggestions';
@@ -70,6 +71,39 @@ describe('categorySuggestions', () => {
         expect.objectContaining({ token: 'eats', category: 'Food', score: 1 }),
       ]),
     );
+  });
+
+  it('hard-deletes previous exact-name rows when the same exact name is relearned with a different category', async () => {
+    const repository = {
+      getCategorySuggestionsByTokens: vi.fn().mockResolvedValue([
+        buildSuggestionRow({
+          id: 1,
+          syncId: 'exact-transport',
+          token: '__exact_name__:uber',
+          category: 'Transport',
+          score: 1,
+        }),
+        buildSuggestionRow({
+          id: 2,
+          syncId: 'token-transport',
+          token: 'uber',
+          category: 'Transport',
+          score: 2,
+        }),
+      ]),
+      addCategorySuggestion: vi.fn().mockResolvedValue(1),
+      putCategorySuggestion: vi.fn().mockResolvedValue(1),
+      deleteCategorySuggestionsBySyncIds: vi.fn().mockResolvedValue(undefined),
+    };
+
+    await learnCategorySuggestion('Uber', 'Food', repository);
+
+    expect(repository.deleteCategorySuggestionsBySyncIds).toHaveBeenCalledWith(['exact-transport']);
+    expect(repository.addCategorySuggestion).toHaveBeenCalledWith(expect.objectContaining({
+      token: '__exact_name__:uber',
+      category: 'Food',
+      score: 1,
+    }));
   });
 });
 

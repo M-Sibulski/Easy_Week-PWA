@@ -39,6 +39,7 @@ export interface IRepository {
   addCategorySuggestion(suggestion: CategorySuggestionInsert): Promise<number>;
   /** Full replace (upsert by id). */
   putCategorySuggestion(suggestion: CategorySuggestion): Promise<number>;
+  deleteCategorySuggestionsBySyncIds(syncIds: string[]): Promise<void>;
   clearCategorySuggestions(): Promise<void>;
 
   // ── Settings ──────────────────────────────────────────────────────────────

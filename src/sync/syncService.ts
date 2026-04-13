@@ -381,6 +381,32 @@ async function pushCategorySuggestions(userId: string, categorySuggestions: Cate
   }
 }
 
+export async function hardDeleteRemoteCategorySuggestions(syncIds: string[]) {
+  if (!supabase || syncIds.length === 0) {
+    return;
+  }
+
+  const { data, error: authError } = await supabase.auth.getUser();
+  if (authError) {
+    throw authError;
+  }
+
+  const user = data.user;
+  if (!user) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from('category_suggestions')
+    .delete()
+    .eq('user_id', user.id)
+    .in('sync_id', syncIds);
+
+  if (error) {
+    throw error;
+  }
+}
+
 async function pushSettings(userId: string, settings: Settings[]) {
   if (!supabase || settings.length === 0) {
     return;

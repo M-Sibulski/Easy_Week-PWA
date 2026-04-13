@@ -4,10 +4,11 @@ import "@testing-library/jest-dom/vitest";
 import { Accounts, Settings, Transactions } from "../types";
 import Mainscreen from "./Mainscreen";
 
-const { mockUseAccounts, mockUseTransactions, mockUseSettingsArray, mockRepository } = vi.hoisted(() => ({
+const { mockUseAccounts, mockUseTransactions, mockUseSettingsArray, mockRepository, mockIsResetCurrentUserDataInProgress } = vi.hoisted(() => ({
   mockUseAccounts: vi.fn(),
   mockUseTransactions: vi.fn(),
   mockUseSettingsArray: vi.fn(),
+  mockIsResetCurrentUserDataInProgress: vi.fn(),
   mockRepository: {
     clearAccounts: vi.fn(),
     clearTransactions: vi.fn(),
@@ -73,12 +74,17 @@ vi.mock('./hooks/useAppData', () => ({
   useSettingsArray: () => mockUseSettingsArray(),
 }));
 
+vi.mock('./resetUserData', () => ({
+  isResetCurrentUserDataInProgress: () => mockIsResetCurrentUserDataInProgress(),
+}));
+
 describe("Mainscreen", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseTransactions.mockReturnValue(mockTransactions);
     mockUseSettingsArray.mockReturnValue(mockSettings);
     mockUseAccounts.mockReturnValue(mockAccounts);
+    mockIsResetCurrentUserDataInProgress.mockReturnValue(false);
   });
 
   it("renders the current account summary and add button", async () => {
@@ -139,6 +145,50 @@ describe("Mainscreen", () => {
       expect(mockRepository.putAccount).toHaveBeenCalled();
       expect(mockRepository.putSettings).toHaveBeenCalled();
     });
+  });
+
+  it("does not bootstrap starter data while a reset is in progress", async () => {
+    mockUseSettingsArray.mockReturnValue([]);
+    mockIsResetCurrentUserDataInProgress.mockReturnValue(true);
+
+    render(<Mainscreen />);
+
+    await waitFor(() => {
+      expect(mockRepository.clearAccounts).not.toHaveBeenCalled();
+      expect(mockRepository.putAccount).not.toHaveBeenCalled();
+      expect(mockRepository.putSettings).not.toHaveBeenCalled();
+    });
+  });
+
+  it("does not start the empty-settings bootstrap twice while initialization is already running", async () => {
+    let releaseBootstrap: (() => void) | undefined;
+    const pendingBootstrap = new Promise<void>((resolve) => {
+      releaseBootstrap = resolve;
+    });
+
+    mockUseSettingsArray.mockReturnValue([]);
+    mockUseAccounts.mockReturnValue(mockAccounts);
+    mockRepository.clearAccounts.mockReturnValue(pendingBootstrap);
+    mockRepository.clearTransactions.mockResolvedValue(undefined);
+    mockRepository.clearCategorySuggestions.mockResolvedValue(undefined);
+    mockRepository.clearSettings.mockResolvedValue(undefined);
+    mockRepository.putAccount.mockResolvedValue(1);
+    mockRepository.putSettings.mockResolvedValue(undefined);
+
+    const { rerender } = render(<Mainscreen />);
+
+    await waitFor(() => {
+      expect(mockRepository.clearAccounts).toHaveBeenCalledTimes(1);
+    });
+
+    mockUseAccounts.mockReturnValue([...mockAccounts]);
+    rerender(<Mainscreen />);
+
+    await waitFor(() => {
+      expect(mockRepository.clearAccounts).toHaveBeenCalledTimes(1);
+    });
+
+    releaseBootstrap?.();
   });
 
   it("updates main_account_id when it's 0", async () => {

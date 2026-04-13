@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import SettingsScreen from './SettingsScreen';
 import { repository } from './repository';
+import { resetCurrentUserData } from './resetUserData';
 
 vi.mock('./repository', () => ({
   repository: {
@@ -16,6 +17,10 @@ vi.mock('./repository', () => ({
 
 vi.mock('../syncIds.ts', () => ({
   createSyncId: vi.fn(() => 'set-generated'),
+}));
+
+vi.mock('./resetUserData', () => ({
+  resetCurrentUserData: vi.fn(),
 }));
 
 describe('SettingsScreen', () => {
@@ -57,11 +62,9 @@ describe('SettingsScreen', () => {
     vi.stubGlobal('confirm', mockConfirm);
   });
 
-  it('clears all accounts and transactions after confirmation', async () => {
+  it('runs the full reset flow after confirmation', async () => {
     mockConfirm.mockReturnValue(true);
-    vi.mocked(repository.clearTransactions).mockResolvedValue(undefined);
-    vi.mocked(repository.clearAccounts).mockResolvedValue(undefined);
-    vi.mocked(repository.putSettings).mockResolvedValue(undefined);
+    vi.mocked(resetCurrentUserData).mockResolvedValue(undefined);
 
     render(
       <SettingsScreen
@@ -74,16 +77,7 @@ describe('SettingsScreen', () => {
 
     await userEvent.click(screen.getByTestId('clear-all-data'));
 
-    expect(repository.clearTransactions).toHaveBeenCalled();
-    expect(repository.clearAccounts).toHaveBeenCalled();
-    expect(repository.putSettings).toHaveBeenCalledWith(expect.objectContaining({
-      id: 3,
-      syncId: 'set-clear',
-      main_account_id: 0,
-      week_starting_day: 2,
-      dark: true,
-      createdAt: new Date('2024-01-01'),
-    }));
+    expect(resetCurrentUserData).toHaveBeenCalled();
     expect(mockCallback).toHaveBeenCalled();
   });
 
@@ -101,9 +95,7 @@ describe('SettingsScreen', () => {
 
     await userEvent.click(screen.getByTestId('clear-all-data'));
 
-    expect(repository.clearTransactions).not.toHaveBeenCalled();
-    expect(repository.clearAccounts).not.toHaveBeenCalled();
-    expect(repository.putSettings).not.toHaveBeenCalled();
+    expect(resetCurrentUserData).not.toHaveBeenCalled();
     expect(mockCallback).not.toHaveBeenCalled();
   });
 

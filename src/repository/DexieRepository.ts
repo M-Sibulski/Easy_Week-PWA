@@ -106,6 +106,15 @@ export class DexieRepository implements IRepository {
     return db.categorySuggestions.put(stampForPut(suggestion, 'cat'));
   }
 
+  async deleteCategorySuggestionsBySyncIds(syncIds: string[]): Promise<void> {
+    if (syncIds.length === 0) {
+      return;
+    }
+
+    const suggestions = await db.categorySuggestions.where('syncId').anyOf(syncIds).toArray();
+    await db.categorySuggestions.bulkDelete(suggestions.map((suggestion) => suggestion.id));
+  }
+
   async clearCategorySuggestions(): Promise<void> {
     await db.categorySuggestions.clear();
   }
