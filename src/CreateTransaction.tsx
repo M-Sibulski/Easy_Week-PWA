@@ -11,19 +11,6 @@ interface Props {
     renderOpenButton: boolean;
 }
 
-const logCreateTransactionSuggestionDebug = (message: string, details?: unknown) => {
-    if (!import.meta.env.DEV) {
-        return;
-    }
-
-    if (details === undefined) {
-        console.log(`[create-transaction] ${message}`);
-        return;
-    }
-
-    console.log(`[create-transaction] ${message}`, details);
-}
-
 const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
     const [open, setOpen] = useState(false);
     const [toAccountId, setToAccountId] = useState(0);
@@ -82,16 +69,7 @@ const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
             });
         }
         if (category.trim() !== '') {
-            logCreateTransactionSuggestionDebug('Submitting category to suggestion learner.', {
-                name,
-                category,
-            });
             await learnCategorySuggestion(name, category, repository);
-        } else {
-            logCreateTransactionSuggestionDebug('Skipping suggestion learning because category is blank.', {
-                name,
-                category,
-            });
         }
         } catch(error) {
             console.log(error)
@@ -193,25 +171,16 @@ const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
 
         const updateSuggestedCategory = async () => {
             if (categoryManuallyEdited) {
-                logCreateTransactionSuggestionDebug('Skipping autofill because category was manually edited.', {
-                    name,
-                    category,
-                });
                 return;
             }
 
             if (name.trim() === '') {
-                logCreateTransactionSuggestionDebug('Clearing suggested category because name is empty.');
                 setCategory('');
                 return;
             }
 
             const suggestedCategory = await getSuggestedCategory(name, repository);
             if (!isCancelled) {
-                logCreateTransactionSuggestionDebug('Applying suggestion lookup result to form.', {
-                    name,
-                    suggestedCategory: suggestedCategory ?? null,
-                });
                 setCategory(suggestedCategory ?? '');
             }
         };
