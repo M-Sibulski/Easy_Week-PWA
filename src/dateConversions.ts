@@ -6,6 +6,16 @@ export const dateToInputType = (date: Date) => {
     return formattedDate;
 }
 
+export const parseInputDate = (value: string) => {
+    const [year, month, day] = value.split('-').map(Number);
+
+    if (!year || !month || !day) {
+        return new Date(value);
+    }
+
+    return new Date(year, month - 1, day);
+}
+
 export const dateToTitle = (date:Date) => {
     const day = date.getDay()
     let dayName = ""

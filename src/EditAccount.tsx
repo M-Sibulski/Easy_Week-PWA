@@ -1,5 +1,5 @@
 import './App.css';
-import { db } from '../db.ts';
+import { repository } from './repository';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { AccountType, accountTypes, Accounts, Settings } from '../types.ts';
 import { dateToInputType } from './dateConversions.ts';
@@ -28,28 +28,34 @@ const EditAccount = ({open, callback, settings, account}: Props) => {
         e.preventDefault()
         console.log('EditAccount');
         try {
+            const createdAt = account?.createdAt ?? new Date();
+
             if (type === "Savings" as AccountType) {
             const newAccount: Partial<Accounts> = {
                 id: account?.id,
+                syncId: account?.syncId,
                 name: name,
                 type: type,
-                dateCreated: new Date(),
+                createdAt,
+                updatedAt: new Date(),
                 ...(Number(goalValue) > 0 ? {goalValue: Number(goalValue)} : {}),
                 ...(goalDate ? {goalDate:new Date(goalDate)} : {}),
             };            
-            await db.accounts.put(newAccount as Accounts);
+            await repository.putAccount(newAccount as Accounts);
             if (main && settings) {
-                db.settings.update(settings.id, {main_account_id: account?.id})
+                repository.updateSettings(settings.id, {main_account_id: account?.id, main_account_sync_id: account?.syncId})
             }
         } else {
-            await db.accounts.put({
+            await repository.putAccount({
                 id: account?.id,
+                syncId: account?.syncId,
                 name: name,
                 type: type,
-                dateCreated: new Date(),
-            });
+                createdAt,
+                updatedAt: new Date(),
+            } as Accounts);
             if (main && settings) {
-                db.settings.update(settings.id, {main_account_id: account?.id})
+                repository.updateSettings(settings.id, {main_account_id: account?.id, main_account_sync_id: account?.syncId})
             }
         }
         
@@ -76,12 +82,12 @@ const EditAccount = ({open, callback, settings, account}: Props) => {
         e.preventDefault()
         if (account) {
             try {
-                await db.accounts.delete(account.id);
+                await repository.deleteAccount(account.id);
             } catch(error) {
                 console.log(error);
             }
-            const transactionsToDelete = await db.transactions.where("account_id").equals(account.id).toArray();
-            transactionsToDelete.map(async a => await db.transactions.delete(a.id))
+            const transactionsToDelete = await repository.getTransactionsByAccountId(account.id);
+            transactionsToDelete.map(async a => await repository.deleteTransaction(a.id))
             console.log({transactionsToDelete})
         }
         

@@ -1,7 +1,10 @@
-import { db } from "../db";
+import { repository } from './repository';
 import { Transactions } from "../types";
+import { createSyncId } from '../syncIds';
+import { getSuggestedCategory, learnCategorySuggestion } from './categorySuggestions';
 
-type TransactionInsert = Omit<Transactions, "id">;
+type TransactionInsert = Omit<Transactions, "id" | "createdAt" | "updatedAt"> &
+    Partial<Pick<Transactions, "createdAt" | "updatedAt">>;
 type RawTransaction = Record<string, unknown>;
 type ImportStage = "reading" | "parsing" | "preparing" | "replacing" | "importing" | "complete" | "cancelled" | "error";
 
@@ -15,7 +18,13 @@ export interface ImportProgress {
 type ImportProgressCallback = (progress: ImportProgress) => void;
 interface ImportContext {
     accountId: number;
-    accountsByName: Map<string, number>;
+    accountSyncId: string;
+    accountsByName: Map<string, { id: number; syncId: string }>;
+}
+
+interface PreparedTransaction {
+    transaction: TransactionInsert;
+    shouldLearnFromCategory: boolean;
 }
 
 const normalizeAccountName = (value: string) => value.trim().toLowerCase();
@@ -28,6 +37,18 @@ const formatDateKey = (date: Date) => {
 };
 const reportProgress = (callback: ImportProgressCallback | undefined, progress: ImportProgress) => {
     callback?.(progress);
+};
+
+const readFileText = async (file: File): Promise<string> => {
+    if (typeof file.text === "function") {
+        return file.text();
+    }
+
+    if (typeof Blob !== "undefined" && file instanceof Blob) {
+        return await new Response(file).text();
+    }
+
+    throw new Error("Unable to read file contents.");
 };
 
 const parseCsvLine = (line: string): string[] => {
@@ -150,14 +171,20 @@ const parseTypeValue = (raw: unknown, value: number): Transactions["type"] => {
 };
 
 const createImportContext = async (accountId: number): Promise<ImportContext> => {
-    const accounts = await db.accounts.toArray();
-    const accountsByName = new Map<string, number>();
+    const accounts = await repository.getAccounts();
+    const currentAccount = accounts.find((account) => account.id === accountId);
+
+    if (!currentAccount) {
+        throw new Error('Selected account not found.');
+    }
+
+    const accountsByName = new Map<string, { id: number; syncId: string }>();
 
     accounts.forEach((account) => {
-        accountsByName.set(normalizeAccountName(account.name), account.id);
+        accountsByName.set(normalizeAccountName(account.name), { id: account.id, syncId: account.syncId });
     });
 
-    return { accountId, accountsByName };
+    return { accountId, accountSyncId: currentAccount.syncId, accountsByName };
 };
 
 const resolveTransferAccountId = async (
@@ -166,10 +193,10 @@ const resolveTransferAccountId = async (
     onProgress?: ImportProgressCallback,
 ): Promise<number> => {
     const normalizedName = normalizeAccountName(accountName);
-    const existingAccountId = context.accountsByName.get(normalizedName);
+    const existingAccount = context.accountsByName.get(normalizedName);
 
-    if (existingAccountId !== undefined) {
-        return existingAccountId;
+    if (existingAccount !== undefined) {
+        return existingAccount.id;
     }
 
     reportProgress(onProgress, {
@@ -177,13 +204,16 @@ const resolveTransferAccountId = async (
         message: `Creating account ${accountName}...`,
     });
 
-    const accountId = await db.accounts.add({
+    const syncId = createSyncId('acc');
+    const accountId = await repository.addAccount({
+        syncId,
         name: accountName,
         type: "Everyday",
-        dateCreated: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
     });
 
-    context.accountsByName.set(normalizedName, accountId);
+    context.accountsByName.set(normalizedName, { id: accountId, syncId });
     return accountId;
 };
 
@@ -191,7 +221,7 @@ const parseTransactionRow = async (
     transaction: RawTransaction,
     context: ImportContext,
     onProgress?: ImportProgressCallback,
-): Promise<TransactionInsert | null> => {
+): Promise<PreparedTransaction | null> => {
     const value = parseNumberValue(transaction.value ?? transaction.Amount);
     const date = parseDateValue(transaction.date ?? transaction.Date ?? transaction["Processed Date"]);
 
@@ -205,7 +235,7 @@ const parseTransactionRow = async (
     const parsedType = parseTypeValue(transaction.type ?? transaction["Tran Type"], value);
     const name = parsedType === "Transfer" ? "Transfer" : rawName || payee || particulars || "Imported Transaction";
 
-    const category =
+    const explicitCategory =
         typeof transaction.category === "string"
             ? transaction.category
             : typeof transaction["Tran Type"] === "string"
@@ -213,8 +243,12 @@ const parseTransactionRow = async (
             : typeof transaction.Code === "string"
             ? transaction.Code
             : undefined;
+    const category = explicitCategory ?? (parsedType === "Transfer" ? undefined : await getSuggestedCategory(name, repository));
 
     const toAccountId = parseNumberValue(transaction.to_account_id);
+    const toAccount = toAccountId === null
+        ? undefined
+        : Array.from(context.accountsByName.values()).find((account) => account.id === toAccountId);
 
     if (parsedType === "Transfer") {
         const otherAccountName = payee || particulars;
@@ -223,39 +257,63 @@ const parseTransactionRow = async (
         }
 
         const otherAccountId = await resolveTransferAccountId(otherAccountName, context, onProgress);
+        const otherAccount = Array.from(context.accountsByName.values()).find((account) => account.id === otherAccountId);
+
+        if (!otherAccount) {
+            return null;
+        }
+
         const transferValue = -Math.abs(value);
 
         if (value < 0) {
             return {
-                value: transferValue,
-                type: "Transfer",
-                name,
-                account_id: context.accountId,
-                date,
-                category,
-                to_account_id: otherAccountId,
+                shouldLearnFromCategory: explicitCategory !== undefined,
+                transaction: {
+                    syncId: createSyncId('txn'),
+                    value: transferValue,
+                    type: "Transfer",
+                    name,
+                    account_id: context.accountId,
+                    account_sync_id: context.accountSyncId,
+                    date,
+                    category,
+                    to_account_id: otherAccountId,
+                    to_account_sync_id: otherAccount.syncId,
+                },
             };
         }
 
         return {
-            value: transferValue,
-            type: "Transfer",
-            name,
-            account_id: otherAccountId,
-            date,
-            category,
-            to_account_id: context.accountId,
+            shouldLearnFromCategory: explicitCategory !== undefined,
+            transaction: {
+                syncId: createSyncId('txn'),
+                value: transferValue,
+                type: "Transfer",
+                name,
+                account_id: otherAccountId,
+                account_sync_id: otherAccount.syncId,
+                date,
+                category,
+                to_account_id: context.accountId,
+                to_account_sync_id: context.accountSyncId,
+            },
         };
     }
 
     return {
-        value,
-        type: parsedType,
-        name,
-        account_id: context.accountId,
-        date,
-        category,
-        to_account_id: toAccountId === null ? undefined : toAccountId,
+        shouldLearnFromCategory: explicitCategory !== undefined,
+        transaction: {
+            syncId: createSyncId('txn'),
+            value,
+            type: parsedType,
+            name,
+            account_id: context.accountId,
+            account_sync_id: context.accountSyncId,
+            date,
+            category,
+            to_account_id: toAccountId === null ? undefined : toAccountId,
+            to_account_sync_id: toAccount?.syncId,
+        },
     };
 };
 
@@ -300,7 +358,7 @@ const buildTransactionSignature = (transaction: TransactionInsert | Transactions
 };
 
 const transactionsBulkAdd = async (
-    transactions: TransactionInsert[],
+    transactions: PreparedTransaction[],
     onProgress?: ImportProgressCallback,
 ) => {
     const answer = confirm("This will import new transactions and skip duplicates. Confirm?");
@@ -312,7 +370,7 @@ const transactionsBulkAdd = async (
         return;
     }
 
-    const existingTransactions = await db.transactions.toArray();
+    const existingTransactions = await repository.getAllTransactions();
     const skipBudget = new Map<string, number>();
     for (const t of existingTransactions) {
         const sig = buildTransactionSignature(t);
@@ -323,8 +381,8 @@ const transactionsBulkAdd = async (
 
     try {
         for (let index = 0; index < transactions.length; index++) {
-            const transaction = transactions[index];
-            const signature = buildTransactionSignature(transaction);
+            const preparedTransaction = transactions[index];
+            const signature = buildTransactionSignature(preparedTransaction.transaction);
 
             reportProgress(onProgress, {
                 stage: "importing",
@@ -340,7 +398,14 @@ const transactionsBulkAdd = async (
                 continue;
             }
 
-            await db.transactions.add(transaction);
+            await repository.addTransaction(preparedTransaction.transaction);
+            if (preparedTransaction.shouldLearnFromCategory && preparedTransaction.transaction.category) {
+                await learnCategorySuggestion(
+                    preparedTransaction.transaction.name,
+                    preparedTransaction.transaction.category,
+                    repository,
+                );
+            }
             addedCount++;
         }
 
@@ -367,14 +432,14 @@ const jsonToDB = async (file: File | undefined, accountId: number, onProgress?: 
             stage: "reading",
             message: "Reading import file...",
         });
-        const text = await file.text();
+        const text = await readFileText(file);
         reportProgress(onProgress, {
             stage: "parsing",
             message: "Parsing import data...",
         });
         const rows = textToRows(text);
         const context = await createImportContext(accountId);
-        const transactions: TransactionInsert[] = [];
+        const transactions: PreparedTransaction[] = [];
 
         for (let index = 0; index < rows.length; index++) {
             reportProgress(onProgress, {

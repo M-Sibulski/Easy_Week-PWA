@@ -16,9 +16,9 @@
     "repro:netlify:linux": "bash scripts/repro-netlify-linux.sh"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.103.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "vitest": "^4.1.1"
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
@@ -42,6 +42,7 @@
     "tailwindcss": "^4.1.11",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.2",
+    "vitest": "^4.1.1",
     "vite": "^7.3.1",
     "vite-plugin-pwa": "^1.2.0",
     "workbox-core": "^7.4.0",

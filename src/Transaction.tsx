@@ -1,8 +1,9 @@
-import { db } from '../db.ts';
+import { repository } from './repository';
 import { Accounts, Transactions, TransactionType, transactionTypes } from '../types.ts';
 import './App.css';
-import { useState, useRef, useEffect } from 'react';
-import { dateToInputType } from './dateConversions.ts';
+import { ChangeEvent, useState, useRef, useEffect } from 'react';
+import { dateToInputType, parseInputDate } from './dateConversions.ts';
+import { getSuggestedCategory, learnCategorySuggestion } from './categorySuggestions.ts';
 
 interface Props {
     transaction: Transactions;
@@ -16,6 +17,7 @@ const Transaction = ({transaction, accounts}:Props) => {
   const [name, setName] = useState(transaction.name);
   const [date, setDate] = useState(dateToInputType(transaction.date));
   const [category, setCategory] = useState(transaction.category);
+  const [categoryManuallyEdited, setCategoryManuallyEdited] = useState(Boolean(transaction.category));
   const [alert, setAlert] = useState<string[]>([]);
   const [displayAlert, setDisplayAlert] = useState(false);
   const [accountId, setAccountId] = useState(transaction.account_id);
@@ -43,6 +45,13 @@ const Transaction = ({transaction, accounts}:Props) => {
   }, [accounts, transaction])
 
   useEffect(() => {
+    setName(transaction.name);
+    setDate(dateToInputType(transaction.date));
+    setCategory(transaction.category);
+    setCategoryManuallyEdited(Boolean(transaction.category));
+  }, [transaction]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (formRef.current && !formRef.current.contains(event.target as Node)) {
         setOpen(false);
@@ -60,12 +69,38 @@ const Transaction = ({transaction, accounts}:Props) => {
     };
   }, [open]);
 
+  useEffect(() => {
+    let isCancelled = false;
+
+    const updateSuggestedCategory = async () => {
+      if (categoryManuallyEdited || !open) {
+        return;
+      }
+
+      if (name.trim() === '') {
+        setCategory('');
+        return;
+      }
+
+      const suggestedCategory = await getSuggestedCategory(name, repository);
+      if (!isCancelled) {
+        setCategory(suggestedCategory);
+      }
+    };
+
+    void updateSuggestedCategory();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [name, open, categoryManuallyEdited]);
+
 
   const handleDelete = async (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
-    const id=Number(e.currentTarget.id);
+    const id = transaction.id;
     try {
-      await db.transactions.delete(id);
+      await repository.deleteTransaction(id);
     } catch(error) {
       console.log(error);
     }
@@ -79,32 +114,65 @@ const Transaction = ({transaction, accounts}:Props) => {
   const handleSaveButton = async (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try {
+      const fromAccount = accounts?.find(a => a.id === accountId);
+      const targetAccount = accounts?.find(a => a.id === toAccountId);
+
+      if (!fromAccount) {
+        return;
+      }
+
       if (type === "Transfer" as TransactionType) {
-        await db.transactions.put({
+        if (!targetAccount) {
+          return;
+        }
+
+        await repository.putTransaction({
         id: transaction.id,
+        syncId: transaction.syncId,
         value: 0-Number(value),
         name: name === ''?'Transfer': name,
         account_id: accountId,
-        date: new Date(date),
+        account_sync_id: fromAccount.syncId,
+        date: parseInputDate(date),
         category: category,
         type: type,
-        to_account_id: toAccountId
+        to_account_id: toAccountId,
+        to_account_sync_id: targetAccount.syncId,
+        createdAt: transaction.createdAt,
+        updatedAt: new Date(),
         });
       } else {
-        await db.transactions.put({
+        await repository.putTransaction({
         id: transaction.id,
+        syncId: transaction.syncId,
         value: type === 'Expense' ? 0-Number(value) : Number(value),
         name: name === ''?'Generic Transaction': name,
         account_id: accountId,
-        date: new Date(date),
+        account_sync_id: fromAccount.syncId,
+        date: parseInputDate(date),
         category: category,
-        type: type
+        type: type,
+        to_account_sync_id: undefined,
+        createdAt: transaction.createdAt,
+        updatedAt: new Date(),
         });
+      }
+
+      if (
+        category?.trim() &&
+        (name !== transaction.name || category !== transaction.category)
+      ) {
+        await learnCategorySuggestion(name, category, repository);
       }
     } catch (error) {
       console.log(error)
     }
     setOpen(false);
+  }
+
+  const handleCategoryChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setCategory(e.currentTarget.value);
+    setCategoryManuallyEdited(true);
   }
 
 
@@ -166,7 +234,7 @@ const Transaction = ({transaction, accounts}:Props) => {
       
           <input data-testid="date" type="date" value={date} onChange={e => setDate(e.currentTarget.value)} name="date" id="date" className='bg-blue-300 rounded-md hover:bg-blue-200 w-full p-1'/>
       
-          <input data-testid="category" type='text' placeholder="Category" value={category} onChange={e => setCategory(e.currentTarget.value)} name="category" id="category" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'  />
+          <input data-testid="category" type='text' placeholder="Category" value={category} onChange={e => handleCategoryChange(e)} name="category" id="category" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'  />
         
           <button data-testid="submit" id={transaction.id.toString()} onClick={e => handleSaveButton(e)} className="cursor-pointer h-full p-2 rounded-md hover:bg-blue-500 flex justify-center">
             <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>

@@ -11,7 +11,7 @@ vi.mock('../db.ts', () => {
     db: {
       accounts: {
         put: vi.fn(),
-        delete: vi.fn(),
+        update: vi.fn(),
       },
       settings: {
         update: vi.fn(),
@@ -22,7 +22,7 @@ vi.mock('../db.ts', () => {
             toArray: vi.fn().mockResolvedValue([{ id: 101 }, { id: 102 }]),
           })),
         })),
-        delete: vi.fn(),
+        update: vi.fn(),
       },
     },
   };
@@ -32,17 +32,22 @@ describe('EditAccount', () => {
   const mockCallback = vi.fn();
   const mockAccount: Accounts = {
     id: 1,
+    syncId: 'acc-vacation',
     name: 'Vacation Fund',
     type: 'Savings',
-    dateCreated: new Date('2024-01-01'),
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
     goalDate: new Date('2025-12-31'),
     goalValue: 5000,
   };
   const mockSettings: Settings = {
     id: 1,
+    syncId: 'set-main',
     main_account_id: 1,
     dark: false,
     week_starting_day: 1,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
   };
 
   beforeEach(() => {
@@ -80,7 +85,7 @@ describe('EditAccount', () => {
         goalDate: new Date('2025-12-31'),
     })
     );
-    expect(db.settings.update).toHaveBeenCalledWith(1, { main_account_id: 1 });
+    expect(db.settings.update).toHaveBeenCalledWith(1, expect.objectContaining({ main_account_id: 1 }));
     expect(mockCallback).toHaveBeenCalled();
     
   });
@@ -107,9 +112,18 @@ describe('EditAccount', () => {
     await userEvent.click(screen.getByTestId('delete'));
 
     
-    expect(db.accounts.delete).toHaveBeenCalledWith(1);
-    expect(db.transactions.delete).toHaveBeenCalledWith(101);
-    expect(db.transactions.delete).toHaveBeenCalledWith(102);
+    expect(db.accounts.update).toHaveBeenCalledWith(1, expect.objectContaining({
+      deletedAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    }));
+    expect(db.transactions.update).toHaveBeenCalledWith(101, expect.objectContaining({
+      deletedAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    }));
+    expect(db.transactions.update).toHaveBeenCalledWith(102, expect.objectContaining({
+      deletedAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    }));
     expect(mockCallback).toHaveBeenCalled();
     
   });

@@ -7,21 +7,33 @@ import type { Accounts, Settings } from "../types";
 import jsonToDB from "./JsonImport";
 import type { ImportProgress } from "./JsonImport";
 
+const mockSignOut = vi.fn().mockResolvedValue({});
+
 vi.mock("./JsonImport", () => ({
   default: vi.fn()
+}));
+
+vi.mock("./auth/useAuth", () => ({
+  useAuth: () => ({
+    signOut: mockSignOut,
+  }),
 }));
 
 const mockAccounts: Accounts[] = [
   {
     id: 1,
+    syncId: "acc-main",
     name: "Main",
-    dateCreated: new Date("2024-01-01"),
+    createdAt: new Date("2024-01-01"),
+    updatedAt: new Date("2024-01-01"),
     type: "Everyday"
   },
   {
     id: 2,
+    syncId: "acc-savings",
     name: "Savings",
-    dateCreated: new Date("2024-02-01"),
+    createdAt: new Date("2024-02-01"),
+    updatedAt: new Date("2024-02-01"),
     type: "Savings",
     goalDate: new Date("2026-10-07"),
     goalValue: 500
@@ -30,9 +42,12 @@ const mockAccounts: Accounts[] = [
 
 const mockSettings: Settings = {
   id: 1,
+  syncId: "set-main",
   main_account_id: 1,
   dark: false,
-  week_starting_day: 1
+  week_starting_day: 1,
+  createdAt: new Date("2024-01-01"),
+  updatedAt: new Date("2024-01-01"),
 };
 
 describe("Account component", () => {
@@ -137,5 +152,22 @@ describe("Account component", () => {
     await userEvent.click(screen.getByText("Settings"));
 
     expect(await screen.findByTestId("settings-form")).toBeInTheDocument();
+  });
+
+  it("signs out from the account menu", async () => {
+    render(
+      <Account
+        accountId={1}
+        total={0}
+        accounts={mockAccounts}
+        changeAccount={vi.fn()}
+        settings={mockSettings}
+      />
+    );
+
+    await userEvent.click(screen.getByRole("close"));
+    await userEvent.click(screen.getByText("Sign out"));
+
+    expect(mockSignOut).toHaveBeenCalled();
   });
 });

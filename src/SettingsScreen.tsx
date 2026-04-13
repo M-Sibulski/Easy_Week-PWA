@@ -1,7 +1,9 @@
 import './App.css';
-import { db } from '../db.ts';
+import { repository } from './repository';
 import { Accounts, Settings } from '../types.ts';
 import { useEffect, useRef, useState } from 'react';
+import { createSyncId } from '../syncIds.ts';
+import { resetCurrentUserData } from './resetUserData';
 
 interface Props {
   open: boolean;
@@ -20,18 +22,12 @@ const weekDays = [
   { label: 'Saturday', value: 6 }
 ];
 
-const defaultSettings = {
-  id: 1,
-  main_account_id: 0,
-  week_starting_day: 2,
-  dark: true,
-};
-
 const SettingsScreen = ({ open, callback, settings, accounts }: Props) => {
   const [shouldRender, setShouldRender] = useState(false);
   const [mainAccountId, setMainAccountId] = useState(0);
   const [weekStartingDay, setWeekStartingDay] = useState(2);
   const [darkMode, setDarkMode] = useState(true);
+  const [isResettingData, setIsResettingData] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -76,19 +72,28 @@ const SettingsScreen = ({ open, callback, settings, accounts }: Props) => {
   const saveSettings = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const mainAccountSyncId = accounts?.find(account => account.id === mainAccountId)?.syncId;
+
     try {
       if (settings) {
-        await db.settings.update(settings.id, {
+        await repository.updateSettings(settings.id, {
           main_account_id: mainAccountId,
+          main_account_sync_id: mainAccountSyncId,
           week_starting_day: weekStartingDay,
           dark: darkMode
         });
       } else {
-        await db.settings.put({
+        const now = new Date();
+
+        await repository.putSettings({
           id: 1,
+          syncId: createSyncId('set'),
           main_account_id: mainAccountId,
+          main_account_sync_id: mainAccountSyncId,
           week_starting_day: weekStartingDay,
-          dark: darkMode
+          dark: darkMode,
+          createdAt: now,
+          updatedAt: now,
         });
       }
     } catch (error) {
@@ -104,25 +109,20 @@ const SettingsScreen = ({ open, callback, settings, accounts }: Props) => {
   };
 
   const handleClearAllData = async () => {
-    const answer = confirm('This will delete all accounts and transactions. Continue?');
+    const answer = confirm('This will permanently delete all of your accounts, transactions, categories, and settings from this device and the API, then recreate the starter pack. Continue?');
     if (!answer) {
       return;
     }
 
     try {
-      await db.transactions.clear();
-      await db.accounts.clear();
-      await db.settings.put({
-        id: settings?.id ?? defaultSettings.id,
-        main_account_id: defaultSettings.main_account_id,
-        week_starting_day: defaultSettings.week_starting_day,
-        dark: defaultSettings.dark,
-      });
+      setIsResettingData(true);
+      await resetCurrentUserData();
+      callback();
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsResettingData(false);
     }
-
-    callback();
   };
 
   return (
@@ -201,9 +201,10 @@ const SettingsScreen = ({ open, callback, settings, accounts }: Props) => {
               data-testid="clear-all-data"
               type="button"
               onClick={handleClearAllData}
+              disabled={isResettingData}
               className="cursor-pointer rounded-md border border-red-200 bg-red-500/80 p-2 text-white hover:bg-red-600"
             >
-              Clear All Data
+              {isResettingData ? 'Resetting Data...' : 'Reset All Data'}
             </button>
 
             <button

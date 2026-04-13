@@ -10,7 +10,12 @@ vi.mock('../db', () => ({
   db: {
     transactions: {
       put: vi.fn(),
-      delete: vi.fn()
+      update: vi.fn()
+    },
+    categorySuggestions: {
+      where: vi.fn(),
+      add: vi.fn(),
+      put: vi.fn()
     }, 
     accounts: {
       put: vi.fn(),
@@ -26,30 +31,53 @@ vi.mock('../db', () => ({
 
 const fakeTransaction: Transactions = {
   id: 1,
+  syncId: 'txn-groceries',
   value: -50,
   name: 'Groceries',
   date: new Date('2024-01-01'),
   category: 'Food',
   type: 'Expense',
-  account_id: 1
+  account_id: 1,
+  account_sync_id: 'acc-main',
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
 };
 
 const fakeAccounts: Accounts[] = [
   {
     id: 1,
+    syncId: 'acc-main',
     name: 'Main',
-    dateCreated: new Date('2024-01-01'),
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
     type: 'Everyday',
   },
   {
     id: 15,
+    syncId: 'acc-savings',
     name: 'Savings',
-    dateCreated: new Date('2024-10-07'),
+    createdAt: new Date('2024-10-07'),
+    updatedAt: new Date('2024-10-07'),
     type: 'Savings',
     goalDate: new Date('2026-10-07'),
     goalValue: 500,
   },
 ]
+
+const mockCategorySuggestionQuery = (results: Array<{
+  id: number;
+  syncId: string;
+  token: string;
+  category: string;
+  score: number;
+  createdAt: Date;
+  updatedAt: Date;
+}>) => {
+  const toArray = vi.fn().mockResolvedValue(results);
+  const anyOf = vi.fn().mockReturnValue({ toArray });
+  (db.categorySuggestions.where as ReturnType<typeof vi.fn>).mockReturnValue({ anyOf });
+  return { anyOf, toArray };
+};
 
 describe("Transaction", () => {
     it("renders", () => {
@@ -108,8 +136,56 @@ describe("Transaction", () => {
         await userEvent.click(transaction);
         expect(screen.getByTestId("edit-transaction")).toBeVisible();
         await userEvent.click(deleteBtn);
-        expect(db.transactions.delete).toHaveBeenCalledWith(fakeTransaction.id);
-        waitFor(() => expect(screen.getByTestId("edit-transaction")).not.toBeInTheDocument())
+        expect(db.transactions.update).toHaveBeenCalledWith(fakeTransaction.id, expect.objectContaining({
+          deletedAt: expect.any(Date),
+          updatedAt: expect.any(Date),
+        }));
+    });
+
+    it('preserves an existing category instead of overriding it with a suggestion', async () => {
+        mockCategorySuggestionQuery([
+          {
+            id: 1,
+            syncId: 'cat-uber-transport',
+            token: 'uber',
+            category: 'Transport',
+            score: 3,
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01'),
+          },
+        ]);
+
+        render(<Transaction transaction={fakeTransaction} accounts={fakeAccounts}/>);
+        await userEvent.click(screen.getByTestId("transaction"));
+        await userEvent.clear(screen.getByTestId("name"));
+        await userEvent.type(screen.getByTestId("name"), 'Uber Ride');
+
+        await waitFor(() => {
+          expect(screen.getByTestId("category")).toHaveValue('Food');
+        });
+    });
+
+    it('prefills a blank category when editing and a confident suggestion exists', async () => {
+        mockCategorySuggestionQuery([
+          {
+            id: 1,
+            syncId: 'cat-uber-transport',
+            token: 'uber',
+            category: 'Transport',
+            score: 3,
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01'),
+          },
+        ]);
+
+        render(<Transaction transaction={{ ...fakeTransaction, category: undefined }} accounts={fakeAccounts}/>);
+        await userEvent.click(screen.getByTestId("transaction"));
+        await userEvent.clear(screen.getByTestId("name"));
+        await userEvent.type(screen.getByTestId("name"), 'Uber Ride');
+
+        await waitFor(() => {
+          expect(screen.getByTestId("category")).toHaveValue('Transport');
+        });
     });
 
 })

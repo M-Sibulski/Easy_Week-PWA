@@ -1,10 +1,11 @@
 import CreateTransaction from "./CreateTransaction";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {describe, it, expect, vi} from "vitest";
+import {beforeEach, describe, it, expect, vi} from "vitest";
 import "@testing-library/jest-dom/vitest";
 import { db } from "../db";
 import { transactionTypes, Accounts } from "../types";
+import { dateToInputType } from "./dateConversions";
 
 vi.mock('../db', async () => {
   const actual = await vi.importActual<typeof import('../db')>('../db');
@@ -14,6 +15,11 @@ vi.mock('../db', async () => {
     db: {
       transactions: {
         add: vi.fn()
+      },
+      categorySuggestions: {
+        where: vi.fn(),
+        add: vi.fn(),
+        put: vi.fn(),
       }
     }
   };
@@ -22,14 +28,18 @@ vi.mock('../db', async () => {
 const fakeAccounts: Accounts[] = [
   {
     id: 1,
+    syncId: 'acc-main',
     name: 'Main',
-    dateCreated: new Date('2024-01-01'),
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
     type: 'Everyday',
   },
   {
     id: 15,
+    syncId: 'acc-savings',
     name: 'Savings',
-    dateCreated: new Date('2024-10-07'),
+    createdAt: new Date('2024-10-07'),
+    updatedAt: new Date('2024-10-07'),
     type: 'Savings',
     goalDate: new Date('2026-10-07'),
     goalValue: 500,
@@ -38,6 +48,31 @@ const fakeAccounts: Accounts[] = [
 
 
 describe("CreateTransaction", () => {
+    const categorySuggestions = [
+      {
+        id: 1,
+        syncId: 'cat-uber-transport',
+        token: 'uber',
+        category: 'Transport',
+        score: 2,
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01'),
+      },
+    ];
+
+    const mockCategorySuggestionQuery = (results = categorySuggestions) => {
+        const toArray = vi.fn().mockResolvedValue(results);
+        const anyOf = vi.fn().mockReturnValue({ toArray });
+        (db.categorySuggestions.where as ReturnType<typeof vi.fn>).mockReturnValue({ anyOf });
+        return { anyOf, toArray };
+    };
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        mockCategorySuggestionQuery([]);
+        (db.categorySuggestions.add as ReturnType<typeof vi.fn>).mockResolvedValue(1);
+        (db.categorySuggestions.put as ReturnType<typeof vi.fn>).mockResolvedValue(1);
+    });
     
     
     it("renders", () => {
@@ -60,6 +95,16 @@ describe("CreateTransaction", () => {
         expect(screen.getByText(/New Transaction/i)).toBeInTheDocument();
     });
 
+    it('focuses the name input when opening the form', async () => {
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
+
+        await userEvent.click(screen.getByRole('open'));
+
+        await waitFor(() => {
+            expect(screen.getByPlaceholderText(/Name/i)).toHaveFocus();
+        });
+    });
+
     it('clears form when clicking the clear button', async () => {
         render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
         await userEvent.click(screen.getByRole('open'));
@@ -78,6 +123,7 @@ describe("CreateTransaction", () => {
         await userEvent.type(screen.getByPlaceholderText(/Name/i), 'Lunch');
         await userEvent.selectOptions(screen.getByRole('combobox'), 'Expense');
         await userEvent.type(screen.getByPlaceholderText(/\$ 0\.00/), '15.5');
+        fireEvent.change(screen.getByTestId('date-input'), { target: { value: '2025-07-20' } });
         await userEvent.type(screen.getByPlaceholderText(/Category/i), 'Food');
 
         const saveButton = screen.getByRole('submit');
@@ -89,6 +135,23 @@ describe("CreateTransaction", () => {
         expect(saved.value).toBeCloseTo(-15.5);
         expect(saved.type).toBe('Expense');
         expect(saved.category).toBe('Food');
+        expect(dateToInputType(saved.date)).toBe('2025-07-20');
+    });
+
+    it('focuses the name input again after submitting and clearing the form', async () => {
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
+
+        await userEvent.click(screen.getByRole('open'));
+        await userEvent.type(screen.getByPlaceholderText(/Name/i), 'Refocus Test');
+        await userEvent.type(screen.getByPlaceholderText(/\$ 0\.00/), '8');
+        await userEvent.type(screen.getByPlaceholderText(/Category/i), 'Food');
+
+        await userEvent.click(screen.getByRole('submit'));
+
+        await waitFor(() => {
+            expect(screen.getByPlaceholderText(/Name/i)).toHaveValue('');
+            expect(screen.getByPlaceholderText(/Name/i)).toHaveFocus();
+        });
     });
 
     it('strips non-numeric characters from value input', async () => {
@@ -138,4 +201,105 @@ describe("CreateTransaction", () => {
         const options = Array.from(typeInput.querySelectorAll('option')).map(opt => opt.value);
         expect(options).toEqual(transactionTypes);
     })
+
+    it('prefills category when a confident suggestion exists', async () => {
+        mockCategorySuggestionQuery();
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
+
+        await userEvent.click(screen.getByRole('open'));
+        await userEvent.type(screen.getByPlaceholderText(/Name/i), 'Uber Ride');
+
+        await waitFor(() => {
+            expect(screen.getByPlaceholderText(/Category/i)).toHaveValue('Transport');
+        });
+    });
+
+    it('learns manual categories when submitting a transaction', async () => {
+        mockCategorySuggestionQuery([]);
+        const addCategorySuggestion = db.categorySuggestions.add as ReturnType<typeof vi.fn>;
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
+
+        await userEvent.click(screen.getByRole('open'));
+        await userEvent.type(screen.getByPlaceholderText(/Name/i), 'Uber Eats');
+        await userEvent.type(screen.getByPlaceholderText(/\$ 0\.00/), '18');
+        await userEvent.type(screen.getByPlaceholderText(/Category/i), 'Transport');
+        await userEvent.click(screen.getByRole('submit'));
+
+        expect(addCategorySuggestion).toHaveBeenCalledTimes(3);
+        expect(addCategorySuggestion).toHaveBeenCalledWith(expect.objectContaining({
+            token: '__exact_name__:uber eats',
+            category: 'Transport',
+            score: 1,
+        }));
+        expect(addCategorySuggestion).toHaveBeenCalledWith(expect.objectContaining({
+            token: 'uber',
+            category: 'Transport',
+            score: 1,
+        }));
+        expect(addCategorySuggestion).toHaveBeenCalledWith(expect.objectContaining({
+            token: 'eats',
+            category: 'Transport',
+            score: 1,
+        }));
+    });
+
+    it('does not clear the form when the selected account cannot be resolved', async () => {
+        render(<CreateTransaction accountId={0} accounts={fakeAccounts} renderOpenButton={true}/>);
+
+        await userEvent.click(screen.getByRole('open'));
+        await userEvent.type(screen.getByPlaceholderText(/Name/i), 'Broken Save');
+        await userEvent.type(screen.getByPlaceholderText(/\$ 0\.00/), '10');
+        await userEvent.type(screen.getByPlaceholderText(/Category/i), 'Food');
+        await userEvent.click(screen.getByRole('submit'));
+
+        expect(db.transactions.add).not.toHaveBeenCalled();
+        expect(screen.getByPlaceholderText(/Name/i)).toHaveValue('Broken Save');
+        expect(screen.getByPlaceholderText(/\$ 0\.00/)).toHaveValue('$ 10');
+        expect(screen.getByPlaceholderText(/Category/i)).toHaveValue('Food');
+    });
+
+    it('moves focus to the next field when pressing Enter before the category field', async () => {
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
+
+        await userEvent.click(screen.getByRole('open'));
+
+        const nameInput = screen.getByPlaceholderText(/Name/i);
+        const typeSelect = screen.getByRole('combobox');
+        const valueInput = screen.getByPlaceholderText(/\$ 0\.00/);
+        const dateInput = screen.getByTestId('date-input');
+        const categoryInput = screen.getByPlaceholderText(/Category/i);
+
+        nameInput.focus();
+        await userEvent.keyboard('{Enter}');
+        expect(typeSelect).toHaveFocus();
+
+        await userEvent.keyboard('{Enter}');
+        expect(valueInput).toHaveFocus();
+
+        await userEvent.keyboard('{Enter}');
+        expect(dateInput).toHaveFocus();
+
+        await userEvent.keyboard('{Enter}');
+        expect(categoryInput).toHaveFocus();
+    });
+
+    it('submits the form when pressing Enter on the category field', async () => {
+        const addMock = db.transactions.add as ReturnType<typeof vi.fn>;
+        render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true}/>);
+
+        await userEvent.click(screen.getByRole('open'));
+        await userEvent.type(screen.getByPlaceholderText(/Name/i), 'Keyboard Submit');
+        await userEvent.type(screen.getByPlaceholderText(/\$ 0\.00/), '12');
+        const categoryInput = screen.getByPlaceholderText(/Category/i);
+        await userEvent.type(categoryInput, 'Food');
+
+        categoryInput.focus();
+        await userEvent.keyboard('{Enter}');
+
+        expect(addMock).toHaveBeenCalledTimes(1);
+        expect(addMock.mock.calls[0][0]).toEqual(expect.objectContaining({
+            name: 'Keyboard Submit',
+            category: 'Food',
+        }));
+    });
 })
