@@ -21,11 +21,13 @@ body {
 .theme-light {
   --ew-bg: rgb(105, 107, 116);
   --ew-text: #f9fafb;
+  color-scheme: light;
 }
 
 .theme-dark {
   --ew-bg: rgb(18, 28, 48);
   --ew-text: #f3f8ff;
+  color-scheme: dark;
 }
 
 .theme-dark .bg-blue-500 {
@@ -77,6 +79,14 @@ body {
 .theme-dark .text-white,
 .theme-dark .text-black {
   color: var(--ew-text) !important;
+}
+
+.theme-dark select {
+  background-color: rgb(30, 58, 138);
+}
+
+.theme-dark option {
+  background-color: rgb(30, 41, 75);
 }
 
 .theme-dark input,
