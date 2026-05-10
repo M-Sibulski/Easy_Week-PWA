@@ -3,6 +3,8 @@
 :root {
   --ew-bg: rgb(105, 107, 116);
   --ew-text: #f9fafb;
+  /* Bottom nav min height + safe area (FAB offsets use this) */
+  --ew-bottom-nav-height: calc(3.5rem + env(safe-area-inset-bottom, 0px));
 }
 
 body {
