@@ -57,6 +57,80 @@ Easy Week is a React + TypeScript Progressive Web App (PWA) for tracking persona
 - Update-available toast with one-click refresh.
 - Periodic service worker update checks while online.
 
+## Project Skills (Top 5 Priority)
+
+These are reusable implementation/validation skills for this repository, ordered by priority.
+
+### 1) Finance Integrity Test Skill
+
+- **Trigger:** Any change touching transaction creation/editing/deletion, value normalization, transfers, or daily/weekly totals.
+- **Inputs:** Changed files, affected transaction types (`Income`, `Expense`, `Bills`, `Transfer`), and expected balance behavior.
+- **Checks:**
+  - Amount sign normalization remains correct.
+  - Transfer out/in behavior preserves account integrity.
+  - Edit/delete actions update visible totals and persisted records.
+  - Running totals remain stable across day boundaries.
+- **Done criteria:**
+  - Targeted tests for changed finance logic are added/updated.
+  - Existing finance tests pass.
+  - A short regression summary confirms no balance logic regressions.
+
+### 2) Import Validation Skill
+
+- **Trigger:** Any change to `JsonImport`, import UI flow, file parsing, or transaction mapping.
+- **Inputs:** JSON/CSV sample payloads, selected account context, parsing/mapping rules.
+- **Checks:**
+  - JSON and CSV parsing both work with supported fields.
+  - Numeric/date coercion remains correct.
+  - `account_id` is overwritten with selected account on import.
+  - Invalid rows are handled safely without corrupting stored data.
+- **Done criteria:**
+  - Import validation checklist is completed.
+  - Edge-case tests are added/updated for malformed and mixed inputs.
+  - Import replacement behavior is verified for selected account scope.
+
+### 3) Weekly Aggregation Skill
+
+- **Trigger:** Any change to date utilities, week navigation, week start settings, or day-grouped rendering.
+- **Inputs:** Week start day setting, transaction dates across week boundaries, expected cumulative totals.
+- **Checks:**
+  - Week boundary calculations are correct for all configured start days.
+  - Transactions are grouped into correct day cards.
+  - Cumulative totals are ordered and calculated correctly.
+  - Navigation between weeks preserves deterministic results.
+- **Done criteria:**
+  - Date/aggregation tests cover boundary and cross-week scenarios.
+  - Weekly view outputs match expected totals and ordering.
+  - No regressions in week navigation behavior.
+
+### 4) PWA Reliability Skill
+
+- **Trigger:** Any change to PWA config, service worker registration, update prompts, or offline behavior.
+- **Inputs:** `vite.config.ts` PWA settings, `PWABadge` flow, periodic update registration behavior.
+- **Checks:**
+  - Service worker registration remains functional.
+  - Offline-ready and update-available prompts are shown correctly.
+  - Update flow triggers refresh behavior as intended.
+  - Manifest/workbox config remains internally consistent.
+- **Done criteria:**
+  - PWA behavior validation notes are recorded for changed paths.
+  - Known risks/limitations are listed when behavior cannot be fully simulated in tests.
+  - Existing PWA-related tests continue to pass.
+
+### 5) Dexie Schema/Migration Skill
+
+- **Trigger:** Any change to `db.ts`, IndexedDB schema/indexes, default data seeding, or data compatibility assumptions.
+- **Inputs:** Current schema versions, proposed schema/index changes, seed/default data expectations.
+- **Checks:**
+  - Schema updates are backward-safe for existing local data.
+  - New/changed indexes match query usage.
+  - Default account/settings seeding still occurs correctly on first run.
+  - Related repositories/services consuming local data remain compatible.
+- **Done criteria:**
+  - Migration plan is documented (version impact + fallback expectations).
+  - Compatibility test checklist is completed.
+  - No data-loss behavior is introduced for normal upgrade paths.
+
 ## Tech Stack
 
 - React 19
