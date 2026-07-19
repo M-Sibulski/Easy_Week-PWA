@@ -22,6 +22,7 @@ Use React local component state for UI state, Dexie live queries for persisted d
 ## Future Direction
 - Revisit state boundaries when weekly planning features are implemented, as identified in [docs/architecture/architecture.md](../architecture/architecture.md).
 
-## Open Questions
-- Should domain services be introduced between components and repository?
-- Do planned workflows require a dedicated shared state layer?
+## Standards Added After Initial Adoption
+- Components should gather input, invoke services, and render state.
+- Services own multi-step workflow orchestration and typed domain outcomes.
+- Context remains for cross-cutting concerns rather than general feature orchestration unless a later ADR expands that scope.

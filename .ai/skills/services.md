@@ -14,6 +14,7 @@ Place business logic in service modules so React components stay thin and reposi
 - Services should avoid direct UI concerns.
 - Services should be deterministic when possible and side-effect aware when needed.
 - Keep backend-specific calls behind repository or dedicated backend adapter services.
+- Services return typed domain outcomes for expected failures such as validation issues, conflict review needed, or duplicate-explanation states.
 
 ## Step-by-step workflow
 1. Write a service function signature based on domain language.
@@ -29,6 +30,7 @@ Place business logic in service modules so React components stay thin and reposi
 - [ ] No React imports in service module.
 - [ ] Domain errors are handled consistently.
 - [ ] Unit tests verify core branches.
+- [ ] Multi-step user actions are orchestrated here rather than in components.
 
 ## Common mistakes
 - Keeping business logic in component effects.

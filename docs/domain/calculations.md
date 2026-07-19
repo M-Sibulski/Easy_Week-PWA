@@ -38,7 +38,17 @@ Category recommendation logic includes:
 - Add safe-to-spend guardrails per account and per week.
 - Add review metrics for weekly retrospective.
 
-## TODO (Architecture Review)
-- Define canonical financial calculation module boundaries and test requirements.
+## Approved Standards
+- Financial calculations must live in dedicated pure modules and be covered by direct unit tests.
+- Safe-to-Spend v1 is defined as:
+  - `planned_available_for_week - actual_spend_so_far - committed_upcoming_before_week_end`
+  - `planned_available_for_week = planned income - planned fixed obligations - planned savings target`
+  - Transfers between the user's own accounts are excluded from spend.
+  - Missing mandatory obligation data must yield a needs-data state instead of an optimistic positive value.
+- Timezone policy:
+  - Week boundaries use the user-selected timezone.
+  - Historical grouping uses explicit local-date semantics rather than raw UTC calendar dates.
+  - Timezone-sensitive behavior must use deterministic fixtures in tests.
+
+## Remaining Open Items
 - Define rounding/currency precision strategy across UI, storage, and sync.
-- Define timezone policy for week and day boundaries (local-only vs explicit timezone handling).

@@ -41,7 +41,17 @@
 - Replace Accounts placeholder with dedicated account management screen (if distinct from current overlays).
 - Add dedicated compare/review/insights screens.
 
-## TODO (Architecture Review)
-- Define whether future features continue in tab model or move to route-driven navigation.
-- Define accessibility baselines (keyboard flow exists in some forms, but no documented global standard yet).
-- Define error handling and user notification standards beyond console logging and inline toasts.
+## Frontend Standards
+- Navigation policy:
+  - Keep bottom tabs as top-level domains.
+  - Add route-driven sub-screens inside tabs for non-trivial workflows and diagnostics.
+- Accessibility baseline:
+  - Full keyboard operability for interactive controls.
+  - Visible focus indicators.
+  - Semantic labels by default; ARIA only when needed.
+  - WCAG AA contrast for text and critical states.
+  - Screen-reader announcements for sync states that require attention.
+- Error and notification policy:
+  - UI maps typed service results to user-facing messages.
+  - Technical exceptions flow through centralized error mapping.
+  - Local usage must never be blocked by sync or backend status.

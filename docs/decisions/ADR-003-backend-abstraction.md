@@ -22,6 +22,7 @@ Keep backend integration optional and environment-driven while preserving local-
 ## Future Direction
 - Add PocketBase and potentially other backend adapters behind stable contracts, as described in [docs/architecture/backend.md](../architecture/backend.md) and [docs/product/roadmap.md](../product/roadmap.md).
 
-## Open Questions
-- Should sync orchestration be extracted behind a backend-neutral interface now?
-- Where should backend-specific mapping code live to avoid service coupling?
+## Standards Added After Review
+- Backend-specific schema mapping belongs in adapter and sync modules, not in React components or feature services.
+- Sync orchestration is treated as application infrastructure and must remain separate from component logic.
+- Backend support must preserve local-first behavior, durable retry semantics, and idempotent remote writes.

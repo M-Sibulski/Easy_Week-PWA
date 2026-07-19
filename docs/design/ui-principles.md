@@ -23,7 +23,14 @@
 - Dedicated screens for planner, dashboard, and end-of-week review.
 - Improved system messaging for sync conflicts/failures and retry actions.
 
-## TODO (Architecture Review)
-- Define shared design tokens (colors, spacing, typography) and naming conventions.
-- Define accessibility baseline (focus management, contrast targets, screen reader semantics).
-- Define responsive behavior standards for future dashboard-heavy views.
+## UI Standards
+- Accessibility baseline:
+	- Full keyboard operability.
+	- Visible focus styles on every focusable control.
+	- WCAG AA contrast for text and critical states.
+	- Screen-reader announcement for important sync and action-required status changes.
+- Sync messaging:
+	- Compact global sync status may auto-hide after a short idle period.
+	- Detailed diagnostics belong in a dedicated details view.
+- Responsive behavior:
+	- Preserve mobile-first priority while defining stable layouts for future dashboard screens.

@@ -37,7 +37,14 @@
 - Add contract tests for additional backend adapters (e.g., PocketBase).
 - Add integration scenarios for sync conflicts and multi-device convergence.
 
-## TODO (Architecture Review)
-- Define test pyramid targets (unit/integration/e2e percentages).
-- Define CI quality gates (coverage thresholds, required suites, flaky-test policy).
-- Define deterministic fixtures for timezone-sensitive weekly boundaries.
+## Testing Standards
+- CI merge gate:
+	- All tests must pass.
+	- Coverage floor is 80% lines overall, with a ratchet that must not reduce current coverage.
+	- Required suites include repository/unit, finance calculation unit, and critical UI interaction coverage.
+- Sync-specific gate:
+	- Changes to sync/conflict logic require at least one convergence scenario.
+- Timezone correctness:
+	- Maintain deterministic fixtures for week-boundary and timezone-sensitive scenarios.
+- Flaky test policy:
+	- Repeatedly flaky tests must be quarantined with owner and fix deadline; no permanent quarantine.

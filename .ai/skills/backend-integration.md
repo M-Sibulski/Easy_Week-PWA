@@ -12,8 +12,9 @@ Integrate cloud backends while preserving local-first guarantees and repository 
 - Backend is optional. Core app must still work locally when backend is disabled.
 - Keep backend-specific schema mapping in adapter/sync modules.
 - Do not couple React components to backend clients.
-- Keep conflict policy explicit. Current policy is last-write-wins by updatedAt with local tie-break.
+- Keep conflict policy explicit. Default policy is last-write-wins by updatedAt with local tie-break, plus tombstone priority, linked-transfer integrity, and conflict escalation when unsafe.
 - Design for multiple repository implementations: Local, Supabase, PocketBase.
+- Sync reliability must assume durable queue persistence, retry/backoff, and idempotent remote writes.
 
 ## Step-by-step workflow
 1. Define backend-neutral contract requirements in repository and service layers.
@@ -30,6 +31,7 @@ Integrate cloud backends while preserving local-first guarantees and repository 
 - [ ] Sync mapping preserves syncId and timestamp semantics.
 - [ ] Conflict resolution behavior is tested.
 - [ ] Adapter can be swapped without feature-layer rewrites.
+- [ ] Retryable vs terminal backend failures are classified intentionally.
 
 ## Common mistakes
 - Assuming online availability in core flows.

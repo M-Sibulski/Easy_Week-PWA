@@ -14,6 +14,8 @@ Apply this repository's Vitest and Testing Library style to maintain confidence 
 - Use fake-indexeddb compatible patterns for IndexedDB behavior.
 - Add unit tests for finance and pure calculations by default.
 - Preserve regression coverage for local-first and sync behavior.
+- Any sync/conflict logic change requires at least one convergence-oriented test scenario.
+- Keep timezone-sensitive fixtures deterministic.
 
 ## Step-by-step workflow
 1. Identify risk areas and affected modules.
@@ -29,6 +31,7 @@ Apply this repository's Vitest and Testing Library style to maintain confidence 
 - [ ] Sync merge behavior is tested for LWW ties and ordering.
 - [ ] Component interaction tests cover main user flow changes.
 - [ ] Existing tests remain green.
+- [ ] Coverage does not reduce below the project floor.
 
 ## Common mistakes
 - Testing implementation internals instead of outcomes.

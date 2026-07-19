@@ -14,6 +14,8 @@ Implement and protect financial calculations as pure, testable functions with de
 - Normalize transaction sign conventions consistently.
 - Keep date boundary handling explicit and testable.
 - Every finance calculation change requires unit tests.
+- Safe-to-Spend must use the approved v1 formula and guardrails unless docs/ADR guidance is updated.
+- Week grouping and planning windows must follow the user-selected timezone policy with explicit local-date semantics.
 
 ## Step-by-step workflow
 1. Define calculation input and output types.
@@ -29,6 +31,7 @@ Implement and protect financial calculations as pure, testable functions with de
 - [ ] Week boundary behavior is tested.
 - [ ] Rounding and precision decisions are explicit.
 - [ ] Tests include negative, zero, and mixed datasets.
+- [ ] Safe-to-Spend calculations exclude own-account transfers from spend.
 
 ## Common mistakes
 - Embedding math directly in JSX maps and reducers.

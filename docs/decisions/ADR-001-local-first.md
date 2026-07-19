@@ -23,6 +23,7 @@ Use a local-first architecture where IndexedDB (via Dexie) is the immediate sour
 ## Future Direction
 - Keep local-first as a non-negotiable constraint while adding optional cloud adapters, as documented in [docs/product/vision.md](../product/vision.md).
 
-## Open Questions
-- What local queue durability guarantees are required for long offline periods?
-- What convergence targets should be defined after reconnect?
+## Standards Added After Initial Adoption
+- Pending sync work must move toward durable local persistence so retries survive reloads and crashes.
+- Local writes remain non-blocking regardless of backend status.
+- Reconnect correctness must be protected by convergence-oriented sync tests for conflict-related changes.

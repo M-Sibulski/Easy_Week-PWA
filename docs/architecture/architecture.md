@@ -41,7 +41,17 @@ EasyWeek uses a local-first layered architecture:
 - Domain expansion for weekly planning and compare workflows.
 - Stronger sync observability and conflict diagnostics.
 
-## TODO (Architecture Review)
-- Define explicit module boundaries for "domain services" vs component-local logic.
-- Decide long-term conflict resolution strategy beyond simple last-write-wins.
-- Decide whether sync orchestration remains in the frontend or moves to a shared/offline sync engine module.
+## Architecture Standards
+- Module boundary standard:
+	- Components gather input, invoke services, and render state.
+	- Services own workflow orchestration, validation, and typed domain results.
+	- Repositories and sync modules handle persistence and transport only.
+- Conflict policy standard:
+	- Default merge rule remains last-write-wins by `updatedAt`.
+	- Deletion wins over stale updates.
+	- Transfer-like linked records must preserve pair integrity.
+	- Unsafe merges escalate to explicit conflict-review state rather than silently picking a winner.
+- Sync orchestration standard:
+	- Sync remains non-blocking from the UI perspective.
+	- Reliability behavior must move toward a durable outbox with persisted queue state, retry/backoff, and idempotent remote writes.
+	- Frontend may initiate sync, but orchestration rules are treated as application infrastructure, not component logic.

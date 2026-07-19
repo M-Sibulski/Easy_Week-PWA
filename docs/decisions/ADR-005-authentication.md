@@ -23,6 +23,7 @@ Use optional Supabase auth context and flows without gating the local app shell.
 ## Future Direction
 - Strengthen auth and session requirements as backend maturity increases, as noted in [docs/architecture/backend.md](../architecture/backend.md).
 
-## Open Questions
-- Should any future screens require authentication by default?
-- What auth failure and recovery UX standard should be applied globally?
+## Standards Added After Initial Adoption
+- Authentication must not gate core local-first weekly flows by default.
+- Sync and cloud-backed capability may require authentication, but failure to authenticate must not block local use.
+- Auth-related failure and recovery messaging should align with the shared non-blocking status and error-handling model.

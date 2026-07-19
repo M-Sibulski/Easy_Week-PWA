@@ -16,6 +16,8 @@ Deliver a new feature in Easy Week without breaking local-first behavior, reposi
 - Keep financial calculations pure and test them with unit tests.
 - Preserve sync metadata fields: syncId, createdAt, updatedAt, deletedAt.
 - Prefer extending existing contracts before introducing ad-hoc data access.
+- Respect the project Definition of Done: offline behavior, boundary compliance, tests, and docs/ADR updates in the same change.
+- If a docs/skill conflict appears during implementation, pause and ask the user for resolution with a recommended option.
 
 ## Step-by-step workflow
 1. Read domain and architecture docs relevant to the feature.
@@ -36,6 +38,7 @@ Deliver a new feature in Easy Week without breaking local-first behavior, reposi
 - [ ] Finance math is pure and unit tested.
 - [ ] Tests pass with existing Vitest setup.
 - [ ] Domain docs and roadmap notes are updated.
+- [ ] ADRs are updated when architectural behavior changes.
 
 ## Common mistakes
 - Mixing UI state and business rules in one component.

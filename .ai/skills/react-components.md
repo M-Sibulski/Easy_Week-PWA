@@ -15,6 +15,8 @@ Build React components that are thin, predictable, and aligned with local-first 
 - Keep transient UI state local with hooks.
 - Keep cross-cutting state in context only when needed (auth is current example).
 - Follow naming style used in project: PascalCase for component files and functions.
+- For a single user action, components should not orchestrate multiple repository calls directly; route that workflow through a service.
+- UI must map typed service results to user-facing states instead of parsing raw exception text.
 
 ## Step-by-step workflow
 1. Define component props and state shape.
@@ -30,6 +32,7 @@ Build React components that are thin, predictable, and aligned with local-first 
 - [ ] Props and state types are explicit.
 - [ ] User flows remain usable offline.
 - [ ] Tests cover interaction behavior.
+- [ ] Keyboard and focus behavior meet the shared accessibility baseline.
 
 ## Common mistakes
 - Large component functions that combine persistence, math, and UI transitions.

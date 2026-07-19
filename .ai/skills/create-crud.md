@@ -15,6 +15,7 @@ Implement consistent CRUD behavior for Accounts, Transactions, Category Suggesti
 - Use soft-delete where sync tombstones are needed.
 - Stamp sync and timestamp fields in repository logic.
 - Keep transfer and sign normalization logic outside persistence internals.
+- Put user-facing multi-entity workflows behind services, not direct component-to-repository orchestration.
 
 ## Step-by-step workflow
 1. Add or extend domain types.
@@ -33,6 +34,7 @@ Implement consistent CRUD behavior for Accounts, Transactions, Category Suggesti
 - [ ] Mutations schedule sync via decorator layer.
 - [ ] UI does not bypass repository layer.
 - [ ] CRUD tests cover success and edge cases.
+- [ ] Reset/clear behavior is reconciled with sync policy before exposing it to users.
 
 ## Common mistakes
 - Adding a method to one repository implementation but not all.

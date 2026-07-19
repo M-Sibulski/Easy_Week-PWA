@@ -19,7 +19,20 @@ Evidence in code:
 - Connect plan data to existing weekly range selection and account context.
 - Build Plan -> Spend -> Compare -> Learn flow with explicit compare artifacts.
 
-## TODO (Architecture Review)
+## Approved Standards
+- Weekly planning v1 scope is single-user only.
+- Compare MVP must include:
+	- Planned vs actual totals for the active week and selected account.
+	- Per-category variance states.
+	- Safe-to-Spend summary for the active week.
+- Learn/Review MVP must include:
+	- Top 3 category variances.
+	- One weekly consistency metric.
+	- One manual weekly note.
+- New weekly planning tables must use forward-only, recoverable, versioned migrations.
+- Navigation may keep `Planner` as a top-level tab while adding route-driven sub-screens inside the planning area.
+
+## Remaining Open Items
 - Define weekly plan schema (plan header/items, carryover rules, category mapping).
 - Define how planned values interact with transfers and savings goals.
 - Define week-close behavior and whether historical plans become immutable snapshots.

@@ -23,6 +23,7 @@ Use Vite production builds and host-level SPA/PWA-safe routing rules, with CI en
 ## Future Direction
 - Finalize and enable deployment automation when release policy is confirmed, aligned with [docs/product/roadmap.md](../product/roadmap.md).
 
-## Open Questions
-- Should deploy to production be fully automated on merges to main?
-- Should preview deployments be mandatory for pull requests?
+## Standards Added After Initial Adoption
+- Merge readiness depends on CI quality gates: all tests passing, coverage floor maintained, and required sync/finance/UI suites green.
+- Release gating must distinguish local-only complete from cloud-sync optional milestones.
+- Any deployment automation must preserve the non-blocking local-first product contract rather than assuming cloud readiness.

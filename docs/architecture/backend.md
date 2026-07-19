@@ -39,7 +39,14 @@ Common patterns:
 - Potential additional backend adapters behind repository/sync contracts.
 - Better backend operational concerns (rate limiting, retry policy, observability).
 
-## TODO (Architecture Review)
-- Define production-grade auth/session hardening requirements.
-- Define backend migration/versioning approach for future domain tables (weekly plans, reviews, insights).
-- Define data retention/deletion policy (especially around soft-deleted rows and eventual purge).
+## Backend Standards
+- Sync backend expectations:
+  - Remote writes must support idempotent retry behavior.
+  - Terminal sync failures must be diagnosable without exposing finance data in logs.
+- Migration/versioning policy:
+  - Use forward-only, deterministic migrations for new backend tables.
+  - Avoid destructive replacement/removal in the same release that introduces a new schema path.
+- Data retention and deletion policy:
+  - Respect soft-delete/tombstone behavior for sync convergence.
+  - Production logging must never include raw finance fields or user identifiers.
+  - Deletion and retention behavior must remain compatible with user-visible reset and purge controls.

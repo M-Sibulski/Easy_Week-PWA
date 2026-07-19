@@ -14,6 +14,8 @@ Apply and enforce repository abstraction so storage and backend choices stay swa
 - Repositories persist and retrieve data only. No feature-level business decisions.
 - Keep backend-specific mapping isolated in adapter/service modules.
 - Plan for multiple implementations: LocalRepository, SupabaseRepository, PocketBaseRepository.
+- Repository methods throw technical/infrastructure errors; expected domain outcomes belong in service results.
+- User-facing destructive reset flows must not rely on silent local-only clear operations.
 
 ## Step-by-step workflow
 1. Model required operations in IRepository.
@@ -35,6 +37,7 @@ Apply and enforce repository abstraction so storage and backend choices stay swa
 - Coupling contract to one backend schema.
 - Storing UI-specific computed values in repository rows.
 - Putting retry/sync orchestration inside each repository method.
+- Treating raw `clear*` primitives as safe end-user reset behavior without reconciliation semantics.
 
 ## Related documentation
 - [Repository Layer](../../docs/architecture/repositories.md)

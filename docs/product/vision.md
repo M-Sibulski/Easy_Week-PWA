@@ -39,7 +39,17 @@ This loop is currently partially implemented:
 ## Non-Negotiable Architecture Constraint
 The app must always work locally, regardless of cloud configuration or connectivity.
 
-## TODO (Architecture Review)
-- Define explicit product-level success metrics for weekly planning outcomes.
-- Define which user personas are in scope first (single user only vs household/shared planning).
-- Define the minimum viable "Compare" and "Learn" screens for first weekly planning release.
+## Product Scope Standards
+- First planning release targets a single user only.
+- Compare MVP includes:
+	- Planned vs actual totals for active week and selected account.
+	- Per-category variance states.
+	- Safe-to-Spend summary for the active week.
+- Learn/Review MVP includes:
+	- Top 3 category variances.
+	- One weekly consistency metric.
+	- One manual weekly note.
+- Safe-to-Spend v1 is defined as:
+	- `planned_available_for_week - actual_spend_so_far - committed_upcoming_before_week_end`
+	- Transfers between the user's own accounts do not count as spend.
+	- Missing mandatory obligation data must produce a needs-data state instead of an optimistic positive result.

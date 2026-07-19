@@ -49,7 +49,14 @@ This means:
 - Add additional repository implementations for cloud backends (e.g., Supabase-specific and PocketBase-specific adapters).
 - Potential composite/fallback repository strategy if multi-backend support is active at runtime.
 
-## TODO (Architecture Review)
-- Decide if `clear*` methods should also schedule sync or remain local maintenance only.
-- Define consistency guarantees for sequences of related writes across tables.
-- Define a formal error contract (typed result vs thrown error) for repository methods.
+## Repository Standards
+- `clear*` operations are internal maintenance primitives and must not be exposed as silent local-only user actions in normal flows.
+- User-facing reset behavior must use a coordinated reset policy:
+  - If authenticated with sync enabled, perform remote reset intent first, then local clear, then force a sync checkpoint.
+  - If offline or unauthenticated, persist reset intent for later reconciliation.
+- Consistency expectation:
+  - Single repository calls must be locally durable once resolved.
+  - Multi-step feature workflows belong in services, which define the correctness boundary across tables.
+- Error contract:
+  - Repository methods throw technical or infrastructure errors.
+  - Expected business outcomes are surfaced by services as typed domain results.

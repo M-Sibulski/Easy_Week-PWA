@@ -36,7 +36,21 @@ For authenticated users with configured Supabase:
 - Additional backend sync adapters (PocketBase).
 - Sync status UX beyond current minimal spinner + last error text.
 
-## TODO (Architecture Review)
-- Define conflict-resolution extensions for domain-specific conflicts (not only timestamp).
-- Define retry/backoff policy and offline queue durability requirements.
-- Define multi-device convergence tests and correctness criteria.
+## Sync Standards
+- Conflict policy:
+	- Use last-write-wins as the default scalar merge rule.
+	- Treat tombstones as winning over stale updates.
+	- Preserve transfer-pair integrity for linked money-movement records.
+	- Escalate unsafe merges to explicit conflict-review flows.
+- Reliability policy:
+	- Persist pending sync work in a durable local outbox.
+	- Retry with exponential backoff and jitter.
+	- Classify failures as retryable or terminal.
+	- Require idempotency keys for remote write safety.
+- Status model:
+	- Canonical states are `idle`, `syncing`, `degraded`, `actionRequired`, and `offline`.
+	- Compact status may auto-hide shortly after returning to `idle`.
+	- Detailed diagnostics belong in a dedicated sync details view.
+- Correctness testing:
+	- Sync logic changes require multi-device convergence coverage.
+	- Local writes must remain non-blocking regardless of sync health.

@@ -25,7 +25,13 @@
 - Expand domain-service layer for weekly plan and comparison logic to reduce UI-level business logic.
 - Strengthen typed error handling around repository and sync operations.
 
-## TODO (Architecture Review)
-- Define formatter standards (no explicit Prettier policy found).
-- Define naming conventions for file/module boundaries (component vs domain service split).
-- Define policy for console logging in production paths.
+## Standards to Follow
+- File/module boundaries:
+  - Components render and manage interaction state.
+  - Services own business rules and workflow orchestration.
+  - Repositories own storage access only.
+- Logging policy:
+  - Do not log raw finance fields, account names, or user identifiers in production paths.
+  - Prefer structured sanitized events and explicit debug-only diagnostics.
+- Quality gate support:
+  - Feature work is not done until tests and affected docs are updated.

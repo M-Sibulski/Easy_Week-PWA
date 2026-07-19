@@ -48,7 +48,15 @@ Current create/edit logic:
 - Planned-vs-actual transaction attribution to weekly plans.
 - Transaction tagging for insights/review domains.
 
-## TODO (Architecture Review)
+## Approved Standards
+- Transfer integrity is a protected invariant for sync conflict handling and future workflow changes.
+- Import explanation policy:
+  - If duplicate rows appear within the same imported file/account payload, import both rows even if identical.
+  - Explain or flag this behavior in import reporting rather than collapsing those rows.
+- Import audit behavior should remain explainable through counts or equivalent user-visible reporting.
+- Week and day grouping for transactions must follow the shared timezone policy.
+
+## Remaining Open Items
 - Confirm intended Bills sign behavior during edit (parity with create flow).
-- Define immutable vs mutable fields policy for imported transactions.
+- Define immutable vs mutable fields policy for imported transactions after creation.
 - Define transfer modeling strategy if two-row transfer ledgering is later required.

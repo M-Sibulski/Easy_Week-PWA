@@ -40,7 +40,14 @@
 - Sync is queued and optional; local app remains usable while signed out.
 - Auth UI component exists but is not currently routed as the primary app shell.
 
-## TODO (Architecture Review)
-- Prioritize roadmap sequencing between weekly planning features and sync hardening.
-- Define release criteria for "local-only complete" vs "cloud-sync optional" milestones.
-- Define migration policy for introducing new weekly planning tables in local DB.
+## Release Standards
+- Local-only complete milestone requires:
+	- Full offline operation for core weekly flows without auth.
+	- No local data loss across reload/crash for core operations.
+	- Deterministic tests for money math, week boundaries, and critical CRUD flows.
+- Cloud-sync optional milestone requires:
+	- Sync failures do not block local use.
+	- Durable outbox, retry policy, and terminal-error handling are implemented.
+	- Conflict policy and sync status UX are implemented and tested.
+- Schema evolution standard:
+	- New weekly planning tables use versioned, forward-only, recoverable migrations.

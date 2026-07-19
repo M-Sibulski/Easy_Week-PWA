@@ -22,6 +22,7 @@ Use Dexie over IndexedDB with explicit schema versioning and migrations, includi
 ## Future Direction
 - Add new domain tables for weekly planning and compare workflows when planned features are implemented, per [docs/product/roadmap.md](../product/roadmap.md).
 
-## Open Questions
-- What retention policy should apply to tombstoned rows?
-- When should purge or compaction processes run locally?
+## Standards Added After Initial Adoption
+- New local schema changes must use forward-only, recoverable, versioned migrations.
+- Tombstone behavior must remain compatible with sync convergence and coordinated reset semantics.
+- Storage behavior must support durable local queues for pending sync work as sync reliability hardens.

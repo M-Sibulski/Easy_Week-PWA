@@ -22,6 +22,8 @@ Use Vitest with Testing Library and JSDOM, plus fake-indexeddb for IndexedDB-com
 ## Future Direction
 - Add tests for weekly planning domain behavior and deeper sync integration scenarios as those features are implemented, as outlined in [docs/coding/testing.md](../coding/testing.md).
 
-## Open Questions
-- What CI coverage thresholds should be required?
-- Which sync scenarios should be hard release gates?
+## Standards Added After Initial Adoption
+- CI requires all tests to pass.
+- Coverage floor is 80% lines overall and must not regress.
+- Sync/conflict changes require convergence coverage.
+- Flaky tests must be quarantined temporarily with ownership and fix deadline.

@@ -7,12 +7,12 @@ Implemented
 Current UI is a single-page tabbed shell with one primary implemented workflow and placeholders for planned domains.
 
 ## Decision
-Use a tabbed UI architecture focused on the weekly transaction workflow while keeping planner and accounts tabs as placeholders until those domains are implemented.
+Use bottom tabs for top-level domains, while allowing route-driven sub-screens inside each domain as workflows deepen.
 
 ## Consequences
 - Delivery is focused on currently implemented weekly finance flows.
 - Planner and accounts experiences communicate roadmap intent but are not feature-complete.
-- Route-based deep links are limited in the current model.
+- Deep links and browser-history-friendly sub-flows can be introduced incrementally without replacing the current shell.
 
 ## Current Implementation
 - Tab model is implemented in [src/BottomNav.tsx](../../src/BottomNav.tsx).
@@ -23,6 +23,7 @@ Use a tabbed UI architecture focused on the weekly transaction workflow while ke
 ## Future Direction
 - Weekly planning, compare, and review screens are planned in [docs/product/vision.md](../product/vision.md) and [docs/domain/weekly-plans.md](../domain/weekly-plans.md).
 
-## Open Questions
-- Should navigation remain tab-only or transition to route-driven screens?
-- What accessibility and notification standards should be formalized globally?
+## Standards Added After Initial Adoption
+- Keep tabs for `Planner`, `My Week`, and `Accounts` as the top-level navigation model.
+- Use route-driven sub-screens for compare details, review history, and sync diagnostics.
+- Apply the shared accessibility baseline across all new screens.

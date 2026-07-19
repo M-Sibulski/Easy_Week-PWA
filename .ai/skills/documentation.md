@@ -13,6 +13,8 @@ Keep architecture and domain documentation aligned with actual code and planned 
 - Link decisions to ADRs.
 - Record known inconsistencies and chosen standardization path.
 - Keep terminology aligned with domain docs and repository contracts.
+- Treat accepted ADRs as the authoritative source when architecture guidance conflicts.
+- If a docs/skill conflict is found during a local agent flow, ask the user for a solution with a recommendation, then fix the conflict.
 
 ## Step-by-step workflow
 1. Identify impacted docs and ADRs.
@@ -28,6 +30,7 @@ Keep architecture and domain documentation aligned with actual code and planned 
 - [ ] Roadmap and architecture docs do not conflict.
 - [ ] Naming is consistent across docs and code.
 - [ ] New feature docs include testing implications.
+- [ ] Skill guidance does not contradict ADRs or architecture/product docs.
 
 ## Common mistakes
 - Writing aspirational docs as if already implemented.

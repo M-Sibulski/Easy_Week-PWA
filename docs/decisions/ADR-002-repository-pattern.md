@@ -12,7 +12,7 @@ Define and use a repository contract for data access and mutations, and keep sto
 ## Consequences
 - Storage implementations can evolve with less UI churn.
 - Data behavior is centralized and easier to test.
-- Consistency and error semantics still need formalization for multi-step operations.
+- Multi-step consistency and error semantics are formalized in the service layer rather than repository internals.
 
 ## Current Implementation
 - Repository contract is defined in [src/repository/IRepository.ts](../../src/repository/IRepository.ts).
@@ -23,6 +23,7 @@ Define and use a repository contract for data access and mutations, and keep sto
 ## Future Direction
 - Maintain repository abstraction as the isolation boundary for future storage implementations and adapters, consistent with [docs/architecture/repositories.md](../architecture/repositories.md).
 
-## Open Questions
-- Should clear operations trigger sync behavior?
-- Should repository methods return typed result objects instead of throwing errors?
+## Standards Added After Initial Adoption
+- Repository methods throw technical and infrastructure errors.
+- Expected business outcomes belong in typed service results.
+- User-facing destructive reset flows must not rely on silent local-only `clear*` behavior.

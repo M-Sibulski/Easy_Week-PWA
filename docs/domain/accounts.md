@@ -31,7 +31,13 @@ On first local initialization/reset, starter data is created:
 - Richer account dashboards and management screens (currently tab is placeholder).
 - Potential account grouping and planning context per week.
 
-## TODO (Architecture Review)
+## Approved Standards
+- Account and related workflow behavior must remain fully usable locally without auth.
+- Account-affecting multi-step workflows belong in services, not in components or repository internals.
+- Transfer-linked records must preserve transfer integrity during conflict handling and sync reconciliation.
+- User-facing destructive reset flows must use the coordinated reset policy rather than silent local-only clears.
+
+## Remaining Open Items
 - Define account deletion policy for transfer-linked records (`to_account_id` references).
-- Define whether account types should expand beyond Everyday/Savings.
+- Define whether account types should expand beyond `Everyday` and `Savings`.
 - Define validation rules for account naming uniqueness and constraints.
