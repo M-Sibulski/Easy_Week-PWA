@@ -8,14 +8,25 @@ import CreateTransaction from './CreateTransaction.tsx';
 import WeekScreen from './WeekScreen.tsx';
 import { initializeStarterPack } from './defaultData.ts';
 import { isResetCurrentUserDataInProgress } from './resetUserData.ts';
+import BottomNav, { type MainTab } from './BottomNav.tsx';
 
 interface Props {
   syncReady?: boolean;
 }
 
+function TabPlaceholder({ title }: { title: string }) {
+  return (
+    <div className="flex flex-1 flex-col items-center justify-center bg-gray-300 p-6">
+      <p className="text-center text-lg font-medium text-gray-700">{title}</p>
+      <p className="mt-2 text-center text-sm text-gray-700 opacity-80">Coming soon</p>
+    </div>
+  );
+}
+
 const Mainscreen = ({ syncReady = true }: Props) => {
   const [accountId, setAccountId] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<MainTab>('myWeek');
   
   const transactions: Transactions[] | undefined = useTransactions();
   const settingsArray: Settings[] | undefined = useSettingsArray();
@@ -28,7 +39,6 @@ const Mainscreen = ({ syncReady = true }: Props) => {
 
   const [scrollPosition, setScrollPosition] = useState(0);
   const [renderOpenButton, setRenderOpenButton] = useState(true);
-  const scrollDemoRef = useRef(null);
   const isInitializingLocalDataRef = useRef(false);
 
   const findFallbackAccount = (items: Accounts[]) => items.reduce((best, current) => current.id < best.id ? current : best);
@@ -95,25 +105,36 @@ const Mainscreen = ({ syncReady = true }: Props) => {
 
   }, [accounts, accountId, loading, settings, settingsArray, syncReady])
 
-  const handleScroll = () => {
-    if (scrollDemoRef.current) {
-      const { scrollTop } = scrollDemoRef.current;
-      if (scrollTop > scrollPosition) setRenderOpenButton(false)
-      else setRenderOpenButton(true)
-      setScrollPosition(scrollTop);
-    }
-  }
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop } = e.currentTarget;
+    if (scrollTop > scrollPosition) setRenderOpenButton(false);
+    else setRenderOpenButton(true);
+    setScrollPosition(scrollTop);
+  };
 
   const changeAccount = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setAccountId(Number(e.target.value))
   }
   return (
-    <>
-      <Account accountId={accountId} total={accountTotal} accounts={accounts} changeAccount={changeAccount} settings={settings}/>
-      <WeekScreen transactions={transactionsCombined} accounts={accounts} settings={settings} handleScroll={handleScroll}/>
-      
-      <CreateTransaction accountId={accountId} accounts={accounts} renderOpenButton={renderOpenButton}/>
-    </>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        {activeTab === 'planner' && <TabPlaceholder title="Planner" />}
+        {activeTab === 'myWeek' && (
+          <>
+            <Account accountId={accountId} total={accountTotal} accounts={accounts} changeAccount={changeAccount} settings={settings}/>
+            <WeekScreen transactions={transactionsCombined} accounts={accounts} settings={settings} handleScroll={handleScroll}/>
+          </>
+        )}
+        {activeTab === 'accounts' && <TabPlaceholder title="Accounts" />}
+      </div>
+
+      <div className="relative z-20 flex shrink-0 flex-col">
+        {activeTab === 'myWeek' && (
+          <CreateTransaction accountId={accountId} accounts={accounts} renderOpenButton={renderOpenButton}/>
+        )}
+        <BottomNav active={activeTab} onChange={setActiveTab} />
+      </div>
+    </div>
   )
 }
 
