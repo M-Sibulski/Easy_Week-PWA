@@ -142,6 +142,12 @@ These are reusable implementation/validation skills for this repository, ordered
 - Vitest + Testing Library
 - ESLint
 
+## Project Governance
+
+- The project constitution is defined in `.specify/memory/constitution.md`.
+- For non-trivial work, use the Speckit flow (spec -> plan -> tasks) and pass the
+  Constitution Check gates before implementation.
+
 ## Project Structure
 
 Key files and folders:
