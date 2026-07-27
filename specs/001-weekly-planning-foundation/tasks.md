@@ -18,9 +18,9 @@
 
 **Purpose**: Create weekly planning module/test scaffolding used by all stories.
 
-- [ ] T001 Create weekly planning module scaffold in src/weeklyPlanning/index.ts and src/weeklyPlanning/weeklyPlanningService.ts
-- [ ] T002 Create weekly planning test scaffold in src/weeklyPlanning/weeklyPlanningService.test.ts
-- [ ] T003 [P] Create planning UI folder scaffolds in src/planner/.gitkeep and src/myWeek/.gitkeep
+- [X] T001 Create weekly planning module scaffold in src/weeklyPlanning/index.ts and src/weeklyPlanning/weeklyPlanningService.ts
+- [X] T002 Create weekly planning test scaffold in src/weeklyPlanning/weeklyPlanningService.test.ts
+- [X] T003 [P] Create planning UI folder scaffolds in src/planner/.gitkeep and src/myWeek/.gitkeep
 
 ---
 
@@ -30,13 +30,13 @@
 
 **CRITICAL**: No user story work starts before this phase is complete.
 
-- [ ] T004 Extend planning entity and enum types in types.ts
-- [ ] T005 Add Dexie schema version for weekly planning stores and indexes in db.ts
-- [ ] T006 Add weekly planning repository contract methods in src/repository/IRepository.ts
-- [ ] T007 Implement shared Dexie mapping helpers for planning rows in src/repository/DexieRepository.ts
-- [ ] T008 Implement SyncingRepository passthrough methods for planning APIs in src/repository/SyncingRepository.ts
-- [ ] T009 [P] Add live query hooks for templates/snapshots in src/hooks/useAppData.ts
-- [ ] T010 [P] Export new planning public types/helpers in src/weeklyPlanning/index.ts
+- [X] T004 Extend planning entity and enum types in types.ts
+- [X] T005 Add Dexie schema version for weekly planning stores and indexes in db.ts
+- [X] T006 Add weekly planning repository contract methods in src/repository/IRepository.ts
+- [X] T007 Implement shared Dexie mapping helpers for planning rows in src/repository/DexieRepository.ts
+- [X] T008 Implement SyncingRepository passthrough methods for planning APIs in src/repository/SyncingRepository.ts
+- [X] T009 [P] Add live query hooks for templates/snapshots in src/hooks/useAppData.ts
+- [X] T010 [P] Export new planning public types/helpers in src/weeklyPlanning/index.ts
 
 **Checkpoint**: Foundation complete. User stories can begin.
 
@@ -50,19 +50,19 @@
 
 ### Tests for User Story 1 (write first, fail first)
 
-- [ ] T011 [P] [US1] Add template validation/totals unit tests in src/weeklyPlanning/weeklyPlanningService.test.ts
-- [ ] T012 [P] [US1] Add template repository CRUD tests in src/repository/DexieRepository.test.ts
-- [ ] T013 [P] [US1] Add Planner template editor component tests in src/PlannerScreen.test.tsx
+- [X] T011 [P] [US1] Add template validation/totals unit tests in src/weeklyPlanning/weeklyPlanningService.test.ts
+- [X] T012 [P] [US1] Add template repository CRUD tests in src/repository/DexieRepository.test.ts
+- [X] T013 [P] [US1] Add Planner template editor component tests in src/PlannerScreen.test.tsx
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement template validation and derived totals logic in src/weeklyPlanning/weeklyPlanningService.ts
-- [ ] T015 [US1] Implement getStandardWeekTemplateByAccountId and upsertStandardWeekTemplate in src/repository/DexieRepository.ts
-- [ ] T016 [P] [US1] Build template row editor component in src/planner/TemplateItemRow.tsx
-- [ ] T017 [P] [US1] Build template summary preview component in src/planner/TemplateSummary.tsx
-- [ ] T018 [US1] Build Planner screen template workflow in src/PlannerScreen.tsx
-- [ ] T019 [US1] Replace Planner placeholder with PlannerScreen in src/Mainscreen.tsx
-- [ ] T020 [US1] Wire Planner account/template data loading hooks in src/PlannerScreen.tsx and src/hooks/useAppData.ts
+- [X] T014 [US1] Implement template validation and derived totals logic in src/weeklyPlanning/weeklyPlanningService.ts
+- [X] T015 [US1] Implement getStandardWeekTemplateByAccountId and upsertStandardWeekTemplate in src/repository/DexieRepository.ts
+- [X] T016 [P] [US1] Build template row editor component in src/planner/TemplateItemRow.tsx
+- [X] T017 [P] [US1] Build template summary preview component in src/planner/TemplateSummary.tsx
+- [X] T018 [US1] Build Planner screen template workflow in src/PlannerScreen.tsx
+- [X] T019 [US1] Replace Planner placeholder with PlannerScreen in src/Mainscreen.tsx
+- [X] T020 [US1] Wire Planner account/template data loading hooks in src/PlannerScreen.tsx and src/hooks/useAppData.ts
 
 **Checkpoint**: US1 fully functional and independently testable.
 
@@ -76,20 +76,20 @@
 
 ### Tests for User Story 2 (write first, fail first)
 
-- [ ] T021 [P] [US2] Add snapshot creation/mutability/locking unit tests in src/weeklyPlanning/weeklyPlanningService.test.ts
-- [ ] T022 [P] [US2] Add snapshot repository and lock query tests in src/repository/DexieRepository.test.ts
-- [ ] T023 [P] [US2] Add Planner snapshot CTA and read-only-state tests in src/PlannerScreen.test.tsx
+- [X] T021 [P] [US2] Add snapshot creation/mutability/locking unit tests in src/weeklyPlanning/weeklyPlanningService.test.ts
+- [X] T022 [P] [US2] Add snapshot repository and lock query tests in src/repository/DexieRepository.test.ts
+- [X] T023 [P] [US2] Add Planner snapshot CTA and read-only-state tests in src/PlannerScreen.test.tsx
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Implement snapshot build and mutability policy logic in src/weeklyPlanning/weeklyPlanningService.ts
-- [ ] T025 [US2] Implement snapshot repository methods (create/get/update/list/delete/lock) in src/repository/DexieRepository.ts
-- [ ] T026 [US2] Implement IRepository + SyncingRepository snapshot method coverage in src/repository/IRepository.ts and src/repository/SyncingRepository.ts
-- [ ] T027 [US2] Add Create this week plan CTA and snapshot creation flow in src/PlannerScreen.tsx
-- [ ] T028 [US2] Add draft snapshot item editing flow in src/planner/SnapshotItemEditor.tsx and src/PlannerScreen.tsx
-- [ ] T029 [US2] Add locked snapshot read-only UX state in src/planner/SnapshotSummary.tsx and src/PlannerScreen.tsx
-- [ ] T030 [US2] Trigger lockPastWeeklyPlans at lifecycle entry points in src/Mainscreen.tsx
-- [ ] T031 [US2] Preserve historical boundaries under week-start setting changes in src/weeklyPlanning/weeklyPlanningService.ts and src/PlannerScreen.tsx
+- [X] T024 [US2] Implement snapshot build and mutability policy logic in src/weeklyPlanning/weeklyPlanningService.ts
+- [X] T025 [US2] Implement snapshot repository methods (create/get/update/list/delete/lock) in src/repository/DexieRepository.ts
+- [X] T026 [US2] Implement IRepository + SyncingRepository snapshot method coverage in src/repository/IRepository.ts and src/repository/SyncingRepository.ts
+- [X] T027 [US2] Add Create this week plan CTA and snapshot creation flow in src/PlannerScreen.tsx
+- [X] T028 [US2] Add draft snapshot item editing flow in src/planner/SnapshotItemEditor.tsx and src/PlannerScreen.tsx
+- [X] T029 [US2] Add locked snapshot read-only UX state in src/planner/SnapshotSummary.tsx and src/PlannerScreen.tsx
+- [X] T030 [US2] Trigger lockPastWeeklyPlans at lifecycle entry points in src/Mainscreen.tsx
+- [X] T031 [US2] Preserve historical boundaries under week-start setting changes in src/weeklyPlanning/weeklyPlanningService.ts and src/PlannerScreen.tsx
 
 **Checkpoint**: US2 fully functional and independently testable.
 
@@ -103,19 +103,19 @@
 
 ### Tests for User Story 3 (write first, fail first)
 
-- [ ] T032 [P] [US3] Add compare metric/pacing/savings calculation unit tests in src/weeklyPlanning/weeklyPlanningService.test.ts
-- [ ] T033 [P] [US3] Add My Week empty-state and compare-card tests in src/WeekScreen.test.tsx
-- [ ] T034 [P] [US3] Add planner-navigation CTA behavior tests in src/Mainscreen.test.tsx
+- [X] T032 [P] [US3] Add compare metric/pacing/savings calculation unit tests in src/weeklyPlanning/weeklyPlanningService.test.ts
+- [X] T033 [P] [US3] Add My Week empty-state and compare-card tests in src/WeekScreen.test.tsx
+- [X] T034 [P] [US3] Add planner-navigation CTA behavior tests in src/Mainscreen.test.tsx
 
 ### Implementation for User Story 3
 
-- [ ] T035 [US3] Implement compare metrics and pacing status helpers in src/weeklyPlanning/weeklyPlanningService.ts
-- [ ] T036 [P] [US3] Build My Week no-plan empty state component in src/myWeek/NoWeeklyPlanState.tsx
-- [ ] T037 [P] [US3] Build comparison cards component in src/myWeek/WeeklyPlanCompareCards.tsx
-- [ ] T038 [P] [US3] Build per-category variance list component in src/myWeek/WeeklyPlanVarianceList.tsx
-- [ ] T039 [US3] Integrate weekly plan lookup and compare rendering in src/WeekScreen.tsx
-- [ ] T040 [US3] Add My Week CTA handoff to Planner tab in src/Mainscreen.tsx and src/WeekScreen.tsx
-- [ ] T041 [US3] Apply transaction-type inclusion rules for spend/income/savings compare in src/weeklyPlanning/weeklyPlanningService.ts
+- [X] T035 [US3] Implement compare metrics and pacing status helpers in src/weeklyPlanning/weeklyPlanningService.ts
+- [X] T036 [P] [US3] Build My Week no-plan empty state component in src/myWeek/NoWeeklyPlanState.tsx
+- [X] T037 [P] [US3] Build comparison cards component in src/myWeek/WeeklyPlanCompareCards.tsx
+- [X] T038 [P] [US3] Build per-category variance list component in src/myWeek/WeeklyPlanVarianceList.tsx
+- [X] T039 [US3] Integrate weekly plan lookup and compare rendering in src/WeekScreen.tsx
+- [X] T040 [US3] Add My Week CTA handoff to Planner tab in src/Mainscreen.tsx and src/WeekScreen.tsx
+- [X] T041 [US3] Apply transaction-type inclusion rules for spend/income/savings compare in src/weeklyPlanning/weeklyPlanningService.ts
 
 **Checkpoint**: US3 fully functional and independently testable.
 
@@ -125,11 +125,11 @@
 
 **Purpose**: Hardening, regression protection, and documentation updates across all stories.
 
-- [ ] T042 [P] Add regression coverage for existing transaction/account/week-navigation flows in src/Mainscreen.localfirst.test.tsx and src/WeekScreen.test.tsx
-- [ ] T043 [P] Update architecture notes for weekly planning modules in docs/architecture/frontend.md and docs/architecture/repositories.md
-- [ ] T044 [P] Update testing strategy notes for weekly planning coverage in docs/coding/testing.md
-- [ ] T045 Run quickstart validation scenarios from specs/001-weekly-planning-foundation/quickstart.md and capture results in specs/001-weekly-planning-foundation/quickstart.md
-- [ ] T046 Run full quality gate (`npm run lint` and `npm test`) and fix residual issues in src/** and docs/**
+- [X] T042 [P] Add regression coverage for existing transaction/account/week-navigation flows in src/Mainscreen.localfirst.test.tsx and src/WeekScreen.test.tsx
+- [X] T043 [P] Update architecture notes for weekly planning modules in docs/architecture/frontend.md and docs/architecture/repositories.md
+- [X] T044 [P] Update testing strategy notes for weekly planning coverage in docs/coding/testing.md
+- [X] T045 Run quickstart validation scenarios from specs/001-weekly-planning-foundation/quickstart.md and capture results in specs/001-weekly-planning-foundation/quickstart.md
+- [X] T046 Run full quality gate (`npm run lint` and `npm test`) and fix residual issues in src/** and docs/**
 
 ---
 

@@ -1,19 +1,32 @@
 import Dexie, { EntityTable } from 'dexie';
-import { Accounts, CategorySuggestion, Transactions, Settings } from './types';
+import {
+  Accounts,
+  CategorySuggestion,
+  Settings,
+  StandardWeekTemplate,
+  StandardWeekTemplateItem,
+  Transactions,
+  WeeklyPlanSnapshot,
+  WeeklyPlanSnapshotItem,
+} from './types';
 import { createSyncId } from './syncIds';
 
 class AppDatabase extends Dexie {
-  accounts!: EntityTable<Accounts, 'id'>; // 'id' is the primary key property
+  accounts!: EntityTable<Accounts, 'id'>;
   transactions!: EntityTable<Transactions, 'id'>;
   categorySuggestions!: EntityTable<CategorySuggestion, 'id'>;
   settings!: EntityTable<Settings, 'id'>;
+  standardWeekTemplates!: EntityTable<StandardWeekTemplate, 'id'>;
+  standardWeekTemplateItems!: EntityTable<StandardWeekTemplateItem, 'id'>;
+  weeklyPlans!: EntityTable<WeeklyPlanSnapshot, 'id'>;
+  weeklyPlanItems!: EntityTable<WeeklyPlanSnapshotItem, 'id'>;
 
   constructor() {
     super('easyWeekDatabase');
     this.version(1).stores({
-        accounts: '++id, type, goalValue, goalDate, main, dateCreated',
-        transactions: '++id, value, type, name, account_id, date, category',
-        settings: '++id, dark, last_account_id',
+      accounts: '++id, type, goalValue, goalDate, main, dateCreated',
+      transactions: '++id, value, type, name, account_id, date, category',
+      settings: '++id, dark, last_account_id',
     });
 
     this.version(2)
@@ -48,11 +61,11 @@ class AppDatabase extends Dexie {
           transaction.updatedAt = transaction.updatedAt instanceof Date ? transaction.updatedAt : createdAt;
         });
 
-        await tx.table('settings').toCollection().modify((settings: Record<string, unknown>) => {
-          const createdAt = settings.createdAt instanceof Date ? settings.createdAt : now;
+        await tx.table('settings').toCollection().modify((settingsRow: Record<string, unknown>) => {
+          const createdAt = settingsRow.createdAt instanceof Date ? settingsRow.createdAt : now;
 
-          settings.createdAt = createdAt;
-          settings.updatedAt = settings.updatedAt instanceof Date ? settings.updatedAt : createdAt;
+          settingsRow.createdAt = createdAt;
+          settingsRow.updatedAt = settingsRow.updatedAt instanceof Date ? settingsRow.updatedAt : createdAt;
         });
       });
 
@@ -95,11 +108,11 @@ class AppDatabase extends Dexie {
           }
         });
 
-        await settingsTable.toCollection().modify((settings: Record<string, unknown>) => {
-          settings.syncId = typeof settings.syncId === 'string' ? settings.syncId : createSyncId('set');
+        await settingsTable.toCollection().modify((settingsRow: Record<string, unknown>) => {
+          settingsRow.syncId = typeof settingsRow.syncId === 'string' ? settingsRow.syncId : createSyncId('set');
 
-          if (typeof settings.main_account_sync_id !== 'string' && typeof settings.main_account_id === 'number' && settings.main_account_id !== 0) {
-            settings.main_account_sync_id = accountSyncIdByLocalId.get(settings.main_account_id);
+          if (typeof settingsRow.main_account_sync_id !== 'string' && typeof settingsRow.main_account_id === 'number' && settingsRow.main_account_id !== 0) {
+            settingsRow.main_account_sync_id = accountSyncIdByLocalId.get(settingsRow.main_account_id);
           }
         });
       });
@@ -137,6 +150,17 @@ class AppDatabase extends Dexie {
           suggestion.deletedAt = suggestion.deletedAt instanceof Date ? suggestion.deletedAt : undefined;
         });
       });
+
+    this.version(6).stores({
+      accounts: '++id, &syncId, type, goalValue, goalDate, createdAt, updatedAt, deletedAt',
+      transactions: '++id, &syncId, value, type, name, account_id, account_sync_id, to_account_id, to_account_sync_id, date, category, createdAt, updatedAt, deletedAt',
+      categorySuggestions: '++id, &syncId, &[token+category], token, category, score, createdAt, updatedAt, deletedAt',
+      settings: '++id, &syncId, dark, main_account_id, main_account_sync_id, createdAt, updatedAt, deletedAt',
+      standardWeekTemplates: '++id, &syncId, account_id, account_sync_id, createdAt, updatedAt, deletedAt',
+      standardWeekTemplateItems: '++id, &syncId, template_id, bucket_type, createdAt, updatedAt, deletedAt',
+      weeklyPlans: '++id, &syncId, account_id, account_sync_id, week_start, week_end, status, template_id, createdAt, updatedAt, deletedAt',
+      weeklyPlanItems: '++id, &syncId, weekly_plan_id, bucket_type, createdAt, updatedAt, deletedAt',
+    });
   }
 }
 

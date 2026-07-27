@@ -1,5 +1,23 @@
-import type { Accounts, CategorySuggestion, Settings, Transactions } from '../../types';
-import type { AccountInsert, CategorySuggestionInsert, IRepository, TransactionInsert } from './IRepository';
+import type {
+  Accounts,
+  CategorySuggestion,
+  Settings,
+  SnapshotStatus,
+  Transactions,
+  WeeklyPlanSnapshot,
+  WeeklyPlanSnapshotItem,
+} from '../../types';
+import type {
+  AccountInsert,
+  CategorySuggestionInsert,
+  IRepository,
+  SnapshotWithItems,
+  StandardWeekTemplateInsert,
+  StandardWeekTemplateItemInsert,
+  TemplateWithItems,
+  TransactionInsert,
+  WeeklyPlanSnapshotItemInsert,
+} from './IRepository';
 import { hardDeleteRemoteCategorySuggestions, scheduleSync } from '../sync/syncService';
 
 export class SyncingRepository implements IRepository {
@@ -117,5 +135,55 @@ export class SyncingRepository implements IRepository {
 
   clearSettings(): Promise<void> {
     return this.innerRepository.clearSettings();
+  }
+
+  getStandardWeekTemplateByAccountId(accountId: number): Promise<TemplateWithItems | undefined> {
+    return this.innerRepository.getStandardWeekTemplateByAccountId(accountId);
+  }
+
+  async upsertStandardWeekTemplate(template: StandardWeekTemplateInsert & { id?: number }, items: StandardWeekTemplateItemInsert[]): Promise<TemplateWithItems> {
+    const result = await this.innerRepository.upsertStandardWeekTemplate(template, items);
+    void scheduleSync();
+    return result;
+  }
+
+  getWeeklyPlanByAccountAndWeek(accountId: number, weekStart: Date, weekEnd: Date): Promise<SnapshotWithItems | undefined> {
+    return this.innerRepository.getWeeklyPlanByAccountAndWeek(accountId, weekStart, weekEnd);
+  }
+
+  async createWeeklyPlanFromTemplate(accountId: number, weekStart: Date, weekEnd: Date): Promise<SnapshotWithItems> {
+    const result = await this.innerRepository.createWeeklyPlanFromTemplate(accountId, weekStart, weekEnd);
+    void scheduleSync();
+    return result;
+  }
+
+  async updateWeeklyPlan(
+    weeklyPlanId: number,
+    changes: Partial<Pick<WeeklyPlanSnapshot, 'notes' | 'status'>>,
+    itemChanges: {
+      add?: WeeklyPlanSnapshotItemInsert[];
+      update?: Array<{ id: number; changes: Partial<WeeklyPlanSnapshotItem> }>;
+      remove?: number[];
+    },
+  ): Promise<void> {
+    await this.innerRepository.updateWeeklyPlan(weeklyPlanId, changes, itemChanges);
+    void scheduleSync();
+  }
+
+  async lockPastWeeklyPlans(referenceDate: Date): Promise<number> {
+    const result = await this.innerRepository.lockPastWeeklyPlans(referenceDate);
+    if (result > 0) {
+      void scheduleSync();
+    }
+    return result;
+  }
+
+  listWeeklyPlansByAccount(accountId: number, options?: { status?: SnapshotStatus; limit?: number }): Promise<SnapshotWithItems[]> {
+    return this.innerRepository.listWeeklyPlansByAccount(accountId, options);
+  }
+
+  async deleteWeeklyPlan(id: number): Promise<void> {
+    await this.innerRepository.deleteWeeklyPlan(id);
+    void scheduleSync();
   }
 }
