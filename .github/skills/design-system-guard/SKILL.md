@@ -74,6 +74,38 @@ C. Add a different rule that you specify?"
   - code changed
   - validation results
 
+Dark-Mode Enforcement (Tailwind v4):
+- The project uses `@variant dark (.theme-dark &);` in `src/App.css`.
+- Use `dark:` utilities for all new dark-mode styling. Do NOT add `.theme-dark` CSS blocks.
+- Approved dark-mode blue mappings: `bg-blue-500 dark:bg-blue-800`, `bg-blue-400 dark:bg-blue-700`, `bg-blue-300 dark:bg-blue-600`.
+- For neutral surfaces (`bg-gray-*`) in dark mode, use semantic CSS variable utilities via `bg-[var(--ew-surface-N)]`.
+
+SVG Icon Fill:
+- Use `fill="currentColor"` on SVG paths whenever the icon must adapt to theme changes.
+- Static white fill (`fill="#f9fafb"`) is acceptable only on permanently blue surfaces.
+- Never use `fill="#000000ff"` on surfaces that appear in both light and dark modes.
+
+Bottom Sheet Animation:
+- Always use `translate-y-full` (100%) for the closed state. Never use `translate-y-100` (100px).
+- Use the shared `BottomSheet` primitive from `src/lib/ui/` for all bottom-sheet containers.
+
+Shared Primitives (src/lib/ui/):
+- BottomSheet: sliding sheet container with correct animation.
+- SheetHeader: centered title with optional left/right icon slot.
+- IconButton: standardised icon action button (`btn-icon-blue` pattern).
+- SubmitButton: form submit button with checkmark icon.
+- FormField: input/select with `field-blue-surface` styling + visible focus ring.
+- StatusMessage: four-variant (success/error/warning/info) feedback component.
+- Always prefer these primitives over repeating raw utility stacks.
+
+Focus Ring Requirement:
+- All keyboard-focusable form inputs MUST include `focus:ring-2 ring-blue-200`.
+- This is a mandatory accessibility rule (FR-007).
+- Auth inputs already comply; sheet form inputs must use `FormField` to inherit compliance.
+
+Sync Requirement:
+- After any token/variant addition to `approved-design-rules.json`, update `docs/design/design-system.md` and this SKILL.md accordingly.
+
 Implementation notes:
 - Prefer named tokens in the reference file where possible.
 - If a utility class is the approved option, keep the exact utility class string.

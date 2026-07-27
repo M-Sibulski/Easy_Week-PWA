@@ -6,6 +6,17 @@
 
 **Note**: This template is filled in by the `/speckit.plan` command; its definition describes the execution workflow.
 
+## Feature TODO Map
+
+| Phase | Status | Tasks |
+|-------|--------|-------|
+| Phase 1: Setup | ✅ Complete | T001–T004 |
+| Phase 2: Foundational Primitives | ✅ Complete | T005–T019 |
+| Phase 3: US1 – Consistent Visual Language | 🔄 In Progress | T020–T029 |
+| Phase 4: US2 – Readable Theming | ⏳ Pending | T030–T040 |
+| Phase 5: US3 – Predictable Feedback | ⏳ Pending | T041–T052 |
+| Phase 6: Polish | ⏳ Pending | T053–T058 |
+
 ## Summary
 
 Unify the app visual identity around the approved blue-centric design system by removing ad-hoc styling, introducing reusable UI primitives, migrating dark mode to Tailwind v4 `dark:` utilities mapped to existing `.theme-dark` behavior, and resolving known visual defects. Deliverables include updated design governance docs and explicit skill-level guidance in `.github/skills/design-system-guard/SKILL.md` to enforce the new rules on future UI changes.

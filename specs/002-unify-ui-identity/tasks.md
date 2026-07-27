@@ -12,10 +12,10 @@
 
 **Purpose**: Prepare governance sources, component folder structure, and shared style entry points.
 
-- [ ] T001 Create shared UI folder and index exports in src/lib/ui/index.ts
-- [ ] T002 Add feature-level TODO map for UI identity work in specs/002-unify-ui-identity/plan.md
-- [ ] T003 [P] Add design-system documentation scaffold and sections in docs/design/design-system.md
-- [ ] T004 [P] Update design rule metadata/versioning baseline in .github/design-system/approved-design-rules.json
+- [X] T001 Create shared UI folder and index exports in src/lib/ui/index.ts
+- [X] T002 Add feature-level TODO map for UI identity work in specs/002-unify-ui-identity/plan.md
+- [X] T003 [P] Add design-system documentation scaffold and sections in docs/design/design-system.md
+- [X] T004 [P] Update design rule metadata/versioning baseline in .github/design-system/approved-design-rules.json
 
 ---
 
@@ -27,21 +27,21 @@
 
 **Red-Green Rule (mandatory in this phase)**: For each behavior-changing primitive, write tests first, confirm failure (red), then implement, then confirm pass (green).
 
-- [ ] T005 Add failing test (red) for BottomSheet open/close translation behavior in src/lib/ui/BottomSheet.test.tsx
-- [ ] T006 [P] Add failing test (red) for SheetHeader slot layout behavior in src/lib/ui/SheetHeader.test.tsx
-- [ ] T007 [P] Add failing test (red) for IconButton variants and semantics in src/lib/ui/IconButton.test.tsx
-- [ ] T008 [P] Add failing test (red) for SubmitButton variant behavior in src/lib/ui/SubmitButton.test.tsx
-- [ ] T009 [P] Add failing test (red) for FormField focus-ring visibility behavior in src/lib/ui/FormField.test.tsx
-- [ ] T010 [P] Add failing test (red) for StatusMessage variants and semantics in src/lib/ui/StatusMessage.test.tsx
-- [ ] T011 Implement BottomSheet primitive and make T005 pass (green) in src/lib/ui/BottomSheet.tsx
-- [ ] T012 [P] Implement SheetHeader primitive and make T006 pass (green) in src/lib/ui/SheetHeader.tsx
-- [ ] T013 [P] Implement IconButton primitive and make T007 pass (green) in src/lib/ui/IconButton.tsx
-- [ ] T014 [P] Implement SubmitButton primitive and make T008 pass (green) in src/lib/ui/SubmitButton.tsx
-- [ ] T015 [P] Implement FormField primitive and make T009 pass (green) in src/lib/ui/FormField.tsx
-- [ ] T016 [P] Implement StatusMessage primitive and make T010 pass (green) in src/lib/ui/StatusMessage.tsx
-- [ ] T017 Add shared primitive exports and typing surface in src/lib/ui/index.ts
-- [ ] T018 Update skill guidance with required sync, dark-mode, SVG, and accessibility checks in .github/skills/design-system-guard/SKILL.md
-- [ ] T019 Sync governance rules baseline to include planned primitive variants/tokens in .github/design-system/approved-design-rules.json
+- [X] T005 Add failing test (red) for BottomSheet open/close translation behavior in src/lib/ui/BottomSheet.test.tsx
+- [X] T006 [P] Add failing test (red) for SheetHeader slot layout behavior in src/lib/ui/SheetHeader.test.tsx
+- [X] T007 [P] Add failing test (red) for IconButton variants and semantics in src/lib/ui/IconButton.test.tsx
+- [X] T008 [P] Add failing test (red) for SubmitButton variant behavior in src/lib/ui/SubmitButton.test.tsx
+- [X] T009 [P] Add failing test (red) for FormField focus-ring visibility behavior in src/lib/ui/FormField.test.tsx
+- [X] T010 [P] Add failing test (red) for StatusMessage variants and semantics in src/lib/ui/StatusMessage.test.tsx
+- [X] T011 Implement BottomSheet primitive and make T005 pass (green) in src/lib/ui/BottomSheet.tsx
+- [X] T012 [P] Implement SheetHeader primitive and make T006 pass (green) in src/lib/ui/SheetHeader.tsx
+- [X] T013 [P] Implement IconButton primitive and make T007 pass (green) in src/lib/ui/IconButton.tsx
+- [X] T014 [P] Implement SubmitButton primitive and make T008 pass (green) in src/lib/ui/SubmitButton.tsx
+- [X] T015 [P] Implement FormField primitive and make T009 pass (green) in src/lib/ui/FormField.tsx
+- [X] T016 [P] Implement StatusMessage primitive and make T010 pass (green) in src/lib/ui/StatusMessage.tsx
+- [X] T017 Add shared primitive exports and typing surface in src/lib/ui/index.ts
+- [X] T018 Update skill guidance with required sync, dark-mode, SVG, and accessibility checks in .github/skills/design-system-guard/SKILL.md
+- [X] T019 Sync governance rules baseline to include planned primitive variants/tokens in .github/design-system/approved-design-rules.json
 
 **Checkpoint**: Shared primitives and governance guardrails are ready for story implementation.
 

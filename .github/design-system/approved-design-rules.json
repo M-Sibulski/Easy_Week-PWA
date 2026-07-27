@@ -1,19 +1,39 @@
 {
   "meta": {
     "project": "Easy Week PWA",
-    "version": 1,
-    "lastAuditedOn": "2026-07-18",
+    "version": 2,
+    "lastAuditedOn": "2026-07-27",
     "sourceOfTruthPolicy": "Existing approved options in this repository are authoritative unless explicitly extended by user approval.",
     "notes": [
       "Use named tokens whenever possible.",
       "Do not invent or silently substitute design values.",
-      "Tailwind defaults are allowed only when represented by approved utility tokens below."
+      "Tailwind defaults are allowed only when represented by approved utility tokens below.",
+      "Dark mode: use dark: utilities powered by @variant dark (.theme-dark &) in App.css.",
+      "Always use translate-y-full (not translate-y-100) for off-canvas sheet state.",
+      "Prefer shared primitives from src/lib/ui/ for repeated interaction patterns."
+    ]
+  },
+  "sharedPrimitives": {
+    "location": "src/lib/ui/",
+    "components": [
+      { "name": "BottomSheet", "purpose": "Sliding sheet container with correct translate-y-full animation", "defectFixed": "D-001" },
+      { "name": "SheetHeader", "purpose": "Centered title with optional left/right icon button slots" },
+      { "name": "IconButton", "purpose": "Standardised icon action button applying btn-icon-blue pattern" },
+      { "name": "SubmitButton", "purpose": "Form submit button with checkmark icon applying btn-submit-blue pattern" },
+      { "name": "FormField", "purpose": "Input/select with field-blue-surface styling and mandatory focus ring" },
+      { "name": "StatusMessage", "purpose": "Four-variant feedback component: success, error, warning, info" }
     ]
   },
   "sources": [
     "src/App.css",
     "src/index.css",
     "src/PWABadge.css",
+    "src/lib/ui/BottomSheet.tsx",
+    "src/lib/ui/SheetHeader.tsx",
+    "src/lib/ui/IconButton.tsx",
+    "src/lib/ui/SubmitButton.tsx",
+    "src/lib/ui/FormField.tsx",
+    "src/lib/ui/StatusMessage.tsx",
     "src/App.tsx",
     "src/Account.tsx",
     "src/CreateAccount.tsx",
@@ -87,52 +107,51 @@
         "border-white/30",
         "border-t-white"
       ],
-      "darkModeOverrides": [
-        {
-          "selector": ".theme-dark .bg-blue-500",
-          "value": "rgb(30, 64, 175)"
+      "darkModeStrategy": {
+        "mechanism": "@variant dark (.theme-dark &) in src/App.css",
+        "note": "Use Tailwind dark: utilities instead of legacy .theme-dark CSS override blocks.",
+        "blueTokenMapping": {
+          "bg-blue-500": "dark:bg-blue-800",
+          "bg-blue-400": "dark:bg-blue-700",
+          "bg-blue-300": "dark:bg-blue-600",
+          "hover:bg-blue-600": "dark:hover:bg-blue-900",
+          "hover:bg-blue-500": "dark:hover:bg-blue-800",
+          "hover:bg-blue-400": "dark:hover:bg-blue-700",
+          "hover:bg-blue-200": "dark:hover:bg-blue-500"
         },
-        {
-          "selector": ".theme-dark .bg-blue-400",
-          "value": "rgb(29, 78, 216)"
-        },
-        {
-          "selector": ".theme-dark .bg-blue-300",
-          "value": "rgb(37, 99, 235)"
-        },
-        {
-          "selector": ".theme-dark .hover\\:bg-blue-600:hover",
-          "value": "rgb(30, 58, 138)"
-        },
-        {
-          "selector": ".theme-dark .hover\\:bg-blue-500:hover",
-          "value": "rgb(30, 64, 175)"
-        },
-        {
-          "selector": ".theme-dark .hover\\:bg-blue-400:hover",
-          "value": "rgb(29, 78, 216)"
-        },
-        {
-          "selector": ".theme-dark .hover\\:bg-blue-200:hover",
-          "value": "rgb(59, 130, 246)"
-        },
-        {
-          "selector": ".theme-dark .bg-gray-50",
-          "value": "rgb(30, 41, 75)"
-        },
-        {
-          "selector": ".theme-dark .bg-gray-100",
-          "value": "rgb(38, 53, 94)"
-        },
-        {
-          "selector": ".theme-dark .bg-gray-200, .theme-dark .hover\\:bg-gray-200:hover",
-          "value": "rgb(45, 62, 109)"
-        },
-        {
-          "selector": ".theme-dark .bg-gray-300",
-          "value": "rgb(20, 31, 55)"
+        "surfaceTokenMapping": {
+          "bg-gray-50": "dark:bg-[rgb(30,41,75)]",
+          "bg-gray-100": "dark:bg-[rgb(38,53,94)]",
+          "bg-gray-200": "dark:bg-[rgb(45,62,109)]",
+          "hover:bg-gray-200": "dark:hover:bg-[rgb(45,62,109)]",
+          "bg-gray-300": "dark:bg-[rgb(20,31,55)]"
         }
-      ]
+      },
+      "semanticSurfaceVariables": {
+        "note": "Defined in :root and .theme-dark in App.css",
+        "variables": {
+          "--ew-surface-50": { "light": "rgb(249,250,251)", "dark": "rgb(30,41,75)" },
+          "--ew-surface-100": { "light": "rgb(243,244,246)", "dark": "rgb(38,53,94)" },
+          "--ew-surface-200": { "light": "rgb(229,231,235)", "dark": "rgb(45,62,109)" },
+          "--ew-surface-300": { "light": "rgb(209,213,219)", "dark": "rgb(20,31,55)" }
+        }
+      },
+      "legacyDarkModeOverrides": {
+        "status": "DEPRECATED — being replaced by dark: utilities (Feature 002)",
+        "overrides": [
+          { "selector": ".theme-dark .bg-blue-500", "value": "rgb(30, 64, 175)" },
+          { "selector": ".theme-dark .bg-blue-400", "value": "rgb(29, 78, 216)" },
+          { "selector": ".theme-dark .bg-blue-300", "value": "rgb(37, 99, 235)" },
+          { "selector": ".theme-dark .hover\\:bg-blue-600:hover", "value": "rgb(30, 58, 138)" },
+          { "selector": ".theme-dark .hover\\:bg-blue-500:hover", "value": "rgb(30, 64, 175)" },
+          { "selector": ".theme-dark .hover\\:bg-blue-400:hover", "value": "rgb(29, 78, 216)" },
+          { "selector": ".theme-dark .hover\\:bg-blue-200:hover", "value": "rgb(59, 130, 246)" },
+          { "selector": ".theme-dark .bg-gray-50", "value": "rgb(30, 41, 75)" },
+          { "selector": ".theme-dark .bg-gray-100", "value": "rgb(38, 53, 94)" },
+          { "selector": ".theme-dark .bg-gray-200, .theme-dark .hover\\:bg-gray-200:hover", "value": "rgb(45, 62, 109)" },
+          { "selector": ".theme-dark .bg-gray-300", "value": "rgb(20, 31, 55)" }
+        ]
+      }
     },
     "borderRadius": {
       "approvedUtilities": [
@@ -275,7 +294,8 @@
             "src/CreateTransaction.tsx",
             "src/EditAccount.tsx",
             "src/SettingsScreen.tsx"
-          ]
+          ],
+          "deprecationNote": "Prefer the BottomSheet primitive from src/lib/ui/. Direct class usage only for components not yet migrated."
         }
       ]
     },
@@ -425,6 +445,30 @@
           ]
         }
       ]
+    },
+    "statusMessage": {
+      "approvedPatterns": [
+        {
+          "token": "status-success",
+          "classes": ["rounded-md", "px-3", "py-2", "text-sm", "bg-emerald-50", "text-emerald-700", "border", "border-emerald-200"],
+          "usedIn": ["src/lib/ui/StatusMessage.tsx", "src/auth/AuthScreen.tsx"]
+        },
+        {
+          "token": "status-error",
+          "classes": ["rounded-md", "px-3", "py-2", "text-sm", "bg-red-50", "text-red-700", "border", "border-red-200"],
+          "usedIn": ["src/lib/ui/StatusMessage.tsx", "src/auth/AuthScreen.tsx"]
+        },
+        {
+          "token": "status-warning",
+          "classes": ["rounded-md", "px-3", "py-2", "text-sm", "bg-amber-50", "text-amber-800", "border", "border-amber-300"],
+          "usedIn": ["src/lib/ui/StatusMessage.tsx"]
+        },
+        {
+          "token": "status-info",
+          "classes": ["rounded-md", "px-3", "py-2", "text-sm", "bg-blue-400/70", "text-white", "border", "border-white/30"],
+          "usedIn": ["src/lib/ui/StatusMessage.tsx", "src/Account.tsx"]
+        }
+      ]
     }
   },
   "interactionStates": {
@@ -446,7 +490,8 @@
         "ring-blue-200"
       ],
       "notes": [
-        "Focus ring currently defined only for auth inputs."
+        "Focus ring now required on ALL form inputs via FormField primitive (FR-007).",
+        "Previously only defined for auth inputs — now universal requirement."
       ]
     },
     "disabled": {
@@ -458,7 +503,7 @@
     "visibilityAndMotion": {
       "approvedPatterns": [
         "hidden prop toggling for open/closed states",
-        "translate-y-0 and translate-y-100 for bottom-sheet enter/exit",
+        "translate-y-0 and translate-y-full for bottom-sheet enter/exit (translate-y-100 is DEPRECATED and INCORRECT)",
         "transition duration-200 ease-in-out"
       ]
     },

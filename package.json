@@ -59,5 +59,6 @@
     "@rollup/pluginutils@3.1.0": {
       "picomatch": "2.3.1"
     }
-  }
+  },
+  "allowScripts": {}
 }
