@@ -99,13 +99,13 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
     <div data-testid="account" className='bg-blue-500 flex flex-col p-2'>
       
       {isMenuOpen && 
-        <div ref={formRef} className='z-30 flex absolute right-2 top-2 rounded-lg shadow-lg/20 cursor-pointer bg-blue-300 p-2 gap-1'>
+        <div ref={formRef} className='z-30 flex absolute right-2 top-2 rounded-lg shadow-lg/20 cursor-pointer bg-blue-300 dark:bg-blue-900 p-2 gap-1'>
           <ul>
-            <li onClick={() => {setIsEditAccountOpen(true); setIsMenuOpen(false)}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Edit Account</li>
-            <li onClick={() => {setIsCreateAccountOpen(true); setIsMenuOpen(false)}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Create Account</li>
-            <li onClick={() => {setIsSettingsOpen(true); setIsMenuOpen(false)}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Settings</li>
-            <li onClick={() => {setIsMenuOpen(false); void signOut();}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Sign out</li>
-            <label htmlFor="file-input" className="cursor-pointer p-1 rounded-md hover:bg-blue-400 select-none">Import File</label>
+            <li onClick={() => {setIsEditAccountOpen(true); setIsMenuOpen(false)}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 dark:hover:bg-blue-800 select-none">Edit Account</li>
+            <li onClick={() => {setIsCreateAccountOpen(true); setIsMenuOpen(false)}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 dark:hover:bg-blue-800 select-none">Create Account</li>
+            <li onClick={() => {setIsSettingsOpen(true); setIsMenuOpen(false)}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 dark:hover:bg-blue-800 select-none">Settings</li>
+            <li onClick={() => {setIsMenuOpen(false); void signOut();}} className="cursor-pointer p-1 rounded-md hover:bg-blue-400 dark:hover:bg-blue-800 select-none">Sign out</li>
+            <label htmlFor="file-input" className="cursor-pointer p-1 rounded-md hover:bg-blue-400 dark:hover:bg-blue-800 select-none">Import File</label>
             <input id="file-input" type="file" accept=".json, .csv" onChange={(e) => {handleImportFile(e.target.files?.[0]); e.currentTarget.value = ''}} className="hidden"/>
             
           </ul>
@@ -114,7 +114,7 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
       {(accounts && accounts.length > 0) ?
       <>
       <div className="z-10 flex flex-row justify-between">
-        {(accounts && accounts?.length > 0) && <select value={currentAccount?.id} onChange={e => changeAccount(e)} className="font-bold text-lg text-white">
+        {(accounts && accounts?.length > 0) && <select value={currentAccount?.id} onChange={e => changeAccount(e)} className="font-bold text-lg text-white bg-transparent dark:bg-transparent">
           {accounts.map(a => <option key={a.id} className="text-black" value={a.id}>{a.name}</option>)}
         </select>}
         

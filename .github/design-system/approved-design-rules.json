@@ -1,7 +1,7 @@
 {
     "meta": {
         "project": "Easy Week PWA",
-        "version": 3,
+        "version": 4,
         "lastAuditedOn": "2026-07-27",
         "sourceOfTruthPolicy": "Existing approved options in this repository are authoritative unless explicitly extended by user approval.",
         "notes": [
@@ -98,6 +98,12 @@
                 "bg-blue-400",
                 "bg-blue-300",
                 "bg-blue-400/70",
+                "bg-blue-900",
+                "bg-transparent",
+                "dark:bg-blue-900",
+                "dark:bg-blue-800",
+                "dark:bg-transparent",
+                "dark:hover:bg-blue-800",
                 "bg-gray-50",
                 "bg-gray-100",
                 "bg-gray-200",
@@ -139,6 +145,15 @@
                     "hover:bg-blue-500": "dark:hover:bg-blue-800",
                     "hover:bg-blue-400": "dark:hover:bg-blue-700",
                     "hover:bg-blue-200": "dark:hover:bg-blue-500"
+                },
+                "deepDarkBlueTokenMapping": {
+                    "note": "Approved deeper dark-mode values for sheets, fields, and dropdowns — approved by PR author (2026-07-27).",
+                    "bg-blue-500 (BottomSheet)": "dark:bg-blue-900",
+                    "bg-blue-300 (field-blue-surface)": "dark:bg-blue-900",
+                    "hover:bg-blue-200 (field hover)": "dark:hover:bg-blue-800",
+                    "bg-blue-300 (dropdown menu)": "dark:bg-blue-900",
+                    "hover:bg-blue-400 (dropdown item)": "dark:hover:bg-blue-800",
+                    "bg-transparent (header select)": "dark:bg-transparent"
                 },
                 "surfaceTokenMapping": {
                     "bg-gray-50": "dark:bg-[rgb(30,41,75)]",
@@ -449,7 +464,9 @@
                         "bg-blue-300",
                         "rounded-md",
                         "hover:bg-blue-200",
-                        "p-1"
+                        "p-1",
+                        "dark:bg-blue-900",
+                        "dark:hover:bg-blue-800"
                     ],
                     "usedIn": [
                         "src/CreateAccount.tsx",

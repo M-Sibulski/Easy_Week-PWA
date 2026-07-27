@@ -77,7 +77,9 @@ C. Add a different rule that you specify?"
 Dark-Mode Enforcement (Tailwind v4):
 - The project uses `@variant dark (.theme-dark &);` in `src/App.css`.
 - Use `dark:` utilities for all new dark-mode styling. Do NOT add `.theme-dark` CSS blocks.
-- Approved dark-mode blue mappings: `bg-blue-500 dark:bg-blue-800`, `bg-blue-400 dark:bg-blue-700`, `bg-blue-300 dark:bg-blue-600`.
+- Approved dark-mode blue mappings (standard): `bg-blue-500 dark:bg-blue-800`, `bg-blue-400 dark:bg-blue-700`, `bg-blue-300 dark:bg-blue-600`.
+- Approved dark-mode blue mappings (deep — sheets, fields, dropdowns): `bg-blue-500 dark:bg-blue-900` (BottomSheet), `bg-blue-300 dark:bg-blue-900` (field-blue-surface inputs/selects), `hover:bg-blue-200 dark:hover:bg-blue-800` (field hover), `hover:bg-blue-400 dark:hover:bg-blue-800` (dropdown item hover).
+- Header-embedded select: use `bg-transparent dark:bg-transparent` so the element blends with its parent surface.
 - For neutral surfaces (`bg-gray-*`) in dark mode, use semantic CSS variable utilities via `bg-[var(--ew-surface-N)]`.
 
 SVG Icon Fill:

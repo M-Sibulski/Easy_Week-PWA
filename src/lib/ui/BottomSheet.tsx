@@ -59,7 +59,7 @@ const BottomSheet = forwardRef<HTMLDivElement, BottomSheetProps>(
         data-testid={testId}
         className={
           'z-40 absolute bottom-0 left-1/2 transition duration-200 ease-in-out transform -translate-x-1/2 ' +
-          'bg-blue-500 dark:bg-blue-800 p-3 rounded-t-xl flex flex-col gap-5 w-full ' +
+          'bg-blue-500 dark:bg-blue-900 p-3 rounded-t-xl flex flex-col gap-5 w-full ' +
           (isOpen ? 'translate-y-0' : 'translate-y-full') +
           (className ? ' ' + className : '')
         }

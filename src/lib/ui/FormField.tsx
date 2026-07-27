@@ -15,7 +15,7 @@ export type FormFieldProps = InputProps | SelectProps;
 const FormField = forwardRef<HTMLInputElement | HTMLSelectElement, FormFieldProps>(
   ({ as: Tag = 'input', className, children, ...rest }, ref) => {
     const baseClass =
-      'bg-blue-300 rounded-md hover:bg-blue-200 p-1 focus:outline-none focus:ring-2 ring-blue-200 ';
+      'bg-blue-300 dark:bg-blue-900 rounded-md hover:bg-blue-200 dark:hover:bg-blue-800 p-1 focus:outline-none focus:ring-2 ring-blue-200 ';
 
     if (Tag === 'select') {
       const { ...selectRest } = rest as SelectHTMLAttributes<HTMLSelectElement>;
