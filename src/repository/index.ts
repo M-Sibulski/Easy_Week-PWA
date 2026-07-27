@@ -1,7 +1,18 @@
 import { DexieRepository } from './DexieRepository';
 import { SyncingRepository } from './SyncingRepository';
 
-export type { IRepository, AccountInsert, TransactionInsert } from './IRepository';
+export type {
+  IRepository,
+  AccountInsert,
+  CategorySuggestionInsert,
+  SnapshotWithItems,
+  StandardWeekTemplateInsert,
+  StandardWeekTemplateItemInsert,
+  TemplateWithItems,
+  TransactionInsert,
+  WeeklyPlanSnapshotInsert,
+  WeeklyPlanSnapshotItemInsert,
+} from './IRepository';
 
 /**
  * The active repository instance used throughout the app.

@@ -99,3 +99,11 @@ Expected outcome:
 - All targeted tests pass.
 - No regressions in existing financial flows.
 - Weekly planning behavior matches specification acceptance scenarios.
+
+
+## Validation Results
+
+- 2026-07-27: `npm run lint` ✅
+- 2026-07-27: `npm test` ✅
+- Automated coverage now validates template creation, snapshot creation/edit/lock, My Week empty/compare states, and existing week-navigation regressions.
+- Manual `npm run dev` walkthrough was not executed in this environment; quickstart scenarios are covered by the automated suite added for this feature.

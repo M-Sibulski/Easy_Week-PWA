@@ -9,6 +9,7 @@ The repository layer provides a stable contract (`IRepository`) so UI/applicatio
 - Transactions
 - Category suggestions
 - Settings
+- Weekly planning templates and snapshots
 
 Operation types include:
 - Query/list lookups
@@ -17,6 +18,7 @@ Operation types include:
 - Partial updates
 - Soft/hard delete variants
 - Clear table operations
+- Weekly-plan snapshot locking and list retrieval
 
 ## Active Implementations
 
@@ -26,9 +28,12 @@ Responsibilities:
 - Stamp records with:
   - `syncId` (if missing)
   - `createdAt` and `updatedAt`
-- Soft-delete accounts and transactions by setting `deletedAt` + `updatedAt`.
+- Soft-delete accounts, transactions, and weekly snapshots by setting `deletedAt` + `updatedAt`.
 - Filter soft-deleted rows from user-facing reads.
 - Keep `getAllTransactions()` unfiltered for import dedupe/sync workflows.
+- Manage one active standard-week template per account and child template items.
+- Create immutable weekly snapshot rows copied from templates.
+- Lock expired draft snapshots via `lockPastWeeklyPlans(referenceDate)`.
 
 ### SyncingRepository (Implemented)
 Responsibilities:
@@ -36,6 +41,13 @@ Responsibilities:
 - For mutating methods, schedules async sync via `scheduleSync()`.
 - Delegates read methods directly.
 - Category exact-name delete path performs remote hard delete before local delete.
+- Weekly planning mutations also schedule sync, while lock operations sync only when a status transition occurred.
+
+## Weekly Planning Data Model
+- `standardWeekTemplates`: account-scoped reusable header rows.
+- `standardWeekTemplateItems`: reusable category allocations with bucket type and amount.
+- `weeklyPlans`: explicit week snapshots with immutable `week_start`, `week_end`, and `status` (`draft` or `locked`).
+- `weeklyPlanItems`: copied weekly allocations used for compare calculations.
 
 ## Selection
 Current exported repository instance:

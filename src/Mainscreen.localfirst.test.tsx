@@ -22,6 +22,7 @@ const {
     putAccount: vi.fn(),
     putSettings: vi.fn(),
     updateSettings: vi.fn(),
+    lockPastWeeklyPlans: vi.fn(),
   },
 }));
 

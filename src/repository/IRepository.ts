@@ -1,8 +1,32 @@
-import { Accounts, CategorySuggestion, Settings, Transactions } from '../../types';
+import {
+  Accounts,
+  CategorySuggestion,
+  Settings,
+  SnapshotStatus,
+  StandardWeekTemplate,
+  StandardWeekTemplateItem,
+  Transactions,
+  WeeklyPlanSnapshot,
+  WeeklyPlanSnapshotItem,
+} from '../../types';
 
 export type AccountInsert = Omit<Accounts, 'id' | 'syncId' | 'createdAt' | 'updatedAt'> & Partial<Pick<Accounts, 'syncId' | 'createdAt' | 'updatedAt'>>;
 export type TransactionInsert = Omit<Transactions, 'id' | 'syncId' | 'createdAt' | 'updatedAt'> & Partial<Pick<Transactions, 'syncId' | 'createdAt' | 'updatedAt'>>;
 export type CategorySuggestionInsert = Omit<CategorySuggestion, 'id' | 'syncId' | 'createdAt' | 'updatedAt'> & Partial<Pick<CategorySuggestion, 'syncId' | 'createdAt' | 'updatedAt'>>;
+export type StandardWeekTemplateInsert = Omit<StandardWeekTemplate, 'id' | 'syncId' | 'createdAt' | 'updatedAt'> & Partial<Pick<StandardWeekTemplate, 'syncId' | 'createdAt' | 'updatedAt'>>;
+export type StandardWeekTemplateItemInsert = Omit<StandardWeekTemplateItem, 'id' | 'syncId' | 'createdAt' | 'updatedAt'> & Partial<Pick<StandardWeekTemplateItem, 'syncId' | 'createdAt' | 'updatedAt'>>;
+export type WeeklyPlanSnapshotInsert = Omit<WeeklyPlanSnapshot, 'id' | 'syncId' | 'createdAt' | 'updatedAt'> & Partial<Pick<WeeklyPlanSnapshot, 'syncId' | 'createdAt' | 'updatedAt'>>;
+export type WeeklyPlanSnapshotItemInsert = Omit<WeeklyPlanSnapshotItem, 'id' | 'syncId' | 'createdAt' | 'updatedAt'> & Partial<Pick<WeeklyPlanSnapshotItem, 'syncId' | 'createdAt' | 'updatedAt'>>;
+
+export interface TemplateWithItems {
+  template: StandardWeekTemplate;
+  items: StandardWeekTemplateItem[];
+}
+
+export interface SnapshotWithItems {
+  snapshot: WeeklyPlanSnapshot;
+  items: WeeklyPlanSnapshotItem[];
+}
 
 /**
  * Abstraction layer for all persistent data operations.
@@ -48,4 +72,22 @@ export interface IRepository {
   putSettings(settings: Settings): Promise<void>;
   updateSettings(id: number, changes: Partial<Settings>): Promise<void>;
   clearSettings(): Promise<void>;
+
+  // ── Weekly Planning ───────────────────────────────────────────────────────
+  getStandardWeekTemplateByAccountId(accountId: number): Promise<TemplateWithItems | undefined>;
+  upsertStandardWeekTemplate(template: StandardWeekTemplateInsert & { id?: number }, items: StandardWeekTemplateItemInsert[]): Promise<TemplateWithItems>;
+  getWeeklyPlanByAccountAndWeek(accountId: number, weekStart: Date, weekEnd: Date): Promise<SnapshotWithItems | undefined>;
+  createWeeklyPlanFromTemplate(accountId: number, weekStart: Date, weekEnd: Date): Promise<SnapshotWithItems>;
+  updateWeeklyPlan(
+    weeklyPlanId: number,
+    changes: Partial<Pick<WeeklyPlanSnapshot, 'notes' | 'status'>>,
+    itemChanges: {
+      add?: WeeklyPlanSnapshotItemInsert[];
+      update?: Array<{ id: number; changes: Partial<WeeklyPlanSnapshotItem> }>;
+      remove?: number[];
+    },
+  ): Promise<void>;
+  lockPastWeeklyPlans(referenceDate: Date): Promise<number>;
+  listWeeklyPlansByAccount(accountId: number, options?: { status?: SnapshotStatus; limit?: number }): Promise<SnapshotWithItems[]>;
+  deleteWeeklyPlan(id: number): Promise<void>;
 }
