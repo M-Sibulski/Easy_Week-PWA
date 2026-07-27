@@ -37,7 +37,7 @@ function PWABadge() {
       { offlineReady &&
         <div className="absolute top-0 w-lg flex justify-between py-1 px-3 bg-green-400 text-center">
           <p id="toast-message" className='m-0 p-0 inline-block align-middle'>App ready to work offline</p>
-          <button data-testid="close1" name='close' onClick={() => close()} className="cursor-pointer h-full p-1 rounded-md hover:bg-green-300">
+          <button data-testid="close1" name='close' onClick={() => close()} className="cursor-pointer h-full p-1 rounded-md hover:bg-blue-400">
             <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000ff"><path d="M200-440v-80h560v80H200Z"/></svg>
           </button>
         </div>}

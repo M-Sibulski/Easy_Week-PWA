@@ -110,21 +110,21 @@
 
 ### Tests for User Story 3
 
-- [ ] T041 [P] [US3] Add focus-ring visibility tests for form inputs in src/CreateAccount.test.tsx
-- [ ] T042 [P] [US3] Add standardized status-message behavior tests for account flows in src/Account.test.tsx
-- [ ] T043 [P] [US3] Add hover/interaction regression assertions for PWA badge and settings actions in src/PWABadge.test.tsx
+- [X] T041 [P] [US3] Add focus-ring visibility tests for form inputs in src/CreateAccount.test.tsx
+- [X] T042 [P] [US3] Add standardized status-message behavior tests for account flows in src/Account.test.tsx
+- [X] T043 [P] [US3] Add hover/interaction regression assertions for PWA badge and settings actions in src/PWABadge.test.tsx
 
 ### Implementation for User Story 3
 
-- [ ] T044 [US3] Replace ad-hoc status feedback with StatusMessage variants in src/App.tsx
-- [ ] T045 [US3] Replace ad-hoc status feedback with StatusMessage variants in src/Account.tsx
-- [ ] T046 [US3] Standardize focus-ring treatment for shared form controls in src/lib/ui/FormField.tsx
-- [ ] T047 [US3] Fix bottom-sheet translation bug by replacing translate-y-100 usage through BottomSheet integration in src/CreateAccount.tsx
-- [ ] T048 [US3] Fix bottom-sheet translation bug by replacing translate-y-100 usage through BottomSheet integration in src/EditAccount.tsx
-- [ ] T049 [US3] Fix bottom-sheet translation bug by replacing translate-y-100 usage through BottomSheet integration in src/SettingsScreen.tsx
-- [ ] T050 [US3] Fix invisible delete hover state to approved blue pattern in src/EditAccount.tsx
-- [ ] T051 [US3] Fix PWA badge hover color to approved blue pattern in src/PWABadge.tsx
-- [ ] T052 [US3] Remove dead md:max-w-2xl usage in src/Day.tsx
+- [X] T044 [US3] Replace ad-hoc status feedback with StatusMessage variants in src/App.tsx
+- [X] T045 [US3] Replace ad-hoc status feedback with StatusMessage variants in src/Account.tsx
+- [X] T046 [US3] Standardize focus-ring treatment for shared form controls in src/lib/ui/FormField.tsx
+- [X] T047 [US3] Fix bottom-sheet translation bug by replacing translate-y-100 usage through BottomSheet integration in src/CreateAccount.tsx
+- [X] T048 [US3] Fix bottom-sheet translation bug by replacing translate-y-100 usage through BottomSheet integration in src/EditAccount.tsx
+- [X] T049 [US3] Fix bottom-sheet translation bug by replacing translate-y-100 usage through BottomSheet integration in src/SettingsScreen.tsx
+- [X] T050 [US3] Fix invisible delete hover state to approved blue pattern in src/EditAccount.tsx
+- [X] T051 [US3] Fix PWA badge hover color to approved blue pattern in src/PWABadge.tsx
+- [X] T052 [US3] Remove dead md:max-w-2xl usage in src/Day.tsx
 
 **Checkpoint**: Feedback semantics and focus behavior are consistent; scoped interaction bugs are resolved.
 

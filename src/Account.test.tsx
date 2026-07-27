@@ -170,4 +170,48 @@ describe("Account component", () => {
 
     expect(mockSignOut).toHaveBeenCalled();
   });
+
+  it('import status uses info variant StatusMessage styling (US3 feedback standardization)', async () => {
+    render(
+      <Account
+        accountId={1}
+        total={0}
+        accounts={mockAccounts}
+        changeAccount={vi.fn()}
+        settings={mockSettings}
+      />
+    );
+
+    await userEvent.click(screen.getByRole('close'));
+
+    const fileInput = screen.getByLabelText('Import File');
+    const file = new File([JSON.stringify([])], 'data.json', { type: 'application/json' });
+
+    vi.mocked(jsonToDB).mockImplementation(async (_file, _id, onProgress) => {
+      onProgress?.({ stage: 'importing', message: 'Importing...', completed: 1, total: 2 });
+    });
+
+    await userEvent.upload(fileInput, file);
+
+    await waitFor(() => {
+      const statusEl = screen.getByTestId('import-status');
+      // StatusMessage info variant: uses bg-blue-400/70 and text-white
+      expect(statusEl.className).toContain('bg-blue-400');
+    });
+  });
+
+  it('three-dot menu button uses approved hover:bg-blue-400 pattern', () => {
+    render(
+      <Account
+        accountId={1}
+        total={0}
+        accounts={mockAccounts}
+        changeAccount={vi.fn()}
+        settings={mockSettings}
+      />
+    );
+    const menuButton = screen.getByRole('close');
+    // Must use the approved blue hover pattern, not an arbitrary color.
+    expect(menuButton.className).toContain('hover:bg-blue-400');
+  });
 });

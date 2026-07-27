@@ -182,4 +182,14 @@ describe('<PWABadge />', () => {
             screen.queryByText(/New content available/i),
         ).not.toBeInTheDocument()
     })
+
+    it('close button on offline-ready toast uses approved hover:bg-blue-400 (not green) — defect D-007 regression', () => {
+        (useRegisterSW as Mock).mockImplementation(buildMockHook({ offlineReady: true }))
+        render(<PWABadge />)
+
+        const closeBtn = screen.getByTestId('close1')
+        // Must NOT use hover:bg-green-300 (unapproved); must use hover:bg-blue-400.
+        expect(closeBtn.className).not.toContain('hover:bg-green-300')
+        expect(closeBtn.className).toContain('hover:bg-blue-400')
+    })
 })

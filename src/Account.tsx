@@ -6,6 +6,7 @@ import EditAccount from "./EditAccount";
 import jsonToDB, { ImportProgress } from "./JsonImport";
 import SettingsScreen from "./SettingsScreen";
 import { useAuth } from "./auth/useAuth";
+import { StatusMessage } from "./lib/ui";
 
 interface Props {
     accountId: number;
@@ -122,12 +123,12 @@ const Account = ({accountId, total, accounts, changeAccount, settings}:Props) =>
         </button>
       </div>
         {importProgress &&
-          <div data-testid="import-status" aria-live="polite" className="mt-1 rounded-md bg-blue-400/70 px-2 py-1 text-sm text-white">
+          <StatusMessage variant="info" data-testid="import-status" aria-live="polite">
             <p>{importProgress.message}</p>
             {typeof importProgress.completed === 'number' && typeof importProgress.total === 'number' && importProgress.total > 0 &&
               <p>{importProgress.completed}/{importProgress.total}</p>
             }
-          </div>
+          </StatusMessage>
         }
         {currentAccount?.goalValue && <p className="text-white">Goal: {'$' + Math.abs(currentAccount.goalValue)}{currentAccount?.goalDate && (" by " + dateToInputType(currentAccount.goalDate))}</p>}
         <h3 data-testid="total" className="text-right font-bold text-lg mx-1 text-white">{total && ((total < 0 ? '- $' : '$') + Math.abs(total).toFixed(2))}</h3>

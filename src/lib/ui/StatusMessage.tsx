@@ -6,6 +6,8 @@ export interface StatusMessageProps {
   variant: StatusVariant;
   children: ReactNode;
   className?: string;
+  'data-testid'?: string;
+  'aria-live'?: 'polite' | 'assertive' | 'off';
 }
 
 const variantClasses: Record<StatusVariant, string> = {
@@ -21,9 +23,17 @@ const variantClasses: Record<StatusVariant, string> = {
  * Provides four semantic variants (success, error, warning, info) aligned
  * with the approved colour palette. Resolves FR-006 and FR-008 (SC-004).
  */
-export default function StatusMessage({ variant, children, className }: StatusMessageProps) {
+export default function StatusMessage({
+  variant,
+  children,
+  className,
+  'data-testid': testId,
+  'aria-live': ariaLive,
+}: StatusMessageProps) {
   return (
-    <p
+    <div
+      data-testid={testId}
+      aria-live={ariaLive}
       className={
         'rounded-md px-3 py-2 text-sm ' +
         variantClasses[variant] +
@@ -31,6 +41,6 @@ export default function StatusMessage({ variant, children, className }: StatusMe
       }
     >
       {children}
-    </p>
+    </div>
   );
 }
