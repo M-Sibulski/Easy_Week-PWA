@@ -68,7 +68,7 @@ export function AppShell() {
         <div className='absolute right-2 top-2 z-20 flex items-center gap-2'>
           {shouldSync && !initialSyncComplete && <SyncIndicator />}
           {syncError && (
-            <p className='rounded-md bg-amber-100 px-2 py-1 text-xs text-amber-800'>
+            <p className='rounded-md bg-amber-100 dark:bg-amber-900/60 px-2 py-1 text-xs text-amber-800 dark:text-amber-200'>
               Last sync issue: {syncError}
             </p>
           )}

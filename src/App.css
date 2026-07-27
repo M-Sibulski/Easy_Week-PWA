@@ -54,57 +54,10 @@ body {
 /* ── Legacy dark-mode overrides (kept for compatibility during migration) ──
    These will be removed in a follow-up once all components migrate to dark:
    utilities. New components MUST NOT rely on these — use dark: instead.     */
-.theme-dark .bg-blue-500 {
-  background-color: rgb(30, 64, 175) !important;
-}
-
-.theme-dark .bg-blue-400 {
-  background-color: rgb(29, 78, 216) !important;
-}
-
-.theme-dark .bg-blue-300 {
-  background-color: rgb(37, 99, 235) !important;
-}
-
-.theme-dark .hover\:bg-blue-600:hover {
-  background-color: rgb(30, 58, 138) !important;
-}
-
-.theme-dark .hover\:bg-blue-500:hover {
-  background-color: rgb(30, 64, 175) !important;
-}
-
-.theme-dark .hover\:bg-blue-400:hover {
-  background-color: rgb(29, 78, 216) !important;
-}
-
-.theme-dark .hover\:bg-blue-200:hover {
-  background-color: rgb(59, 130, 246) !important;
-}
-
-.theme-dark .bg-gray-50 {
-  background-color: var(--ew-surface-50) !important;
-}
-
-.theme-dark .bg-gray-100 {
-  background-color: var(--ew-surface-100) !important;
-}
-
-.theme-dark .bg-gray-200,
-.theme-dark .hover\:bg-gray-200:hover {
-  background-color: var(--ew-surface-200) !important;
-}
-
-.theme-dark .bg-gray-300 {
-  background-color: var(--ew-surface-300) !important;
-}
-
-.theme-dark .text-gray-700,
-.theme-dark .text-white,
-.theme-dark .text-black {
-  color: var(--ew-text) !important;
-}
-
+/* ── Remaining legacy selectors (select/option element styling, input placeholder) ──
+   These element-level selectors have no direct Tailwind v4 equivalent and are
+   kept until a future accessibility pass can address them holistically.
+   All color-class override blocks above this comment have been removed.      */
 .theme-dark select {
   background-color: rgb(30, 58, 138);
 }

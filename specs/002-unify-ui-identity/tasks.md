@@ -81,20 +81,20 @@
 
 ### Tests for User Story 2
 
-- [ ] T030 [P] [US2] Add theme-mode rendering assertions for app shell and navigation in src/App.test.tsx
-- [ ] T031 [P] [US2] Add dark-mode readability checks for week/day rendering in src/WeekScreen.test.tsx
-- [ ] T032 [P] [US2] Add icon-visibility assertions for transaction row affordances in src/Transaction.test.tsx
+- [X] T030 [P] [US2] Add theme-mode rendering assertions for app shell and navigation in src/App.test.tsx
+- [X] T031 [P] [US2] Add dark-mode readability checks for week/day rendering in src/WeekScreen.test.tsx
+- [X] T032 [P] [US2] Add icon-visibility assertions for transaction row affordances in src/Transaction.test.tsx
 
 ### Implementation for User Story 2
 
-- [ ] T033 [US2] Add Tailwind dark variant mapping and semantic surface variables in src/App.css
-- [ ] T034 [US2] Replace legacy .theme-dark override usage with dark: utilities in src/App.tsx
-- [ ] T035 [US2] Migrate screen-level theme styles to dark: utilities in src/Mainscreen.tsx
-- [ ] T036 [US2] Migrate week/day/transaction visual surfaces to dark: utilities in src/WeekScreen.tsx
-- [ ] T037 [US2] Migrate bottom navigation and account surfaces to dark: utilities in src/BottomNav.tsx
-- [ ] T038 [US2] Fix SVG fill handling for readability in both themes in src/WeekNavigation.tsx
-- [ ] T039 [US2] Fix SVG fill handling for readability in both themes in src/Transaction.tsx
-- [ ] T040 [US2] Remove obsolete legacy dark override blocks after migration in src/App.css
+- [X] T033 [US2] Add Tailwind dark variant mapping and semantic surface variables in src/App.css
+- [X] T034 [US2] Replace legacy .theme-dark override usage with dark: utilities in src/App.tsx
+- [X] T035 [US2] Migrate screen-level theme styles to dark: utilities in src/Mainscreen.tsx
+- [X] T036 [US2] Migrate week/day/transaction visual surfaces to dark: utilities in src/WeekScreen.tsx
+- [X] T037 [US2] Migrate bottom navigation and account surfaces to dark: utilities in src/BottomNav.tsx
+- [X] T038 [US2] Fix SVG fill handling for readability in both themes in src/WeekNavigation.tsx
+- [X] T039 [US2] Fix SVG fill handling for readability in both themes in src/Transaction.tsx
+- [X] T040 [US2] Remove obsolete legacy dark override blocks after migration in src/App.css
 
 **Checkpoint**: Theme behavior is coherent and readable in both modes without legacy override blocks.
 

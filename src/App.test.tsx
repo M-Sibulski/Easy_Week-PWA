@@ -82,4 +82,12 @@ describe('App', () => {
     });
   });
 
+  it('applies theme-dark class when dark setting is enabled', () => {
+    mockUseAuth.mockReturnValue({ loading: false, user: null, signOut: vi.fn() });
+    render(<App />);
+    // The mock useSettingsArray returns dark: true, so theme-dark should be applied.
+    const appEl = screen.getByTestId('app');
+    expect(appEl.className).toContain('theme-dark');
+  });
+
 });
