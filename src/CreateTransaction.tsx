@@ -1,9 +1,10 @@
 import './App.css';
 import { repository } from './repository';
-import { ChangeEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { transactionTypes, TransactionType, Accounts } from '../types.ts';
 import { dateToInputType, parseInputDate } from './dateConversions.ts';
 import { getSuggestedCategory, learnCategorySuggestion } from './categorySuggestions.ts';
+import { BottomSheet, SheetHeader, IconButton, FormField, SubmitButton } from './lib/ui';
 
 interface Props {
     accountId: number;
@@ -14,15 +15,21 @@ interface Props {
 const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
     const [open, setOpen] = useState(false);
     const [toAccountId, setToAccountId] = useState(0);
-    const [shouldRender, setShouldRender] = useState(false);
     const [value, setValue] = useState('');
     const [type, setType] = useState<TransactionType>('Expense');
     const [name, setName] = useState('');
     const [date, setDate] = useState(dateToInputType(new Date()));
     const [category, setCategory] = useState('');
     const [categoryManuallyEdited, setCategoryManuallyEdited] = useState(false);
-    const formRef = useRef<HTMLFormElement>(null);
+    const sheetRef = useRef<HTMLDivElement>(null);
+    // Callback ref: focuses the name input as soon as it mounts (after BottomSheet renders content).
     const nameInputRef = useRef<HTMLInputElement>(null);
+    const nameInputCallbackRef = useCallback((node: HTMLInputElement | null) => {
+        (nameInputRef as React.MutableRefObject<HTMLInputElement | null>).current = node;
+        if (node && open) {
+            node.focus();
+        }
+    }, [open]);
 
     if(toAccountId === 0) {
         if (accountId && accountId != 0) {
@@ -100,8 +107,7 @@ const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
 
     const handleOpenButton = (e:React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        setShouldRender(true);
-        requestAnimationFrame(() => setOpen(true));
+        setOpen(true);
     }
 
     const handleValueChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -114,7 +120,7 @@ const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
     }
 
     const focusField = (fieldId: string) => {
-        formRef.current?.querySelector<HTMLElement>(`#${fieldId}`)?.focus();
+        sheetRef.current?.querySelector<HTMLElement>(`#${fieldId}`)?.focus();
     }
 
     const handleFieldEnter = (e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>, fieldId: string) => {
@@ -124,7 +130,7 @@ const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
 
         if (fieldId === 'category') {
             e.preventDefault();
-            formRef.current?.requestSubmit();
+            sheetRef.current?.querySelector<HTMLFormElement>('form')?.requestSubmit();
             return;
         }
 
@@ -156,17 +162,6 @@ const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
     }
 
     useEffect(() => {
-        const handleTransitionEnd = (e: TransitionEvent) => {
-        if (e.propertyName === "translate" && !open) {
-            setShouldRender(false);
-        }
-        };
-        const node = formRef.current;
-        node?.addEventListener("transitionend", handleTransitionEnd);
-        return () => node?.removeEventListener("transitionend", handleTransitionEnd);
-    }, [open]);
-
-    useEffect(() => {
         let isCancelled = false;
 
         const updateSuggestedCategory = async () => {
@@ -192,17 +187,9 @@ const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
         };
     }, [name, categoryManuallyEdited]);
 
-    useLayoutEffect(() => {
-        if (!open) {
-            return;
-        }
-
-        nameInputRef.current?.focus();
-    }, [open]);
-
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (formRef.current && !formRef.current.contains(event.target as Node)) {
+            if (sheetRef.current && !sheetRef.current.contains(event.target as Node)) {
             setOpen(false);
             }
         };
@@ -221,48 +208,47 @@ const CreateTransaction = ({accountId, accounts, renderOpenButton}:Props) => {
 
   return (
     <>
-    {!shouldRender ? 
-        <button hidden={!renderOpenButton} role="open" onClick={(e) => {handleOpenButton(e)}} className='z-30 flex size-15 cursor-pointer items-center align-middle rounded-full bg-blue-500 shadow-lg/20 hover:bg-blue-600 fixed bottom-[calc(var(--ew-bottom-nav-height)+0.5rem)] left-1/2 -translate-x-1/2 transform'>
-            <svg className='w-full' height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
-        </button>
-    :
-        <>
-            <form ref={formRef} data-testid="transaction-form" id='transaction-form' onSubmit={e => createTransaction(e)} className={'fixed z-40 bottom-0 left-1/2 w-full max-w-lg -translate-x-1/2 transform rounded-t-xl bg-blue-500 p-3 transition transition-discrete duration-200 ease-in-out flex flex-col gap-5' + (open ? ' translate-y-0' : ' translate-y-full')}>
-                <div className="relative flex">
-                    <button type="button" onClick={e => {handleClearButton(e)}} role='clear' name='clear' className="absolute left-0 cursor-pointer h-full p-1 rounded-md hover:bg-blue-400">
-                        <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg>
-                    </button>
-                    <h3 className='w-full text-center text-gray-50 font-bold text-lg'>New Transaction</h3>
-                    <button type="button" onClick={e => {handleCloseButton(e)}} role='close' name='close' className="absolute right-0 cursor-pointer h-full p-1 rounded-md hover:bg-blue-400">
-                        <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M200-440v-80h560v80H200Z"/></svg>
-                    </button>
-                </div>
-                <div className='flex flex-col gap-3'>
-                    <input ref={nameInputRef} type="text" placeholder="Name (Generic Transaction)" value={name} onChange={e => setName(e.currentTarget.value)} onKeyDown={e => handleFieldEnter(e, 'name')} name="name" id="name" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'/>
+      <button hidden={!renderOpenButton || open} role="open" onClick={(e) => {handleOpenButton(e)}} className='z-30 flex size-15 cursor-pointer items-center align-middle rounded-full bg-blue-500 shadow-lg/20 hover:bg-blue-600 fixed bottom-[calc(var(--ew-bottom-nav-height)+0.5rem)] left-1/2 -translate-x-1/2 transform'>
+          <svg className='w-full' height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+      </button>
+      <BottomSheet open={open} ref={sheetRef} data-testid="transaction-form" className="fixed max-w-lg">
+            <form id='transaction-form' onSubmit={e => createTransaction(e)}>
+                <SheetHeader
+                    title="New Transaction"
+                    leftSlot={
+                        <IconButton type="button" onClick={e => handleClearButton(e)} role='clear' name='clear' aria-label="Clear form">
+                            <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg>
+                        </IconButton>
+                    }
+                    rightSlot={
+                        <IconButton type="button" onClick={e => handleCloseButton(e)} role='close' name='close' aria-label="Close sheet">
+                            <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M200-440v-80h560v80H200Z"/></svg>
+                        </IconButton>
+                    }
+                />
+                <div className='flex flex-col gap-3 mt-2'>
+                    <FormField ref={nameInputCallbackRef} type="text" placeholder="Name (Generic Transaction)" value={name} onChange={e => setName(e.currentTarget.value)} onKeyDown={e => handleFieldEnter(e, 'name')} name="name" id="name" />
 
-                    <select value={type} onChange={e => setType(e.currentTarget.value as TransactionType)} onKeyDown={e => handleFieldEnter(e, 'type')} name="type" id="type" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'>
+                    <FormField as="select" value={type} onChange={e => setType(e.currentTarget.value as TransactionType)} onKeyDown={e => handleFieldEnter(e, 'type')} name="type" id="type">
                         {transactionTypes.map(t => <option key={t} value={t}>{t}</option>)}
-                    </select>
+                    </FormField>
 
                     {type === "Transfer" &&
-                        <select value={toAccountId} onChange={e => setToAccountId(Number(e.currentTarget.value))} onKeyDown={e => handleFieldEnter(e, 'to-account')} name="to-account" id="to-account" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'>
+                        <FormField as="select" value={toAccountId} onChange={e => setToAccountId(Number(e.currentTarget.value))} onKeyDown={e => handleFieldEnter(e, 'to-account')} name="to-account" id="to-account">
                             {accounts && accounts.filter(a => a.id != accountId).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                        </select>
+                        </FormField>
                     }
 
-                    <input type="text" placeholder='$ 0.00' inputMode="numeric" value={value === '' ? '' : `$ ${value}`} onChange={e => handleValueChange(e)} onKeyDown={e => handleFieldEnter(e, 'value')} name="value" id="value" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'/>
+                    <FormField type="text" placeholder='$ 0.00' inputMode="numeric" value={value === '' ? '' : `$ ${value}`} onChange={e => handleValueChange(e)} onKeyDown={e => handleFieldEnter(e, 'value')} name="value" id="value" />
                 
-                    <input data-testid="date-input" type="date" value={date} onChange={e => setDate(e.currentTarget.value)} onKeyDown={e => handleFieldEnter(e, 'date')} name="date" id="date" className='bg-blue-300 rounded-md hover:bg-blue-200 w-full p-1'/>
+                    <FormField data-testid="date-input" type="date" value={date} onChange={e => setDate(e.currentTarget.value)} onKeyDown={e => handleFieldEnter(e, 'date')} name="date" id="date" className="w-full" />
                 
-                    <input type='text' placeholder="Category" value={category} onChange={e => handleCategoryChange(e)} onKeyDown={e => handleFieldEnter(e, 'category')} name="category" id="category" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'  />
+                    <FormField type='text' placeholder="Category" value={category} onChange={e => handleCategoryChange(e)} onKeyDown={e => handleFieldEnter(e, 'category')} name="category" id="category" />
                 
-                    <button role='submit' name='submit' type='submit' className="cursor-pointer h-full p-2 rounded-md hover:bg-blue-400 flex justify-center">
-                        <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>
-                    </button>
+                    <SubmitButton role='submit' name='submit' />
                 </div>
             </form>
-        </>
-    }
+        </BottomSheet>
     </>
   )
 }

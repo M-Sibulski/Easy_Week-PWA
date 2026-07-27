@@ -195,9 +195,10 @@ describe('SettingsScreen', () => {
       />
     );
 
+    // BottomSheet handles transitionend on its root wrapper (settings-sheet), not the inner form
     const transitionEvent = new Event('transitionend');
     Object.defineProperty(transitionEvent, 'propertyName', { value: 'translate' });
-    fireEvent(screen.getByTestId('settings-form'), transitionEvent);
+    fireEvent(screen.getByTestId('settings-sheet'), transitionEvent);
 
     await waitFor(() => {
       expect(screen.queryByTestId('settings-form')).not.toBeInTheDocument();

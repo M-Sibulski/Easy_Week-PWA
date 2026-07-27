@@ -127,4 +127,34 @@ describe('EditAccount', () => {
     expect(mockCallback).toHaveBeenCalled();
     
   });
+
+  // US1 Regression: edit/settings sheet structural consistency
+  describe('US1: edit sheet structure consistency', () => {
+    it('renders a heading element for the sheet title', async () => {
+      render(<EditAccount open={true} callback={mockCallback} settings={mockSettings} account={mockAccount} />);
+      expect(await screen.findByRole('heading', { name: /edit account/i })).toBeInTheDocument();
+    });
+
+    it('renders a close button accessible by role', async () => {
+      render(<EditAccount open={true} callback={mockCallback} settings={mockSettings} account={mockAccount} />);
+      await screen.findByTestId('account-form');
+      expect(screen.getByRole('close')).toBeInTheDocument();
+    });
+
+    it('sheet does not use translate-y-100 (defect D-001 regression)', async () => {
+      const { container } = render(
+        <EditAccount open={true} callback={mockCallback} settings={mockSettings} account={mockAccount} />
+      );
+      const form = await screen.findByTestId('account-form');
+      expect(form.className).not.toContain('translate-y-100');
+    });
+
+    it('delete button uses approved blue hover pattern (defect D-002 regression)', async () => {
+      render(<EditAccount open={true} callback={mockCallback} settings={mockSettings} account={mockAccount} />);
+      await screen.findByTestId('account-form');
+      const deleteBtn = screen.getByTestId('delete');
+      // D-002 fix: delete button must use hover:bg-blue-400 (not hover:bg-blue-500)
+      expect(deleteBtn.className).toContain('hover:bg-blue-400');
+    });
+  });
 });

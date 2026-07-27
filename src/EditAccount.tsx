@@ -3,6 +3,7 @@ import { repository } from './repository';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { AccountType, accountTypes, Accounts, Settings } from '../types.ts';
 import { dateToInputType } from './dateConversions.ts';
+import { BottomSheet, SheetHeader, IconButton, FormField, SubmitButton } from './lib/ui';
 
 interface Props {
     open: boolean;
@@ -12,17 +13,12 @@ interface Props {
 }
 
 const EditAccount = ({open, callback, settings, account}: Props) => {
-    const [shouldRender, setShouldRender] = useState(false);
     const [type, setType] = useState<AccountType>(account ? account.type : 'Everyday');
     const [name, setName] = useState(account ? account.name : '');
     const [goalDate, setGoalDate] = useState(account?.goalDate ? dateToInputType(account.goalDate) : '');
     const [goalValue, setGoalValue] = useState(account?.goalValue ? account.goalValue : '0');
     const [main, setMain] = useState(settings?.main_account_id === account?.id ? true : false);
-    const formRef = useRef<HTMLFormElement>(null);
-
-    useEffect(() => {
-        if(open) setShouldRender(true);
-    },[open])
+    const sheetRef = useRef<HTMLDivElement>(null);
 
     const editAccount = async (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -100,19 +96,8 @@ const EditAccount = ({open, callback, settings, account}: Props) => {
     }
 
     useEffect(() => {
-        const handleTransitionEnd = (e: TransitionEvent) => {
-        if (e.propertyName === "translate" && !open) {
-            setShouldRender(false);
-        }
-        };
-        const node = formRef.current;
-        node?.addEventListener("transitionend", handleTransitionEnd);
-        return () => node?.removeEventListener("transitionend", handleTransitionEnd);
-    }, [open]);
-
-    useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (formRef.current && !formRef.current.contains(event.target as Node)) {
+            if (sheetRef.current && !sheetRef.current.contains(event.target as Node)) {
             callback();
             }
         };
@@ -130,44 +115,43 @@ const EditAccount = ({open, callback, settings, account}: Props) => {
 
 
   return (
-    <>
-    {shouldRender &&
-        <>
-            <form ref={formRef} data-testid="account-form" id='account-form' onSubmit={e => editAccount(e)} className={'z-40 absolute bottom-0 left-1/2 transition transition-discrete duration-200 ease-in-out transform -translate-x-1/2 bg-blue-500 p-3 rounded-t-xl flex flex-col gap-5 w-full' + (open ? ' translate-y-0' : ' translate-y-100')}>
-                <div className="relative flex">
-                    <button data-testid="delete" id={account?.id.toString()} onClick={e => handleDelete(e)}  className="cursor-pointer h-full p-1 rounded-md hover:bg-blue-500">
+    <BottomSheet open={open} ref={sheetRef} data-testid="account-form">
+        <form id='account-form' onSubmit={e => editAccount(e)}>
+            <SheetHeader
+                title="Edit Account"
+                leftSlot={
+                    /* D-002 fix: use hover:bg-blue-400 (approved pattern) instead of hover:bg-blue-500 */
+                    <IconButton data-testid="delete" id={account?.id?.toString()} onClick={e => handleDelete(e)} aria-label="Delete account">
                         <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
-                    </button>
-                    <h3 className='w-full text-center text-gray-50 font-bold text-lg select-none'>Edit Account</h3>
-                    <button onClick={e => {handleCloseButton(e)}} role='close' name='close' className="absolute right-0 cursor-pointer h-full p-1 rounded-md hover:bg-blue-400">
+                    </IconButton>
+                }
+                rightSlot={
+                    <IconButton onClick={e => handleCloseButton(e)} role='close' name='close' aria-label="Close sheet">
                         <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M200-440v-80h560v80H200Z"/></svg>
-                    </button>
-                </div>
-                <div className='flex flex-col gap-3'>
-                    <input type="text" placeholder="Name" value={name} onChange={e => setName(e.currentTarget.value)} name="name" id="name" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'/>
+                    </IconButton>
+                }
+            />
+            <div className='flex flex-col gap-3 mt-2'>
+                <FormField type="text" placeholder="Name" value={name} onChange={e => setName(e.currentTarget.value)} name="name" id="name" />
 
-                    <select value={type} onChange={e => setType(e.currentTarget.value as AccountType)} name="type" id="type" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'>
-                        {accountTypes.map(t => <option key={t} value={t}>{t}</option>)}
-                    </select>
+                <FormField as="select" value={type} onChange={e => setType(e.currentTarget.value as AccountType)} name="type" id="type">
+                    {accountTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                </FormField>
 
-                    {type === "Savings" &&
-                        <>
-                            <input data-testid="date-input" type="date" value={goalDate} onChange={e => setGoalDate(e.currentTarget.value)} name="date" id="date" className='bg-blue-300 rounded-md hover:bg-blue-200 w-full p-1'/>
-                            <input type="text" placeholder='$ 0.00' inputMode="numeric" value={goalValue === '' ? '' : `$ ${goalValue}`} onChange={e => handleValueChange(e)} name="value" id="value" className='bg-blue-300 rounded-md hover:bg-blue-200 p-1'/>
-                        </>
-                    }
-                    <div className="flex gap-3 bg-blue-300 rounded-md p-1 hover:bg-blue-200 ">
-                        <label htmlFor="main-account" className='flex-1 select-none'>Make this my main account? </label>
-                        <input type="checkbox" checked={main} onChange={e => setMain(e.currentTarget.checked)} name="main-account" id="main-account" className='size-6'/>
-                    </div>
-                    <button data-testid='submit' name='submit' type='submit' className="cursor-pointer h-full p-2 rounded-md hover:bg-blue-400 flex justify-center">
-                        <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>
-                    </button>
+                {type === "Savings" &&
+                    <>
+                        <FormField data-testid="date-input" type="date" value={goalDate} onChange={e => setGoalDate(e.currentTarget.value)} name="date" id="date" className="w-full" />
+                        <FormField type="text" placeholder='$ 0.00' inputMode="numeric" value={goalValue === '' ? '' : `$ ${goalValue}`} onChange={e => handleValueChange(e)} name="value" id="value" />
+                    </>
+                }
+                <div className="flex gap-3 bg-blue-300 rounded-md p-1 hover:bg-blue-200">
+                    <label htmlFor="main-account" className='flex-1 select-none'>Make this my main account? </label>
+                    <input type="checkbox" checked={main} onChange={e => setMain(e.currentTarget.checked)} name="main-account" id="main-account" className='size-6'/>
                 </div>
-            </form>
-        </>
-    }
-    </>
+                <SubmitButton data-testid='submit' name='submit' />
+            </div>
+        </form>
+    </BottomSheet>
   )
 }
 

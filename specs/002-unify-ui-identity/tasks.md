@@ -55,19 +55,19 @@
 
 ### Tests for User Story 1
 
-- [ ] T020 [P] [US1] Add regression tests for bottom-sheet form structure consistency in src/CreateAccount.test.tsx
-- [ ] T021 [P] [US1] Add regression tests for transaction sheet structure consistency in src/CreateTransaction.test.tsx
-- [ ] T022 [P] [US1] Add regression tests for edit/settings sheet consistency in src/EditAccount.test.tsx
-- [ ] T023 [P] [US1] Add auth visual-structure consistency assertions in src/auth/AuthScreen.test.tsx
+- [X] T020 [P] [US1] Add regression tests for bottom-sheet form structure consistency in src/CreateAccount.test.tsx
+- [X] T021 [P] [US1] Add regression tests for transaction sheet structure consistency in src/CreateTransaction.test.tsx
+- [X] T022 [P] [US1] Add regression tests for edit/settings sheet consistency in src/EditAccount.test.tsx
+- [X] T023 [P] [US1] Add auth visual-structure consistency assertions in src/auth/AuthScreen.test.tsx
 
 ### Implementation for User Story 1
 
-- [ ] T024 [US1] Migrate CreateAccount sheet to BottomSheet, SheetHeader, FormField, and SubmitButton in src/CreateAccount.tsx
-- [ ] T025 [US1] Migrate CreateTransaction sheet to BottomSheet, SheetHeader, FormField, and SubmitButton in src/CreateTransaction.tsx
-- [ ] T026 [US1] Migrate EditAccount sheet to BottomSheet, SheetHeader, FormField, SubmitButton, and IconButton in src/EditAccount.tsx
-- [ ] T027 [US1] Migrate settings action sheet to BottomSheet, SheetHeader, and IconButton in src/SettingsScreen.tsx
-- [ ] T028 [US1] Align auth palette and controls with shared primitives in src/auth/AuthScreen.tsx
-- [ ] T029 [US1] Remove stale utility combinations replaced by primitives in src/App.css
+- [X] T024 [US1] Migrate CreateAccount sheet to BottomSheet, SheetHeader, FormField, and SubmitButton in src/CreateAccount.tsx
+- [X] T025 [US1] Migrate CreateTransaction sheet to BottomSheet, SheetHeader, FormField, and SubmitButton in src/CreateTransaction.tsx
+- [X] T026 [US1] Migrate EditAccount sheet to BottomSheet, SheetHeader, FormField, SubmitButton, and IconButton in src/EditAccount.tsx
+- [X] T027 [US1] Migrate settings action sheet to BottomSheet, SheetHeader, and IconButton in src/SettingsScreen.tsx
+- [X] T028 [US1] Align auth palette and controls with shared primitives in src/auth/AuthScreen.tsx
+- [X] T029 [US1] Remove stale utility combinations replaced by primitives in src/App.css
 
 **Checkpoint**: Core screens and auth share one visual language and are independently testable.
 
