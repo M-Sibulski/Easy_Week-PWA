@@ -54,13 +54,10 @@ body {
 /* ── Legacy dark-mode overrides (kept for compatibility during migration) ──
    These will be removed in a follow-up once all components migrate to dark:
    utilities. New components MUST NOT rely on these — use dark: instead.     */
-/* ── Remaining legacy selectors (select/option element styling, input placeholder) ──
+/* ── Remaining legacy selectors (option element styling, input placeholder) ──
    These element-level selectors have no direct Tailwind v4 equivalent and are
    kept until a future accessibility pass can address them holistically.
    All color-class override blocks above this comment have been removed.      */
-.theme-dark select {
-  background-color: rgb(30, 58, 138);
-}
 
 .theme-dark option {
   background-color: rgb(30, 41, 75);
