@@ -188,4 +188,14 @@ describe("Transaction", () => {
         });
     });
 
+    it('action icons use fill="currentColor" so they are visible in dark mode (D-005/D-006 regression)', () => {
+        const { container } = render(<Transaction transaction={fakeTransaction} accounts={fakeAccounts}/>);
+        const svgs = container.querySelectorAll('svg');
+        // Every SVG in the transaction component must use currentColor, not a hardcoded fill value,
+        // so the icon adapts to the text color and remains visible in both themes.
+        svgs.forEach((svg) => {
+            expect(svg.getAttribute('fill')).toBe('currentColor');
+        });
+    });
+
 })

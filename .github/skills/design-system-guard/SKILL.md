@@ -74,6 +74,45 @@ C. Add a different rule that you specify?"
   - code changed
   - validation results
 
+Dark-Mode Enforcement (Tailwind v4):
+- The project uses `@variant dark (.theme-dark &);` in `src/App.css`.
+- Use `dark:` utilities for all new dark-mode styling. Do NOT add `.theme-dark` CSS blocks.
+- Approved dark-mode blue mappings (standard): `bg-blue-500 dark:bg-blue-800`, `bg-blue-400 dark:bg-blue-700`, `bg-blue-300 dark:bg-blue-600`.
+- Approved dark-mode blue mappings (deep — sheets, fields, dropdowns): `bg-blue-500 dark:bg-blue-900` (BottomSheet), `bg-blue-300 dark:bg-blue-900` (field-blue-surface inputs/selects), `hover:bg-blue-200 dark:hover:bg-blue-800` (field hover), `hover:bg-blue-400 dark:hover:bg-blue-800` (dropdown item hover).
+- Header-embedded select: use `bg-transparent dark:bg-transparent` so the element blends with its parent surface.
+- For neutral surfaces (`bg-gray-*`) in dark mode, use semantic CSS variable utilities via `bg-[var(--ew-surface-N)]`.
+
+SVG Icon Fill:
+- **Always** use `fill="currentColor"` on all SVG elements — hardcoded fills are forbidden.
+- Set icon colour via `text-*` utility on the SVG or containing element (e.g. `text-gray-50 dark:text-white`).
+- **Never** use `fill="#000000ff"` (invisible in dark mode, D-003 defect).
+- **Never** use `fill="#c10007"` or other hardcoded fills (D-004/D-005 defects, now fixed).
+
+Hover State Rules:
+- **Deprecated**: `hover:bg-green-300` — replaced by `hover:bg-blue-400` (D-007 defect fix).
+- Approved hover utilities: `hover:bg-blue-200/400/500/600`, `hover:bg-gray-200`, `hover:bg-red-600`, `hover:bg-slate-100`.
+
+Bottom Sheet Animation:
+- Always use `translate-y-full` (100%) for the closed state. Never use `translate-y-100` (100px).
+- Use the shared `BottomSheet` primitive from `src/lib/ui/` for all bottom-sheet containers.
+
+Shared Primitives (src/lib/ui/):
+- BottomSheet: sliding sheet container with correct animation.
+- SheetHeader: centered title with optional left/right icon slot.
+- IconButton: standardised icon action button (`btn-icon-blue` pattern).
+- SubmitButton: form submit button with checkmark icon.
+- FormField: input/select with `field-blue-surface` styling + visible focus ring.
+- StatusMessage: four-variant (success/error/warning/info) feedback component.
+- Always prefer these primitives over repeating raw utility stacks.
+
+Focus Ring Requirement:
+- All keyboard-focusable form inputs MUST include `focus:ring-2 ring-blue-200`.
+- This is a mandatory accessibility rule (FR-007).
+- Auth inputs already comply; sheet form inputs must use `FormField` to inherit compliance.
+
+Sync Requirement:
+- After any token/variant addition to `approved-design-rules.json`, update `docs/design/design-system.md` and this SKILL.md accordingly.
+
 Implementation notes:
 - Prefer named tokens in the reference file where possible.
 - If a utility class is the approved option, keep the exact utility class string.

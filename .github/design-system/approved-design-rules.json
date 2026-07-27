@@ -1,491 +1,700 @@
 {
-  "meta": {
-    "project": "Easy Week PWA",
-    "version": 1,
-    "lastAuditedOn": "2026-07-18",
-    "sourceOfTruthPolicy": "Existing approved options in this repository are authoritative unless explicitly extended by user approval.",
-    "notes": [
-      "Use named tokens whenever possible.",
-      "Do not invent or silently substitute design values.",
-      "Tailwind defaults are allowed only when represented by approved utility tokens below."
-    ]
-  },
-  "sources": [
-    "src/App.css",
-    "src/index.css",
-    "src/PWABadge.css",
-    "src/App.tsx",
-    "src/Account.tsx",
-    "src/CreateAccount.tsx",
-    "src/CreateTransaction.tsx",
-    "src/EditAccount.tsx",
-    "src/SettingsScreen.tsx",
-    "src/Transaction.tsx",
-    "src/Day.tsx",
-    "src/WeekNavigation.tsx",
-    "src/WeekScreen.tsx",
-    "src/auth/AuthScreen.tsx"
-  ],
-  "tokens": {
-    "color": {
-      "surface": {
-        "appBgLight": {
-          "token": "--ew-bg",
-          "value": "rgb(105, 107, 116)",
-          "source": "src/App.css"
-        },
-        "appBgDark": {
-          "token": "--ew-bg",
-          "value": "rgb(18, 28, 48)",
-          "source": "src/App.css"
-        }
-      },
-      "text": {
-        "appTextLight": {
-          "token": "--ew-text",
-          "value": "#f9fafb",
-          "source": "src/App.css"
-        },
-        "appTextDark": {
-          "token": "--ew-text",
-          "value": "#f3f8ff",
-          "source": "src/App.css"
-        }
-      },
-      "approvedUtilities": [
-        "bg-blue-500",
-        "bg-blue-400",
-        "bg-blue-300",
-        "bg-blue-400/70",
-        "bg-gray-50",
-        "bg-gray-100",
-        "bg-gray-200",
-        "bg-gray-300",
-        "bg-green-400",
-        "bg-red-500/80",
-        "bg-amber-100",
-        "bg-amber-50",
-        "bg-emerald-50",
-        "bg-red-50",
-        "bg-slate-100",
-        "bg-slate-900/75",
-        "bg-white",
-        "text-white",
-        "text-black",
-        "text-gray-700",
-        "text-red-700",
-        "text-green-700",
-        "text-amber-800",
-        "text-emerald-700",
-        "text-slate-900",
-        "text-slate-700",
-        "text-slate-600",
-        "text-blue-600",
-        "border-slate-300",
-        "border-amber-300",
-        "border-red-200",
-        "border-white/30",
-        "border-t-white"
-      ],
-      "darkModeOverrides": [
-        {
-          "selector": ".theme-dark .bg-blue-500",
-          "value": "rgb(30, 64, 175)"
-        },
-        {
-          "selector": ".theme-dark .bg-blue-400",
-          "value": "rgb(29, 78, 216)"
-        },
-        {
-          "selector": ".theme-dark .bg-blue-300",
-          "value": "rgb(37, 99, 235)"
-        },
-        {
-          "selector": ".theme-dark .hover\\:bg-blue-600:hover",
-          "value": "rgb(30, 58, 138)"
-        },
-        {
-          "selector": ".theme-dark .hover\\:bg-blue-500:hover",
-          "value": "rgb(30, 64, 175)"
-        },
-        {
-          "selector": ".theme-dark .hover\\:bg-blue-400:hover",
-          "value": "rgb(29, 78, 216)"
-        },
-        {
-          "selector": ".theme-dark .hover\\:bg-blue-200:hover",
-          "value": "rgb(59, 130, 246)"
-        },
-        {
-          "selector": ".theme-dark .bg-gray-50",
-          "value": "rgb(30, 41, 75)"
-        },
-        {
-          "selector": ".theme-dark .bg-gray-100",
-          "value": "rgb(38, 53, 94)"
-        },
-        {
-          "selector": ".theme-dark .bg-gray-200, .theme-dark .hover\\:bg-gray-200:hover",
-          "value": "rgb(45, 62, 109)"
-        },
-        {
-          "selector": ".theme-dark .bg-gray-300",
-          "value": "rgb(20, 31, 55)"
-        }
-      ]
+    "meta": {
+        "project": "Easy Week PWA",
+        "version": 4,
+        "lastAuditedOn": "2026-07-27",
+        "sourceOfTruthPolicy": "Existing approved options in this repository are authoritative unless explicitly extended by user approval.",
+        "notes": [
+            "Use named tokens whenever possible.",
+            "Do not invent or silently substitute design values.",
+            "Tailwind defaults are allowed only when represented by approved utility tokens below.",
+            "Dark mode: use dark: utilities powered by @variant dark (.theme-dark &) in App.css.",
+            "Always use translate-y-full (not translate-y-100) for off-canvas sheet state.",
+            "Prefer shared primitives from src/lib/ui/ for repeated interaction patterns.",
+            "SVG icons must use fill=\"currentColor\" \u2014 hardcoded fill values are not permitted.",
+            "hover:bg-green-300 is deprecated \u2014 use hover:bg-blue-400 instead."
+        ]
     },
-    "borderRadius": {
-      "approvedUtilities": [
-        "rounded-md",
-        "rounded-lg",
-        "rounded-xl",
-        "rounded-2xl",
-        "rounded-full",
-        "rounded-t-xl"
-      ],
-      "tokenMap": {
-        "radius-md": "rounded-md",
-        "radius-lg": "rounded-lg",
-        "radius-xl": "rounded-xl",
-        "radius-2xl": "rounded-2xl",
-        "radius-full": "rounded-full",
-        "radius-top-xl": "rounded-t-xl"
-      }
+    "sharedPrimitives": {
+        "location": "src/lib/ui/",
+        "components": [
+            {
+                "name": "BottomSheet",
+                "purpose": "Sliding sheet container with correct translate-y-full animation",
+                "defectFixed": "D-001"
+            },
+            {
+                "name": "SheetHeader",
+                "purpose": "Centered title with optional left/right icon button slots"
+            },
+            {
+                "name": "IconButton",
+                "purpose": "Standardised icon action button applying btn-icon-blue pattern"
+            },
+            {
+                "name": "SubmitButton",
+                "purpose": "Form submit button with checkmark icon applying btn-submit-blue pattern"
+            },
+            {
+                "name": "FormField",
+                "purpose": "Input/select with field-blue-surface styling and mandatory focus ring"
+            },
+            {
+                "name": "StatusMessage",
+                "purpose": "Four-variant feedback component: success, error, warning, info"
+            }
+        ]
     },
-    "spacing": {
-      "approvedUtilities": [
-        "p-0",
-        "p-1",
-        "p-2",
-        "p-3",
-        "p-4",
-        "p-6",
-        "px-2",
-        "px-3",
-        "px-4",
-        "py-1",
-        "py-2",
-        "gap-1",
-        "gap-2",
-        "gap-3",
-        "gap-4",
-        "gap-5",
-        "m-0",
-        "mt-1",
-        "mt-2",
-        "mt-4",
-        "mb-4",
-        "mb-6",
-        "mx-1",
-        "mx-auto",
-        "sm:my-1",
-        "sm:py-5",
-        "bottom-7",
-        "top-0",
-        "top-2",
-        "right-0",
-        "right-2"
-      ]
-    },
-    "typography": {
-      "fontSizeUtilities": [
-        "text-xs",
-        "text-sm",
-        "text-base",
-        "text-lg",
-        "text-2xl"
-      ],
-      "fontWeightUtilities": [
-        "font-medium",
-        "font-semibold",
-        "font-bold"
-      ],
-      "otherTypographyUtilities": [
-        "uppercase",
-        "tracking-wide",
-        "text-center",
-        "text-right"
-      ],
-      "fontFamily": {
-        "approved": "Tailwind default sans stack",
-        "source": "No custom font family defined in project files"
-      }
-    },
-    "shadows": {
-      "approvedUtilities": [
-        "shadow-md",
-        "shadow-lg/20",
-        "shadow-slate-300/30"
-      ],
-      "customCss": [
-        {
-          "token": "pwa-toast-shadow",
-          "value": "3px 4px 5px 0 #8885",
-          "source": "src/PWABadge.css"
+    "sources": [
+        "src/App.css",
+        "src/index.css",
+        "src/PWABadge.css",
+        "src/lib/ui/BottomSheet.tsx",
+        "src/lib/ui/SheetHeader.tsx",
+        "src/lib/ui/IconButton.tsx",
+        "src/lib/ui/SubmitButton.tsx",
+        "src/lib/ui/FormField.tsx",
+        "src/lib/ui/StatusMessage.tsx",
+        "src/App.tsx",
+        "src/Account.tsx",
+        "src/CreateAccount.tsx",
+        "src/CreateTransaction.tsx",
+        "src/EditAccount.tsx",
+        "src/SettingsScreen.tsx",
+        "src/Transaction.tsx",
+        "src/Day.tsx",
+        "src/WeekNavigation.tsx",
+        "src/WeekScreen.tsx",
+        "src/auth/AuthScreen.tsx"
+    ],
+    "tokens": {
+        "color": {
+            "surface": {
+                "appBgLight": {
+                    "token": "--ew-bg",
+                    "value": "rgb(105, 107, 116)",
+                    "source": "src/App.css"
+                },
+                "appBgDark": {
+                    "token": "--ew-bg",
+                    "value": "rgb(18, 28, 48)",
+                    "source": "src/App.css"
+                }
+            },
+            "text": {
+                "appTextLight": {
+                    "token": "--ew-text",
+                    "value": "#f9fafb",
+                    "source": "src/App.css"
+                },
+                "appTextDark": {
+                    "token": "--ew-text",
+                    "value": "#f3f8ff",
+                    "source": "src/App.css"
+                }
+            },
+            "approvedUtilities": [
+                "bg-blue-500",
+                "bg-blue-400",
+                "bg-blue-300",
+                "bg-blue-400/70",
+                "bg-blue-900",
+                "bg-transparent",
+                "dark:bg-blue-900",
+                "dark:bg-blue-800",
+                "dark:bg-transparent",
+                "dark:hover:bg-blue-800",
+                "bg-gray-50",
+                "bg-gray-100",
+                "bg-gray-200",
+                "bg-gray-300",
+                "bg-green-400",
+                "bg-red-500/80",
+                "bg-amber-100",
+                "bg-amber-50",
+                "bg-emerald-50",
+                "bg-red-50",
+                "bg-slate-100",
+                "bg-slate-900/75",
+                "bg-white",
+                "text-white",
+                "text-black",
+                "text-gray-700",
+                "text-red-700",
+                "text-green-700",
+                "text-amber-800",
+                "text-emerald-700",
+                "text-slate-900",
+                "text-slate-700",
+                "text-slate-600",
+                "text-blue-600",
+                "border-slate-300",
+                "border-amber-300",
+                "border-red-200",
+                "border-white/30",
+                "border-t-white"
+            ],
+            "darkModeStrategy": {
+                "mechanism": "@variant dark (.theme-dark &) in src/App.css",
+                "note": "Use Tailwind dark: utilities instead of legacy .theme-dark CSS override blocks.",
+                "blueTokenMapping": {
+                    "bg-blue-500": "dark:bg-blue-800",
+                    "bg-blue-400": "dark:bg-blue-700",
+                    "bg-blue-300": "dark:bg-blue-600",
+                    "hover:bg-blue-600": "dark:hover:bg-blue-900",
+                    "hover:bg-blue-500": "dark:hover:bg-blue-800",
+                    "hover:bg-blue-400": "dark:hover:bg-blue-700",
+                    "hover:bg-blue-200": "dark:hover:bg-blue-500"
+                },
+                "deepDarkBlueTokenMapping": {
+                    "note": "Approved deeper dark-mode values for sheets, fields, and dropdowns — approved by PR author (2026-07-27).",
+                    "bg-blue-500 (BottomSheet)": "dark:bg-blue-900",
+                    "bg-blue-300 (field-blue-surface)": "dark:bg-blue-900",
+                    "hover:bg-blue-200 (field hover)": "dark:hover:bg-blue-800",
+                    "bg-blue-300 (dropdown menu)": "dark:bg-blue-900",
+                    "hover:bg-blue-400 (dropdown item)": "dark:hover:bg-blue-800",
+                    "bg-transparent (header select)": "dark:bg-transparent"
+                },
+                "surfaceTokenMapping": {
+                    "bg-gray-50": "dark:bg-[rgb(30,41,75)]",
+                    "bg-gray-100": "dark:bg-[rgb(38,53,94)]",
+                    "bg-gray-200": "dark:bg-[rgb(45,62,109)]",
+                    "hover:bg-gray-200": "dark:hover:bg-[rgb(45,62,109)]",
+                    "bg-gray-300": "dark:bg-[rgb(20,31,55)]"
+                }
+            },
+            "semanticSurfaceVariables": {
+                "note": "Defined in :root and .theme-dark in App.css",
+                "variables": {
+                    "--ew-surface-50": {
+                        "light": "rgb(249,250,251)",
+                        "dark": "rgb(30,41,75)"
+                    },
+                    "--ew-surface-100": {
+                        "light": "rgb(243,244,246)",
+                        "dark": "rgb(38,53,94)"
+                    },
+                    "--ew-surface-200": {
+                        "light": "rgb(229,231,235)",
+                        "dark": "rgb(45,62,109)"
+                    },
+                    "--ew-surface-300": {
+                        "light": "rgb(209,213,219)",
+                        "dark": "rgb(20,31,55)"
+                    }
+                }
+            },
+            "legacyDarkModeOverrides": {
+                "status": "DEPRECATED \u2014 being replaced by dark: utilities (Feature 002)",
+                "overrides": [
+                    {
+                        "selector": ".theme-dark .bg-blue-500",
+                        "value": "rgb(30, 64, 175)"
+                    },
+                    {
+                        "selector": ".theme-dark .bg-blue-400",
+                        "value": "rgb(29, 78, 216)"
+                    },
+                    {
+                        "selector": ".theme-dark .bg-blue-300",
+                        "value": "rgb(37, 99, 235)"
+                    },
+                    {
+                        "selector": ".theme-dark .hover\\:bg-blue-600:hover",
+                        "value": "rgb(30, 58, 138)"
+                    },
+                    {
+                        "selector": ".theme-dark .hover\\:bg-blue-500:hover",
+                        "value": "rgb(30, 64, 175)"
+                    },
+                    {
+                        "selector": ".theme-dark .hover\\:bg-blue-400:hover",
+                        "value": "rgb(29, 78, 216)"
+                    },
+                    {
+                        "selector": ".theme-dark .hover\\:bg-blue-200:hover",
+                        "value": "rgb(59, 130, 246)"
+                    },
+                    {
+                        "selector": ".theme-dark .bg-gray-50",
+                        "value": "rgb(30, 41, 75)"
+                    },
+                    {
+                        "selector": ".theme-dark .bg-gray-100",
+                        "value": "rgb(38, 53, 94)"
+                    },
+                    {
+                        "selector": ".theme-dark .bg-gray-200, .theme-dark .hover\\:bg-gray-200:hover",
+                        "value": "rgb(45, 62, 109)"
+                    },
+                    {
+                        "selector": ".theme-dark .bg-gray-300",
+                        "value": "rgb(20, 31, 55)"
+                    }
+                ]
+            }
+        },
+        "borderRadius": {
+            "approvedUtilities": [
+                "rounded-md",
+                "rounded-lg",
+                "rounded-xl",
+                "rounded-2xl",
+                "rounded-full",
+                "rounded-t-xl"
+            ],
+            "tokenMap": {
+                "radius-md": "rounded-md",
+                "radius-lg": "rounded-lg",
+                "radius-xl": "rounded-xl",
+                "radius-2xl": "rounded-2xl",
+                "radius-full": "rounded-full",
+                "radius-top-xl": "rounded-t-xl"
+            }
+        },
+        "spacing": {
+            "approvedUtilities": [
+                "p-0",
+                "p-1",
+                "p-2",
+                "p-3",
+                "p-4",
+                "p-6",
+                "px-2",
+                "px-3",
+                "px-4",
+                "py-1",
+                "py-2",
+                "gap-1",
+                "gap-2",
+                "gap-3",
+                "gap-4",
+                "gap-5",
+                "m-0",
+                "mt-1",
+                "mt-2",
+                "mt-4",
+                "mb-4",
+                "mb-6",
+                "mx-1",
+                "mx-auto",
+                "sm:my-1",
+                "sm:py-5",
+                "bottom-7",
+                "top-0",
+                "top-2",
+                "right-0",
+                "right-2"
+            ]
+        },
+        "typography": {
+            "fontSizeUtilities": [
+                "text-xs",
+                "text-sm",
+                "text-base",
+                "text-lg",
+                "text-2xl"
+            ],
+            "fontWeightUtilities": [
+                "font-medium",
+                "font-semibold",
+                "font-bold"
+            ],
+            "otherTypographyUtilities": [
+                "uppercase",
+                "tracking-wide",
+                "text-center",
+                "text-right"
+            ],
+            "fontFamily": {
+                "approved": "Tailwind default sans stack",
+                "source": "No custom font family defined in project files"
+            }
+        },
+        "shadows": {
+            "approvedUtilities": [
+                "shadow-md",
+                "shadow-lg/20",
+                "shadow-slate-300/30"
+            ],
+            "customCss": [
+                {
+                    "token": "pwa-toast-shadow",
+                    "value": "3px 4px 5px 0 #8885",
+                    "source": "src/PWABadge.css"
+                }
+            ]
+        },
+        "breakpoints": {
+            "approved": [
+                {
+                    "token": "sm",
+                    "minWidth": "640px",
+                    "usedIn": [
+                        "sm:mx-auto",
+                        "sm:max-w-lg",
+                        "sm:py-5",
+                        "sm:my-1",
+                        "sm:rounded-2xl"
+                    ]
+                },
+                {
+                    "token": "md",
+                    "minWidth": "768px",
+                    "usedIn": [
+                        "md:max-w-2xl"
+                    ]
+                }
+            ]
         }
-      ]
     },
-    "breakpoints": {
-      "approved": [
-        {
-          "token": "sm",
-          "minWidth": "640px",
-          "usedIn": [
-            "sm:mx-auto",
-            "sm:max-w-lg",
-            "sm:py-5",
-            "sm:my-1",
-            "sm:rounded-2xl"
-          ]
+    "componentVariants": {
+        "bottomSheetForm": {
+            "approvedPatterns": [
+                {
+                    "token": "surface-bottom-sheet-primary",
+                    "classes": [
+                        "z-40",
+                        "absolute",
+                        "bottom-0",
+                        "left-1/2",
+                        "-translate-x-1/2",
+                        "bg-blue-500",
+                        "p-3",
+                        "rounded-t-xl",
+                        "flex",
+                        "flex-col",
+                        "gap-5",
+                        "w-full",
+                        "transition",
+                        "duration-200",
+                        "ease-in-out"
+                    ],
+                    "usedIn": [
+                        "src/CreateAccount.tsx",
+                        "src/CreateTransaction.tsx",
+                        "src/EditAccount.tsx",
+                        "src/SettingsScreen.tsx"
+                    ],
+                    "deprecationNote": "Prefer the BottomSheet primitive from src/lib/ui/. Direct class usage only for components not yet migrated."
+                }
+            ]
         },
-        {
-          "token": "md",
-          "minWidth": "768px",
-          "usedIn": [
-            "md:max-w-2xl"
-          ]
+        "button": {
+            "approvedPatterns": [
+                {
+                    "token": "btn-icon-blue",
+                    "classes": [
+                        "cursor-pointer",
+                        "h-full",
+                        "p-1",
+                        "rounded-md",
+                        "hover:bg-blue-400"
+                    ]
+                },
+                {
+                    "token": "btn-submit-blue",
+                    "classes": [
+                        "cursor-pointer",
+                        "h-full",
+                        "p-2",
+                        "rounded-md",
+                        "hover:bg-blue-400",
+                        "flex",
+                        "justify-center"
+                    ]
+                },
+                {
+                    "token": "btn-auth-primary",
+                    "classes": [
+                        "rounded-md",
+                        "bg-blue-500",
+                        "px-4",
+                        "py-2",
+                        "font-semibold",
+                        "text-white",
+                        "transition",
+                        "hover:bg-blue-600",
+                        "disabled:cursor-not-allowed",
+                        "disabled:bg-blue-300"
+                    ],
+                    "usedIn": [
+                        "src/auth/AuthScreen.tsx"
+                    ]
+                },
+                {
+                    "token": "btn-auth-secondary",
+                    "classes": [
+                        "rounded-md",
+                        "border",
+                        "border-slate-300",
+                        "px-4",
+                        "py-2",
+                        "text-slate-700",
+                        "transition",
+                        "hover:bg-slate-100"
+                    ],
+                    "usedIn": [
+                        "src/auth/AuthScreen.tsx"
+                    ]
+                },
+                {
+                    "token": "btn-danger",
+                    "classes": [
+                        "cursor-pointer",
+                        "rounded-md",
+                        "border",
+                        "border-red-200",
+                        "bg-red-500/80",
+                        "p-2",
+                        "text-white",
+                        "hover:bg-red-600"
+                    ],
+                    "usedIn": [
+                        "src/SettingsScreen.tsx"
+                    ]
+                }
+            ]
+        },
+        "inputAndSelect": {
+            "approvedPatterns": [
+                {
+                    "token": "field-blue-surface",
+                    "classes": [
+                        "bg-blue-300",
+                        "rounded-md",
+                        "hover:bg-blue-200",
+                        "p-1",
+                        "dark:bg-blue-900",
+                        "dark:hover:bg-blue-800"
+                    ],
+                    "usedIn": [
+                        "src/CreateAccount.tsx",
+                        "src/CreateTransaction.tsx",
+                        "src/EditAccount.tsx",
+                        "src/SettingsScreen.tsx",
+                        "src/Transaction.tsx"
+                    ]
+                },
+                {
+                    "token": "field-auth",
+                    "classes": [
+                        "rounded-md",
+                        "border",
+                        "border-slate-300",
+                        "px-3",
+                        "py-2",
+                        "text-base",
+                        "outline-none",
+                        "ring-blue-200",
+                        "focus:ring-2"
+                    ],
+                    "usedIn": [
+                        "src/auth/AuthScreen.tsx"
+                    ]
+                }
+            ]
+        },
+        "cards": {
+            "approvedPatterns": [
+                {
+                    "token": "card-day",
+                    "classes": [
+                        "rounded-xl",
+                        "bg-gray-50",
+                        "shadow-md",
+                        "flex",
+                        "flex-col",
+                        "p-1",
+                        "gap-1"
+                    ],
+                    "usedIn": [
+                        "src/Day.tsx"
+                    ]
+                },
+                {
+                    "token": "card-auth",
+                    "classes": [
+                        "w-full",
+                        "max-w-md",
+                        "rounded-2xl",
+                        "bg-white",
+                        "p-6",
+                        "shadow-lg",
+                        "shadow-slate-300/30"
+                    ],
+                    "usedIn": [
+                        "src/auth/AuthScreen.tsx"
+                    ]
+                }
+            ]
+        },
+        "statusMessage": {
+            "approvedPatterns": [
+                {
+                    "token": "status-success",
+                    "classes": [
+                        "rounded-md",
+                        "px-3",
+                        "py-2",
+                        "text-sm",
+                        "bg-emerald-50",
+                        "text-emerald-700",
+                        "border",
+                        "border-emerald-200"
+                    ],
+                    "usedIn": [
+                        "src/lib/ui/StatusMessage.tsx",
+                        "src/auth/AuthScreen.tsx"
+                    ]
+                },
+                {
+                    "token": "status-error",
+                    "classes": [
+                        "rounded-md",
+                        "px-3",
+                        "py-2",
+                        "text-sm",
+                        "bg-red-50",
+                        "text-red-700",
+                        "border",
+                        "border-red-200"
+                    ],
+                    "usedIn": [
+                        "src/lib/ui/StatusMessage.tsx",
+                        "src/auth/AuthScreen.tsx"
+                    ]
+                },
+                {
+                    "token": "status-warning",
+                    "classes": [
+                        "rounded-md",
+                        "px-3",
+                        "py-2",
+                        "text-sm",
+                        "bg-amber-50",
+                        "text-amber-800",
+                        "border",
+                        "border-amber-300"
+                    ],
+                    "usedIn": [
+                        "src/lib/ui/StatusMessage.tsx"
+                    ]
+                },
+                {
+                    "token": "status-info",
+                    "classes": [
+                        "rounded-md",
+                        "px-3",
+                        "py-2",
+                        "text-sm",
+                        "bg-blue-400/70",
+                        "text-white",
+                        "border",
+                        "border-white/30"
+                    ],
+                    "usedIn": [
+                        "src/lib/ui/StatusMessage.tsx",
+                        "src/Account.tsx"
+                    ]
+                }
+            ]
         }
-      ]
-    }
-  },
-  "componentVariants": {
-    "bottomSheetForm": {
-      "approvedPatterns": [
-        {
-          "token": "surface-bottom-sheet-primary",
-          "classes": [
-            "z-40",
-            "absolute",
-            "bottom-0",
-            "left-1/2",
-            "-translate-x-1/2",
-            "bg-blue-500",
-            "p-3",
-            "rounded-t-xl",
-            "flex",
-            "flex-col",
-            "gap-5",
-            "w-full",
-            "transition",
-            "duration-200",
-            "ease-in-out"
-          ],
-          "usedIn": [
-            "src/CreateAccount.tsx",
-            "src/CreateTransaction.tsx",
-            "src/EditAccount.tsx",
-            "src/SettingsScreen.tsx"
-          ]
-        }
-      ]
     },
-    "button": {
-      "approvedPatterns": [
-        {
-          "token": "btn-icon-blue",
-          "classes": [
-            "cursor-pointer",
-            "h-full",
-            "p-1",
-            "rounded-md",
-            "hover:bg-blue-400"
-          ]
+    "interactionStates": {
+        "hover": {
+            "approvedUtilities": [
+                "hover:bg-blue-200",
+                "hover:bg-blue-400",
+                "hover:bg-blue-500",
+                "hover:bg-blue-600",
+                "hover:bg-gray-200",
+                "hover:bg-red-600",
+                "hover:bg-slate-100"
+            ],
+            "deprecated": [
+                "hover:bg-green-300 (replaced by hover:bg-blue-400 per D-007 fix)"
+            ]
         },
-        {
-          "token": "btn-submit-blue",
-          "classes": [
-            "cursor-pointer",
-            "h-full",
-            "p-2",
-            "rounded-md",
-            "hover:bg-blue-400",
-            "flex",
-            "justify-center"
-          ]
+        "focus": {
+            "approvedUtilities": [
+                "focus:ring-2",
+                "ring-blue-200"
+            ],
+            "notes": [
+                "Focus ring now required on ALL form inputs via FormField primitive (FR-007).",
+                "Previously only defined for auth inputs \u2014 now universal requirement."
+            ]
         },
-        {
-          "token": "btn-auth-primary",
-          "classes": [
-            "rounded-md",
-            "bg-blue-500",
-            "px-4",
-            "py-2",
-            "font-semibold",
-            "text-white",
-            "transition",
-            "hover:bg-blue-600",
-            "disabled:cursor-not-allowed",
-            "disabled:bg-blue-300"
-          ],
-          "usedIn": [
-            "src/auth/AuthScreen.tsx"
-          ]
+        "disabled": {
+            "approvedUtilities": [
+                "disabled:cursor-not-allowed",
+                "disabled:bg-blue-300"
+            ]
         },
-        {
-          "token": "btn-auth-secondary",
-          "classes": [
-            "rounded-md",
-            "border",
-            "border-slate-300",
-            "px-4",
-            "py-2",
-            "text-slate-700",
-            "transition",
-            "hover:bg-slate-100"
-          ],
-          "usedIn": [
-            "src/auth/AuthScreen.tsx"
-          ]
+        "visibilityAndMotion": {
+            "approvedPatterns": [
+                "hidden prop toggling for open/closed states",
+                "translate-y-0 and translate-y-full for bottom-sheet enter/exit (translate-y-100 is DEPRECATED and INCORRECT)",
+                "transition duration-200 ease-in-out"
+            ]
         },
-        {
-          "token": "btn-danger",
-          "classes": [
-            "cursor-pointer",
-            "rounded-md",
-            "border",
-            "border-red-200",
-            "bg-red-500/80",
-            "p-2",
-            "text-white",
-            "hover:bg-red-600"
-          ],
-          "usedIn": [
-            "src/SettingsScreen.tsx"
-          ]
+        "ariaAndLive": {
+            "approvedPatterns": [
+                "aria-live=polite for import status",
+                "role=alert for pwa notification wrapper"
+            ]
+        },
+        "svgIcons": {
+            "approvedPatterns": [
+                "fill=\"currentColor\" \u2014 always required; hardcoded fill values are forbidden.",
+                "Text color set via Tailwind text-* utility on the containing element or SVG."
+            ],
+            "defectsFixed": [
+                "D-003 (WeekNavigation fill=#000000ff)",
+                "D-004 (Transaction fill=#c10007)",
+                "D-005 (Transaction fill=#f9fafb)"
+            ]
         }
-      ]
     },
-    "inputAndSelect": {
-      "approvedPatterns": [
-        {
-          "token": "field-blue-surface",
-          "classes": [
-            "bg-blue-300",
-            "rounded-md",
-            "hover:bg-blue-200",
-            "p-1"
-          ],
-          "usedIn": [
-            "src/CreateAccount.tsx",
-            "src/CreateTransaction.tsx",
-            "src/EditAccount.tsx",
-            "src/SettingsScreen.tsx",
-            "src/Transaction.tsx"
-          ]
+    "validationChecklist": {
+        "consistency": [
+            "Only approved tokens and patterns are used.",
+            "No raw ad-hoc values added where token exists."
+        ],
+        "accessibility": [
+            "Interactive controls preserve visible hover/focus/disabled states.",
+            "Semantic attributes (role, aria-live, labels) remain present where needed.",
+            "Text remains readable in both theme-light and theme-dark."
+        ],
+        "responsive": [
+            "Changes preserve existing sm and md behavior where applied.",
+            "No layout regressions on narrow mobile view widths."
+        ],
+        "regressions": [
+            "Touched components keep prior variant semantics.",
+            "No unrelated visual rules are changed."
+        ]
+    },
+    "darkModeStrategy": {
+        "variant": "@variant dark (.theme-dark &)",
+        "file": "src/App.css",
+        "pattern": "dark: prefix utilities e.g. dark:bg-[var(--ew-surface-300)]",
+        "semanticTokens": {
+            "--ew-surface-50": "rgb(249,250,251) light / rgb(30,41,75) dark",
+            "--ew-surface-100": "rgb(243,244,246) light / rgb(38,53,94) dark",
+            "--ew-surface-200": "rgb(229,231,235) light / rgb(45,62,109) dark",
+            "--ew-surface-300": "rgb(209,213,219) light / rgb(20,31,55) dark"
         },
-        {
-          "token": "field-auth",
-          "classes": [
-            "rounded-md",
-            "border",
-            "border-slate-300",
-            "px-3",
-            "py-2",
-            "text-base",
-            "outline-none",
-            "ring-blue-200",
-            "focus:ring-2"
-          ],
-          "usedIn": [
-            "src/auth/AuthScreen.tsx"
-          ]
-        }
-      ]
-    },
-    "cards": {
-      "approvedPatterns": [
-        {
-          "token": "card-day",
-          "classes": [
-            "rounded-xl",
-            "bg-gray-50",
-            "shadow-md",
-            "flex",
-            "flex-col",
-            "p-1",
-            "gap-1"
-          ],
-          "usedIn": [
+        "migratedComponents": [
+            "src/WeekScreen.tsx",
+            "src/BottomNav.tsx",
+            "src/WeekNavigation.tsx",
+            "src/Transaction.tsx",
+            "src/Mainscreen.tsx",
+            "src/App.tsx",
             "src/Day.tsx"
-          ]
-        },
-        {
-          "token": "card-auth",
-          "classes": [
-            "w-full",
-            "max-w-md",
-            "rounded-2xl",
-            "bg-white",
-            "p-6",
-            "shadow-lg",
-            "shadow-slate-300/30"
-          ],
-          "usedIn": [
-            "src/auth/AuthScreen.tsx"
-          ]
-        }
-      ]
+        ],
+        "removedLegacyBlocks": "All .theme-dark .bg-* and .theme-dark .text-* CSS override blocks removed from App.css"
     }
-  },
-  "interactionStates": {
-    "hover": {
-      "approvedUtilities": [
-        "hover:bg-blue-200",
-        "hover:bg-blue-400",
-        "hover:bg-blue-500",
-        "hover:bg-blue-600",
-        "hover:bg-gray-200",
-        "hover:bg-green-300",
-        "hover:bg-red-600",
-        "hover:bg-slate-100"
-      ]
-    },
-    "focus": {
-      "approvedUtilities": [
-        "focus:ring-2",
-        "ring-blue-200"
-      ],
-      "notes": [
-        "Focus ring currently defined only for auth inputs."
-      ]
-    },
-    "disabled": {
-      "approvedUtilities": [
-        "disabled:cursor-not-allowed",
-        "disabled:bg-blue-300"
-      ]
-    },
-    "visibilityAndMotion": {
-      "approvedPatterns": [
-        "hidden prop toggling for open/closed states",
-        "translate-y-0 and translate-y-100 for bottom-sheet enter/exit",
-        "transition duration-200 ease-in-out"
-      ]
-    },
-    "ariaAndLive": {
-      "approvedPatterns": [
-        "aria-live=polite for import status",
-        "role=alert for pwa notification wrapper"
-      ]
-    }
-  },
-  "validationChecklist": {
-    "consistency": [
-      "Only approved tokens and patterns are used.",
-      "No raw ad-hoc values added where token exists."
-    ],
-    "accessibility": [
-      "Interactive controls preserve visible hover/focus/disabled states.",
-      "Semantic attributes (role, aria-live, labels) remain present where needed.",
-      "Text remains readable in both theme-light and theme-dark."
-    ],
-    "responsive": [
-      "Changes preserve existing sm and md behavior where applied.",
-      "No layout regressions on narrow mobile view widths."
-    ],
-    "regressions": [
-      "Touched components keep prior variant semantics.",
-      "No unrelated visual rules are changed."
-    ]
-  }
 }

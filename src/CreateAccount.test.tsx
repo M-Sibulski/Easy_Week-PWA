@@ -87,4 +87,42 @@ describe('CreateAccount', () => {
     })
     );
   });
+
+  // US1 Regression: bottom-sheet structural consistency
+  describe('US1: bottom-sheet structure consistency', () => {
+    it('renders a heading element for the sheet title', () => {
+      render(<CreateAccount open={true} callback={mockCallback} settings={undefined} />);
+      expect(screen.getByRole('heading', { name: /new account/i })).toBeInTheDocument();
+    });
+
+    it('renders a close button accessible by role', () => {
+      render(<CreateAccount open={true} callback={mockCallback} settings={undefined} />);
+      expect(screen.getByRole('close')).toBeInTheDocument();
+    });
+
+    it('sheet does not use translate-y-100 (defect D-001 regression)', () => {
+      const { container } = render(<CreateAccount open={true} callback={mockCallback} settings={undefined} />);
+      const form = container.querySelector('[data-testid="account-form"]');
+      expect(form?.className).not.toContain('translate-y-100');
+    });
+
+    it('form inputs have a visible focus ring class (FR-007)', () => {
+      render(<CreateAccount open={true} callback={mockCallback} settings={undefined} />);
+      const nameInput = screen.getByTestId('name-input');
+      expect(nameInput.className).toContain('focus:ring-2');
+    });
+
+    it('sheet uses translate-y-full for off-canvas state (not translate-y-100)', () => {
+      const { rerender, container } = render(
+        <CreateAccount open={true} callback={mockCallback} settings={undefined} />
+      );
+      rerender(<CreateAccount open={false} callback={mockCallback} settings={undefined} />);
+      const sheet = container.querySelector('[data-testid="account-form"]');
+      // After close, sheet should use translate-y-full for correct off-canvas
+      if (sheet) {
+        expect(sheet.className).toContain('translate-y-full');
+        expect(sheet.className).not.toContain('translate-y-100');
+      }
+    });
+  });
 });

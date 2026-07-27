@@ -302,4 +302,33 @@ describe("CreateTransaction", () => {
             category: 'Food',
         }));
     });
+
+  // US1 Regression: transaction sheet structural consistency
+  describe('US1: transaction sheet structure consistency', () => {
+    it('renders a heading for the sheet title', async () => {
+      render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true} />);
+      await userEvent.click(screen.getByRole('open'));
+      expect(screen.getByRole('heading', { name: /new transaction/i })).toBeInTheDocument();
+    });
+
+    it('renders a close button accessible by role', async () => {
+      render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true} />);
+      await userEvent.click(screen.getByRole('open'));
+      expect(screen.getByRole('close')).toBeInTheDocument();
+    });
+
+    it('sheet does not use translate-y-100 (defect D-001 regression)', async () => {
+      render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true} />);
+      await userEvent.click(screen.getByRole('open'));
+      const form = screen.getByTestId('transaction-form');
+      expect(form.className).not.toContain('translate-y-100');
+    });
+
+    it('form inputs have a visible focus ring class (FR-007)', async () => {
+      render(<CreateTransaction accountId={1} accounts={fakeAccounts} renderOpenButton={true} />);
+      await userEvent.click(screen.getByRole('open'));
+      const nameInput = screen.getByPlaceholderText(/Name \(Generic Transaction\)/i);
+      expect(nameInput.className).toContain('focus:ring-2');
+    });
+  });
 })

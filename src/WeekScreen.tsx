@@ -32,7 +32,7 @@ const WeekScreen = ({transactions, accounts, settings, handleScroll}:Props) => {
   return (
     <div className="flex flex-col overflow-y-hidden flex-1">
         <WeekNavigation week={week} navBack={handleNavBack} navForward={handleNavForward}/>
-        <div ref={scrollDemoRef} onScroll={handleScroll} id='statement-screen' className='flex-1 overflow-y-auto flex flex-col gap-2 p-1 bg-gray-300 box-border'>
+        <div ref={scrollDemoRef} onScroll={handleScroll} id='statement-screen' className='flex-1 overflow-y-auto flex flex-col gap-2 p-1 bg-gray-300 dark:bg-[var(--ew-surface-300)] box-border'>
           {dateNames.map(d => <Day key={d} date={dateToTitle(parseInputDate(d))} transactions={weekTransactions.filter((t2 => dateToInputType(t2.date) == d))} accounts={accounts} total={weekTransactions.filter(t => dateToInputType(t.date) <= d).reduce((accumulator, transaction) => accumulator + transaction.value, 0)}/>)}
         </div>
     </div>

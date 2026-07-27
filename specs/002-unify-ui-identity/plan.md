@@ -6,6 +6,32 @@
 
 **Note**: This template is filled in by the `/speckit.plan` command; its definition describes the execution workflow.
 
+## Feature TODO Map
+
+| Phase | Status | Tasks |
+|-------|--------|-------|
+| Phase 1: Setup | ✅ Complete | T001–T004 |
+| Phase 2: Foundational Primitives | ✅ Complete | T005–T019 |
+| Phase 3: US1 – Consistent Visual Language | ✅ Complete | T020–T029 |
+| Phase 4: US2 – Readable Theming | ✅ Complete | T030–T040 |
+| Phase 5: US3 – Predictable Feedback | ✅ Complete | T041–T052 |
+| Phase 6: Polish | ✅ Complete | T053–T058 |
+
+## Pre-Closeout Quality Gate — PASS ✅
+
+Recorded: 2026-07-27
+
+| Check | Status |
+|---|---|
+| All 58 tasks in tasks.md marked `[X]` | ✅ PASS |
+| Lint (`npm run lint`) | ✅ PASS — 0 errors, 0 warnings |
+| Tests (`npm test`) | ✅ PASS — 189/189 tests passing |
+| Build (`npm run build`) | ✅ PASS — clean production build |
+| Design docs synced (design-system.md v3) | ✅ PASS |
+| Governance rules synced (approved-design-rules.json v3) | ✅ PASS |
+| Skill guidance updated (SKILL.md) | ✅ PASS |
+| README updated with UI identity section | ✅ PASS |
+
 ## Summary
 
 Unify the app visual identity around the approved blue-centric design system by removing ad-hoc styling, introducing reusable UI primitives, migrating dark mode to Tailwind v4 `dark:` utilities mapped to existing `.theme-dark` behavior, and resolving known visual defects. Deliverables include updated design governance docs and explicit skill-level guidance in `.github/skills/design-system-guard/SKILL.md` to enforce the new rules on future UI changes.

@@ -16,9 +16,9 @@ interface Props {
 
 function TabPlaceholder({ title }: { title: string }) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center bg-gray-300 p-6">
-      <p className="text-center text-lg font-medium text-gray-700">{title}</p>
-      <p className="mt-2 text-center text-sm text-gray-700 opacity-80">Coming soon</p>
+    <div className="flex flex-1 flex-col items-center justify-center bg-gray-300 dark:bg-[var(--ew-surface-300)] p-6">
+      <p className="text-center text-lg font-medium text-gray-700 dark:text-[var(--ew-text)]">{title}</p>
+      <p className="mt-2 text-center text-sm text-gray-700 dark:text-[var(--ew-text)] opacity-80">Coming soon</p>
     </div>
   );
 }

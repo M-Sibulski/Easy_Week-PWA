@@ -23,6 +23,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.4",
     "@tailwindcss/vite": "^4.1.11",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
@@ -42,9 +43,9 @@
     "tailwindcss": "^4.1.11",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.2",
-    "vitest": "^4.1.1",
     "vite": "^7.3.1",
     "vite-plugin-pwa": "^1.2.0",
+    "vitest": "^4.1.1",
     "workbox-core": "^7.4.0",
     "workbox-window": "^7.4.0"
   },
@@ -59,5 +60,6 @@
     "@rollup/pluginutils@3.1.0": {
       "picomatch": "2.3.1"
     }
-  }
+  },
+  "allowScripts": {}
 }

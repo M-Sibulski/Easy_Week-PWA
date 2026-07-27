@@ -1,5 +1,6 @@
 import { FormEvent, useState } from 'react';
 import { useAuth } from './useAuth';
+import { StatusMessage } from '../lib/ui';
 
 type Mode = 'sign-in' | 'sign-up' | 'magic-link';
 
@@ -115,8 +116,8 @@ export default function AuthScreen() {
           </button>
         </form>
 
-        {message && <p className='mt-4 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700'>{message}</p>}
-        {errorMessage && <p className='mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700'>{errorMessage}</p>}
+        {message && <StatusMessage variant="success" className="mt-4">{message}</StatusMessage>}
+        {errorMessage && <StatusMessage variant="error" className="mt-4">{errorMessage}</StatusMessage>}
       </div>
     </div>
   );

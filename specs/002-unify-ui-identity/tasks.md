@@ -12,10 +12,10 @@
 
 **Purpose**: Prepare governance sources, component folder structure, and shared style entry points.
 
-- [ ] T001 Create shared UI folder and index exports in src/lib/ui/index.ts
-- [ ] T002 Add feature-level TODO map for UI identity work in specs/002-unify-ui-identity/plan.md
-- [ ] T003 [P] Add design-system documentation scaffold and sections in docs/design/design-system.md
-- [ ] T004 [P] Update design rule metadata/versioning baseline in .github/design-system/approved-design-rules.json
+- [X] T001 Create shared UI folder and index exports in src/lib/ui/index.ts
+- [X] T002 Add feature-level TODO map for UI identity work in specs/002-unify-ui-identity/plan.md
+- [X] T003 [P] Add design-system documentation scaffold and sections in docs/design/design-system.md
+- [X] T004 [P] Update design rule metadata/versioning baseline in .github/design-system/approved-design-rules.json
 
 ---
 
@@ -27,21 +27,21 @@
 
 **Red-Green Rule (mandatory in this phase)**: For each behavior-changing primitive, write tests first, confirm failure (red), then implement, then confirm pass (green).
 
-- [ ] T005 Add failing test (red) for BottomSheet open/close translation behavior in src/lib/ui/BottomSheet.test.tsx
-- [ ] T006 [P] Add failing test (red) for SheetHeader slot layout behavior in src/lib/ui/SheetHeader.test.tsx
-- [ ] T007 [P] Add failing test (red) for IconButton variants and semantics in src/lib/ui/IconButton.test.tsx
-- [ ] T008 [P] Add failing test (red) for SubmitButton variant behavior in src/lib/ui/SubmitButton.test.tsx
-- [ ] T009 [P] Add failing test (red) for FormField focus-ring visibility behavior in src/lib/ui/FormField.test.tsx
-- [ ] T010 [P] Add failing test (red) for StatusMessage variants and semantics in src/lib/ui/StatusMessage.test.tsx
-- [ ] T011 Implement BottomSheet primitive and make T005 pass (green) in src/lib/ui/BottomSheet.tsx
-- [ ] T012 [P] Implement SheetHeader primitive and make T006 pass (green) in src/lib/ui/SheetHeader.tsx
-- [ ] T013 [P] Implement IconButton primitive and make T007 pass (green) in src/lib/ui/IconButton.tsx
-- [ ] T014 [P] Implement SubmitButton primitive and make T008 pass (green) in src/lib/ui/SubmitButton.tsx
-- [ ] T015 [P] Implement FormField primitive and make T009 pass (green) in src/lib/ui/FormField.tsx
-- [ ] T016 [P] Implement StatusMessage primitive and make T010 pass (green) in src/lib/ui/StatusMessage.tsx
-- [ ] T017 Add shared primitive exports and typing surface in src/lib/ui/index.ts
-- [ ] T018 Update skill guidance with required sync, dark-mode, SVG, and accessibility checks in .github/skills/design-system-guard/SKILL.md
-- [ ] T019 Sync governance rules baseline to include planned primitive variants/tokens in .github/design-system/approved-design-rules.json
+- [X] T005 Add failing test (red) for BottomSheet open/close translation behavior in src/lib/ui/BottomSheet.test.tsx
+- [X] T006 [P] Add failing test (red) for SheetHeader slot layout behavior in src/lib/ui/SheetHeader.test.tsx
+- [X] T007 [P] Add failing test (red) for IconButton variants and semantics in src/lib/ui/IconButton.test.tsx
+- [X] T008 [P] Add failing test (red) for SubmitButton variant behavior in src/lib/ui/SubmitButton.test.tsx
+- [X] T009 [P] Add failing test (red) for FormField focus-ring visibility behavior in src/lib/ui/FormField.test.tsx
+- [X] T010 [P] Add failing test (red) for StatusMessage variants and semantics in src/lib/ui/StatusMessage.test.tsx
+- [X] T011 Implement BottomSheet primitive and make T005 pass (green) in src/lib/ui/BottomSheet.tsx
+- [X] T012 [P] Implement SheetHeader primitive and make T006 pass (green) in src/lib/ui/SheetHeader.tsx
+- [X] T013 [P] Implement IconButton primitive and make T007 pass (green) in src/lib/ui/IconButton.tsx
+- [X] T014 [P] Implement SubmitButton primitive and make T008 pass (green) in src/lib/ui/SubmitButton.tsx
+- [X] T015 [P] Implement FormField primitive and make T009 pass (green) in src/lib/ui/FormField.tsx
+- [X] T016 [P] Implement StatusMessage primitive and make T010 pass (green) in src/lib/ui/StatusMessage.tsx
+- [X] T017 Add shared primitive exports and typing surface in src/lib/ui/index.ts
+- [X] T018 Update skill guidance with required sync, dark-mode, SVG, and accessibility checks in .github/skills/design-system-guard/SKILL.md
+- [X] T019 Sync governance rules baseline to include planned primitive variants/tokens in .github/design-system/approved-design-rules.json
 
 **Checkpoint**: Shared primitives and governance guardrails are ready for story implementation.
 
@@ -55,19 +55,19 @@
 
 ### Tests for User Story 1
 
-- [ ] T020 [P] [US1] Add regression tests for bottom-sheet form structure consistency in src/CreateAccount.test.tsx
-- [ ] T021 [P] [US1] Add regression tests for transaction sheet structure consistency in src/CreateTransaction.test.tsx
-- [ ] T022 [P] [US1] Add regression tests for edit/settings sheet consistency in src/EditAccount.test.tsx
-- [ ] T023 [P] [US1] Add auth visual-structure consistency assertions in src/auth/AuthScreen.test.tsx
+- [X] T020 [P] [US1] Add regression tests for bottom-sheet form structure consistency in src/CreateAccount.test.tsx
+- [X] T021 [P] [US1] Add regression tests for transaction sheet structure consistency in src/CreateTransaction.test.tsx
+- [X] T022 [P] [US1] Add regression tests for edit/settings sheet consistency in src/EditAccount.test.tsx
+- [X] T023 [P] [US1] Add auth visual-structure consistency assertions in src/auth/AuthScreen.test.tsx
 
 ### Implementation for User Story 1
 
-- [ ] T024 [US1] Migrate CreateAccount sheet to BottomSheet, SheetHeader, FormField, and SubmitButton in src/CreateAccount.tsx
-- [ ] T025 [US1] Migrate CreateTransaction sheet to BottomSheet, SheetHeader, FormField, and SubmitButton in src/CreateTransaction.tsx
-- [ ] T026 [US1] Migrate EditAccount sheet to BottomSheet, SheetHeader, FormField, SubmitButton, and IconButton in src/EditAccount.tsx
-- [ ] T027 [US1] Migrate settings action sheet to BottomSheet, SheetHeader, and IconButton in src/SettingsScreen.tsx
-- [ ] T028 [US1] Align auth palette and controls with shared primitives in src/auth/AuthScreen.tsx
-- [ ] T029 [US1] Remove stale utility combinations replaced by primitives in src/App.css
+- [X] T024 [US1] Migrate CreateAccount sheet to BottomSheet, SheetHeader, FormField, and SubmitButton in src/CreateAccount.tsx
+- [X] T025 [US1] Migrate CreateTransaction sheet to BottomSheet, SheetHeader, FormField, and SubmitButton in src/CreateTransaction.tsx
+- [X] T026 [US1] Migrate EditAccount sheet to BottomSheet, SheetHeader, FormField, SubmitButton, and IconButton in src/EditAccount.tsx
+- [X] T027 [US1] Migrate settings action sheet to BottomSheet, SheetHeader, and IconButton in src/SettingsScreen.tsx
+- [X] T028 [US1] Align auth palette and controls with shared primitives in src/auth/AuthScreen.tsx
+- [X] T029 [US1] Remove stale utility combinations replaced by primitives in src/App.css
 
 **Checkpoint**: Core screens and auth share one visual language and are independently testable.
 
@@ -81,20 +81,20 @@
 
 ### Tests for User Story 2
 
-- [ ] T030 [P] [US2] Add theme-mode rendering assertions for app shell and navigation in src/App.test.tsx
-- [ ] T031 [P] [US2] Add dark-mode readability checks for week/day rendering in src/WeekScreen.test.tsx
-- [ ] T032 [P] [US2] Add icon-visibility assertions for transaction row affordances in src/Transaction.test.tsx
+- [X] T030 [P] [US2] Add theme-mode rendering assertions for app shell and navigation in src/App.test.tsx
+- [X] T031 [P] [US2] Add dark-mode readability checks for week/day rendering in src/WeekScreen.test.tsx
+- [X] T032 [P] [US2] Add icon-visibility assertions for transaction row affordances in src/Transaction.test.tsx
 
 ### Implementation for User Story 2
 
-- [ ] T033 [US2] Add Tailwind dark variant mapping and semantic surface variables in src/App.css
-- [ ] T034 [US2] Replace legacy .theme-dark override usage with dark: utilities in src/App.tsx
-- [ ] T035 [US2] Migrate screen-level theme styles to dark: utilities in src/Mainscreen.tsx
-- [ ] T036 [US2] Migrate week/day/transaction visual surfaces to dark: utilities in src/WeekScreen.tsx
-- [ ] T037 [US2] Migrate bottom navigation and account surfaces to dark: utilities in src/BottomNav.tsx
-- [ ] T038 [US2] Fix SVG fill handling for readability in both themes in src/WeekNavigation.tsx
-- [ ] T039 [US2] Fix SVG fill handling for readability in both themes in src/Transaction.tsx
-- [ ] T040 [US2] Remove obsolete legacy dark override blocks after migration in src/App.css
+- [X] T033 [US2] Add Tailwind dark variant mapping and semantic surface variables in src/App.css
+- [X] T034 [US2] Replace legacy .theme-dark override usage with dark: utilities in src/App.tsx
+- [X] T035 [US2] Migrate screen-level theme styles to dark: utilities in src/Mainscreen.tsx
+- [X] T036 [US2] Migrate week/day/transaction visual surfaces to dark: utilities in src/WeekScreen.tsx
+- [X] T037 [US2] Migrate bottom navigation and account surfaces to dark: utilities in src/BottomNav.tsx
+- [X] T038 [US2] Fix SVG fill handling for readability in both themes in src/WeekNavigation.tsx
+- [X] T039 [US2] Fix SVG fill handling for readability in both themes in src/Transaction.tsx
+- [X] T040 [US2] Remove obsolete legacy dark override blocks after migration in src/App.css
 
 **Checkpoint**: Theme behavior is coherent and readable in both modes without legacy override blocks.
 
@@ -110,21 +110,21 @@
 
 ### Tests for User Story 3
 
-- [ ] T041 [P] [US3] Add focus-ring visibility tests for form inputs in src/CreateAccount.test.tsx
-- [ ] T042 [P] [US3] Add standardized status-message behavior tests for account flows in src/Account.test.tsx
-- [ ] T043 [P] [US3] Add hover/interaction regression assertions for PWA badge and settings actions in src/PWABadge.test.tsx
+- [X] T041 [P] [US3] Add focus-ring visibility tests for form inputs in src/CreateAccount.test.tsx
+- [X] T042 [P] [US3] Add standardized status-message behavior tests for account flows in src/Account.test.tsx
+- [X] T043 [P] [US3] Add hover/interaction regression assertions for PWA badge and settings actions in src/PWABadge.test.tsx
 
 ### Implementation for User Story 3
 
-- [ ] T044 [US3] Replace ad-hoc status feedback with StatusMessage variants in src/App.tsx
-- [ ] T045 [US3] Replace ad-hoc status feedback with StatusMessage variants in src/Account.tsx
-- [ ] T046 [US3] Standardize focus-ring treatment for shared form controls in src/lib/ui/FormField.tsx
-- [ ] T047 [US3] Fix bottom-sheet translation bug by replacing translate-y-100 usage through BottomSheet integration in src/CreateAccount.tsx
-- [ ] T048 [US3] Fix bottom-sheet translation bug by replacing translate-y-100 usage through BottomSheet integration in src/EditAccount.tsx
-- [ ] T049 [US3] Fix bottom-sheet translation bug by replacing translate-y-100 usage through BottomSheet integration in src/SettingsScreen.tsx
-- [ ] T050 [US3] Fix invisible delete hover state to approved blue pattern in src/EditAccount.tsx
-- [ ] T051 [US3] Fix PWA badge hover color to approved blue pattern in src/PWABadge.tsx
-- [ ] T052 [US3] Remove dead md:max-w-2xl usage in src/Day.tsx
+- [X] T044 [US3] Replace ad-hoc status feedback with StatusMessage variants in src/App.tsx
+- [X] T045 [US3] Replace ad-hoc status feedback with StatusMessage variants in src/Account.tsx
+- [X] T046 [US3] Standardize focus-ring treatment for shared form controls in src/lib/ui/FormField.tsx
+- [X] T047 [US3] Fix bottom-sheet translation bug by replacing translate-y-100 usage through BottomSheet integration in src/CreateAccount.tsx
+- [X] T048 [US3] Fix bottom-sheet translation bug by replacing translate-y-100 usage through BottomSheet integration in src/EditAccount.tsx
+- [X] T049 [US3] Fix bottom-sheet translation bug by replacing translate-y-100 usage through BottomSheet integration in src/SettingsScreen.tsx
+- [X] T050 [US3] Fix invisible delete hover state to approved blue pattern in src/EditAccount.tsx
+- [X] T051 [US3] Fix PWA badge hover color to approved blue pattern in src/PWABadge.tsx
+- [X] T052 [US3] Remove dead md:max-w-2xl usage in src/Day.tsx
 
 **Checkpoint**: Feedback semantics and focus behavior are consistent; scoped interaction bugs are resolved.
 
@@ -134,12 +134,12 @@
 
 **Purpose**: Final governance sync, validation, and quality closure across all stories.
 
-- [ ] T053 [P] Sync final approved token/variant inventory with implementation state in .github/design-system/approved-design-rules.json
-- [ ] T054 [P] Publish final human-readable design guidance and variant table in docs/design/design-system.md
-- [ ] T055 [P] Finalize skill guidance wording to match shipped governance rules in .github/skills/design-system-guard/SKILL.md
-- [ ] T056 Update README with user-facing UI identity, theming, and governance guidance changes in README.md
-- [ ] T057 Run full quickstart validation checklist and record outcomes in specs/002-unify-ui-identity/quickstart.md
-- [ ] T058 Run pre-closeout quality gate (README updated, lint/test/build pass, docs+skill+rules sync confirmed) and capture pass status in specs/002-unify-ui-identity/plan.md
+- [X] T053 [P] Sync final approved token/variant inventory with implementation state in .github/design-system/approved-design-rules.json
+- [X] T054 [P] Publish final human-readable design guidance and variant table in docs/design/design-system.md
+- [X] T055 [P] Finalize skill guidance wording to match shipped governance rules in .github/skills/design-system-guard/SKILL.md
+- [X] T056 Update README with user-facing UI identity, theming, and governance guidance changes in README.md
+- [X] T057 Run full quickstart validation checklist and record outcomes in specs/002-unify-ui-identity/quickstart.md
+- [X] T058 Run pre-closeout quality gate (README updated, lint/test/build pass, docs+skill+rules sync confirmed) and capture pass status in specs/002-unify-ui-identity/plan.md
 
 ---
 

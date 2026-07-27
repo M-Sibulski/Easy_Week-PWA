@@ -7,6 +7,7 @@ import { useSettingsArray } from './hooks/useAppData';
 import { AuthProvider } from './auth/AuthProvider';
 import { runFullSync } from './sync/syncService';
 import { useAuth } from './auth/useAuth';
+import { StatusMessage } from './lib/ui';
 
 function SyncIndicator() {
   return (
@@ -68,9 +69,9 @@ export function AppShell() {
         <div className='absolute right-2 top-2 z-20 flex items-center gap-2'>
           {shouldSync && !initialSyncComplete && <SyncIndicator />}
           {syncError && (
-            <p className='rounded-md bg-amber-100 px-2 py-1 text-xs text-amber-800'>
+            <StatusMessage variant="warning" data-testid="sync-error">
               Last sync issue: {syncError}
-            </p>
+            </StatusMessage>
           )}
         </div>
         <Mainscreen syncReady={initialSyncComplete} />

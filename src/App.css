@@ -1,10 +1,23 @@
 @import "tailwindcss";
 
+/* ── Dark-mode variant ──────────────────────────────────────────────────────
+   Maps Tailwind's `dark:` utilities to the .theme-dark class on the app root.
+   Use `dark:` utilities in components — do NOT add new .theme-dark CSS blocks.
+   ────────────────────────────────────────────────────────────────────────── */
+@variant dark (.theme-dark &);
+
 :root {
   --ew-bg: rgb(105, 107, 116);
   --ew-text: #f9fafb;
   /* Bottom nav min height + safe area (FAB offsets use this) */
   --ew-bottom-nav-height: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+
+  /* ── Semantic surface tokens (neutral layers) ───────────────────────────
+     Consume via bg-[var(--ew-surface-N)] or override in dark blocks below. */
+  --ew-surface-50:  rgb(249, 250, 251);
+  --ew-surface-100: rgb(243, 244, 246);
+  --ew-surface-200: rgb(229, 231, 235);
+  --ew-surface-300: rgb(209, 213, 219);
 }
 
 body {
@@ -30,62 +43,21 @@ body {
   --ew-bg: rgb(18, 28, 48);
   --ew-text: #f3f8ff;
   color-scheme: dark;
+
+  /* Override semantic surface tokens for dark mode */
+  --ew-surface-50:  rgb(30, 41, 75);
+  --ew-surface-100: rgb(38, 53, 94);
+  --ew-surface-200: rgb(45, 62, 109);
+  --ew-surface-300: rgb(20, 31, 55);
 }
 
-.theme-dark .bg-blue-500 {
-  background-color: rgb(30, 64, 175) !important;
-}
-
-.theme-dark .bg-blue-400 {
-  background-color: rgb(29, 78, 216) !important;
-}
-
-.theme-dark .bg-blue-300 {
-  background-color: rgb(37, 99, 235) !important;
-}
-
-.theme-dark .hover\:bg-blue-600:hover {
-  background-color: rgb(30, 58, 138) !important;
-}
-
-.theme-dark .hover\:bg-blue-500:hover {
-  background-color: rgb(30, 64, 175) !important;
-}
-
-.theme-dark .hover\:bg-blue-400:hover {
-  background-color: rgb(29, 78, 216) !important;
-}
-
-.theme-dark .hover\:bg-blue-200:hover {
-  background-color: rgb(59, 130, 246) !important;
-}
-
-.theme-dark .bg-gray-50 {
-  background-color: rgb(30, 41, 75) !important;
-}
-
-.theme-dark .bg-gray-100 {
-  background-color: rgb(38, 53, 94) !important;
-}
-
-.theme-dark .bg-gray-200,
-.theme-dark .hover\:bg-gray-200:hover {
-  background-color: rgb(45, 62, 109) !important;
-}
-
-.theme-dark .bg-gray-300 {
-  background-color: rgb(20, 31, 55) !important;
-}
-
-.theme-dark .text-gray-700,
-.theme-dark .text-white,
-.theme-dark .text-black {
-  color: var(--ew-text) !important;
-}
-
-.theme-dark select {
-  background-color: rgb(30, 58, 138);
-}
+/* ── Legacy dark-mode overrides (kept for compatibility during migration) ──
+   These will be removed in a follow-up once all components migrate to dark:
+   utilities. New components MUST NOT rely on these — use dark: instead.     */
+/* ── Remaining legacy selectors (option element styling, input placeholder) ──
+   These element-level selectors have no direct Tailwind v4 equivalent and are
+   kept until a future accessibility pass can address them holistically.
+   All color-class override blocks above this comment have been removed.      */
 
 .theme-dark option {
   background-color: rgb(30, 41, 75);
@@ -111,3 +83,4 @@ body {
 .theme-dark input::placeholder {
   color: #dbeafe;
 }
+

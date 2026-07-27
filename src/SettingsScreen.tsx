@@ -4,6 +4,7 @@ import { Accounts, Settings } from '../types.ts';
 import { useEffect, useRef, useState } from 'react';
 import { createSyncId } from '../syncIds.ts';
 import { resetCurrentUserData } from './resetUserData';
+import { BottomSheet, SheetHeader, IconButton, FormField, SubmitButton } from './lib/ui';
 
 interface Props {
   open: boolean;
@@ -23,37 +24,23 @@ const weekDays = [
 ];
 
 const SettingsScreen = ({ open, callback, settings, accounts }: Props) => {
-  const [shouldRender, setShouldRender] = useState(false);
   const [mainAccountId, setMainAccountId] = useState(0);
   const [weekStartingDay, setWeekStartingDay] = useState(2);
   const [darkMode, setDarkMode] = useState(true);
   const [isResettingData, setIsResettingData] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
 
-    setShouldRender(true);
     setMainAccountId(settings?.main_account_id ?? 0);
     setWeekStartingDay(settings?.week_starting_day ?? 2);
     setDarkMode(settings?.dark ?? true);
   }, [open, settings]);
 
   useEffect(() => {
-    const handleTransitionEnd = (e: TransitionEvent) => {
-      if (e.propertyName === 'translate' && !open) {
-        setShouldRender(false);
-      }
-    };
-
-    const node = formRef.current;
-    node?.addEventListener('transitionend', handleTransitionEnd);
-    return () => node?.removeEventListener('transitionend', handleTransitionEnd);
-  }, [open]);
-
-  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (formRef.current && !formRef.current.contains(event.target as Node)) {
+      if (sheetRef.current && !sheetRef.current.contains(event.target as Node)) {
         callback();
       }
     };
@@ -126,101 +113,88 @@ const SettingsScreen = ({ open, callback, settings, accounts }: Props) => {
   };
 
   return (
-    <>
-      {shouldRender && (
-        <form
-          ref={formRef}
-          data-testid="settings-form"
-          id="settings-form"
-          onSubmit={e => saveSettings(e)}
-          className={
-            'z-40 absolute bottom-0 left-1/2 transition transition-discrete duration-200 ease-in-out transform -translate-x-1/2 bg-blue-500 p-3 rounded-t-xl flex flex-col gap-5 w-full' +
-            (open ? ' translate-y-0' : ' translate-y-100')
-          }
-        >
-          <div className="relative flex">
-            <h3 className="w-full text-center text-gray-50 font-bold text-lg select-none">Settings</h3>
-            <button
-              onClick={e => {
-                handleCloseButton(e);
-              }}
+    <BottomSheet open={open} ref={sheetRef} data-testid="settings-sheet">
+      <form
+        data-testid="settings-form"
+        id="settings-form"
+        onSubmit={e => saveSettings(e)}
+      >
+        <SheetHeader
+          title="Settings"
+          rightSlot={
+            <IconButton
+              onClick={e => handleCloseButton(e)}
               role="close"
               name="close"
-              className="absolute right-0 cursor-pointer h-full p-1 rounded-md hover:bg-blue-400"
+              aria-label="Close settings"
             >
               <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb">
                 <path d="M200-440v-80h560v80H200Z" />
               </svg>
-            </button>
+            </IconButton>
+          }
+        />
+
+        <div className="flex flex-col gap-3 mt-2">
+          <div className="flex gap-3 bg-blue-300 rounded-md p-1 hover:bg-blue-200">
+            <label htmlFor="dark-mode" className="flex-1 select-none">
+              Dark mode
+            </label>
+            <input
+              id="dark-mode"
+              type="checkbox"
+              checked={darkMode}
+              onChange={e => setDarkMode(e.currentTarget.checked)}
+              className="size-6"
+            />
           </div>
 
-          <div className="flex flex-col gap-3">
-            <div className="flex gap-3 bg-blue-300 rounded-md p-1 hover:bg-blue-200">
-              <label htmlFor="dark-mode" className="flex-1 select-none">
-                Dark mode
-              </label>
-              <input
-                id="dark-mode"
-                type="checkbox"
-                checked={darkMode}
-                onChange={e => setDarkMode(e.currentTarget.checked)}
-                className="size-6"
-              />
-            </div>
+          <FormField
+            as="select"
+            value={mainAccountId}
+            onChange={e => setMainAccountId(Number(e.currentTarget.value))}
+            name="main-account"
+            id="main-account"
+          >
+            <option value={0}>No main account</option>
+            {accounts && accounts.map(a => (
+              <option key={a.id} value={a.id}>
+                Main account: {a.name}
+              </option>
+            ))}
+          </FormField>
 
-            <select
-              value={mainAccountId}
-              onChange={e => setMainAccountId(Number(e.currentTarget.value))}
-              name="main-account"
-              id="main-account"
-              className="bg-blue-300 rounded-md hover:bg-blue-200 p-1"
-            >
-              <option value={0}>No main account</option>
-              {accounts && accounts.map(a => (
-                <option key={a.id} value={a.id}>
-                  Main account: {a.name}
-                </option>
-              ))}
-            </select>
+          <FormField
+            as="select"
+            value={weekStartingDay}
+            onChange={e => setWeekStartingDay(Number(e.currentTarget.value))}
+            name="week-starting-day"
+            id="week-starting-day"
+          >
+            {weekDays.map(day => (
+              <option key={day.value} value={day.value}>
+                Week starts on {day.label}
+              </option>
+            ))}
+          </FormField>
 
-            <select
-              value={weekStartingDay}
-              onChange={e => setWeekStartingDay(Number(e.currentTarget.value))}
-              name="week-starting-day"
-              id="week-starting-day"
-              className="bg-blue-300 rounded-md hover:bg-blue-200 p-1"
-            >
-              {weekDays.map(day => (
-                <option key={day.value} value={day.value}>
-                  Week starts on {day.label}
-                </option>
-              ))}
-            </select>
+          <button
+            data-testid="clear-all-data"
+            type="button"
+            onClick={handleClearAllData}
+            disabled={isResettingData}
+            className="cursor-pointer rounded-md border border-red-200 bg-red-500/80 p-2 text-white hover:bg-red-600"
+          >
+            {isResettingData ? 'Resetting Data...' : 'Reset All Data'}
+          </button>
 
-            <button
-              data-testid="clear-all-data"
-              type="button"
-              onClick={handleClearAllData}
-              disabled={isResettingData}
-              className="cursor-pointer rounded-md border border-red-200 bg-red-500/80 p-2 text-white hover:bg-red-600"
-            >
-              {isResettingData ? 'Resetting Data...' : 'Reset All Data'}
-            </button>
-
-            <button
-              data-testid="submit-settings"
-              name="submit-settings"
-              type="submit"
-              className="cursor-pointer h-full p-2 rounded-md hover:bg-blue-400 flex justify-center"
-            >
-              <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb">
-                <path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z" />
-              </svg>
-            </button>
-          </div>
-        </form>
-      )}
-    </>
+          <SubmitButton
+            data-testid="submit-settings"
+            name="submit-settings"
+          />
+        </div>
+      </form>
+    </BottomSheet>
   );
 };
 

@@ -140,4 +140,34 @@ describe('WeekScreen', () => {
 
     expect(handleScroll).toHaveBeenCalled();
   });
+
+  it('statement container uses dark: utility class for theming (D-003 readability)', () => {
+    const { container } = render(
+      <WeekScreen
+        transactions={transactions}
+        accounts={accounts}
+        settings={settings}
+        handleScroll={handleScroll}
+      />
+    );
+    const statementScreen = container.querySelector('#statement-screen');
+    // Must use dark: utility — not rely solely on the legacy CSS override block.
+    expect(statementScreen?.className).toContain('dark:');
+  });
+
+  it('navigation arrows use fill="currentColor" so they are visible in dark mode (D-004 regression)', () => {
+    const { container } = render(
+      <WeekScreen
+        transactions={transactions}
+        accounts={accounts}
+        settings={settings}
+        handleScroll={handleScroll}
+      />
+    );
+    const svgs = container.querySelectorAll('svg');
+    // Navigation arrow SVGs must NOT use a hardcoded fill value — currentColor adapts to dark mode.
+    svgs.forEach((svg) => {
+      expect(svg.getAttribute('fill')).toBe('currentColor');
+    });
+  });
 });
