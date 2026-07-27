@@ -81,9 +81,14 @@ Dark-Mode Enforcement (Tailwind v4):
 - For neutral surfaces (`bg-gray-*`) in dark mode, use semantic CSS variable utilities via `bg-[var(--ew-surface-N)]`.
 
 SVG Icon Fill:
-- Use `fill="currentColor"` on SVG paths whenever the icon must adapt to theme changes.
-- Static white fill (`fill="#f9fafb"`) is acceptable only on permanently blue surfaces.
-- Never use `fill="#000000ff"` on surfaces that appear in both light and dark modes.
+- **Always** use `fill="currentColor"` on all SVG elements — hardcoded fills are forbidden.
+- Set icon colour via `text-*` utility on the SVG or containing element (e.g. `text-gray-50 dark:text-white`).
+- **Never** use `fill="#000000ff"` (invisible in dark mode, D-003 defect).
+- **Never** use `fill="#c10007"` or other hardcoded fills (D-004/D-005 defects, now fixed).
+
+Hover State Rules:
+- **Deprecated**: `hover:bg-green-300` — replaced by `hover:bg-blue-400` (D-007 defect fix).
+- Approved hover utilities: `hover:bg-blue-200/400/500/600`, `hover:bg-gray-200`, `hover:bg-red-600`, `hover:bg-slate-100`.
 
 Bottom Sheet Animation:
 - Always use `translate-y-full` (100%) for the closed state. Never use `translate-y-100` (100px).

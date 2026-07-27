@@ -1,6 +1,6 @@
 # Easy Week PWA — Design System
 
-**Version**: 2.0 | **Updated**: 2026-07-27 | **Feature**: 002-unify-ui-identity
+**Version**: 3.0 | **Updated**: 2026-07-27 | **Feature**: 002-unify-ui-identity
 
 > Source of truth for approved visual tokens, interaction patterns, and component variants.
 > Implementation rule file: [.github/design-system/approved-design-rules.json](../../.github/design-system/approved-design-rules.json)
@@ -171,9 +171,21 @@ Semantic feedback component with four variants.
 
 ## SVG Icons
 
-- Use `fill="currentColor"` when icon colour must adapt to theme changes.
-- `fill="#f9fafb"` is acceptable only on permanently-blue surfaces that maintain contrast in both themes.
-- **Never** use `fill="#000000ff"` on surfaces that appear in both light and dark modes (Defect D-005, D-006).
+All SVG icons **must** use `fill="currentColor"` so they adapt to the active text colour in both light and dark themes.
+
+```tsx
+// ✅ Correct — adapts to theme via text color
+<button className="text-gray-900 dark:text-gray-50">
+  <svg fill="currentColor">...</svg>
+</button>
+
+// ❌ Wrong — hardcoded fill is invisible in dark mode (D-003/D-004 defects)
+<svg fill="#000000ff">...</svg>
+```
+
+Set the icon colour via a Tailwind `text-*` class on the containing element or the SVG itself. Use `dark:text-*` for dark-mode overrides.
+
+- **Defects fixed**: D-003 (`WeekNavigation` `fill="#000000ff"`), D-004 (`Transaction` alert icon), D-005 (`Transaction` action icons)
 
 ---
 
@@ -211,6 +223,7 @@ Auth inputs already comply via the `field-auth` pattern.
 | **Auth surfaces** | `bg-white`, `bg-slate-100` |
 | **Overlay** | `bg-slate-900/75` |
 | **Hover** | `hover:bg-blue-200`, `hover:bg-blue-400`, `hover:bg-blue-500`, `hover:bg-blue-600`, `hover:bg-gray-200`, `hover:bg-red-600`, `hover:bg-slate-100` |
+| **Deprecated** | ~~`hover:bg-green-300`~~ — replaced by `hover:bg-blue-400` (D-007 fix) |
 | **Text** | `text-white`, `text-gray-700`, `text-red-700`, `text-green-700`, `text-amber-800`, `text-emerald-700`, `text-slate-900`, `text-slate-700`, `text-slate-600`, `text-blue-600` |
 
 ---

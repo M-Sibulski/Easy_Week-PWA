@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes } from 'react';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface SubmitButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {}
 
 /**
@@ -22,7 +23,7 @@ export default function SubmitButton({
       {...rest}
     >
       {children ?? (
-        <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="#f9fafb">
+        <svg height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="text-gray-50">
           <path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z" />
         </svg>
       )}

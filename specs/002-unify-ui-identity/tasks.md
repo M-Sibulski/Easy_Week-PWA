@@ -134,12 +134,12 @@
 
 **Purpose**: Final governance sync, validation, and quality closure across all stories.
 
-- [ ] T053 [P] Sync final approved token/variant inventory with implementation state in .github/design-system/approved-design-rules.json
-- [ ] T054 [P] Publish final human-readable design guidance and variant table in docs/design/design-system.md
-- [ ] T055 [P] Finalize skill guidance wording to match shipped governance rules in .github/skills/design-system-guard/SKILL.md
-- [ ] T056 Update README with user-facing UI identity, theming, and governance guidance changes in README.md
-- [ ] T057 Run full quickstart validation checklist and record outcomes in specs/002-unify-ui-identity/quickstart.md
-- [ ] T058 Run pre-closeout quality gate (README updated, lint/test/build pass, docs+skill+rules sync confirmed) and capture pass status in specs/002-unify-ui-identity/plan.md
+- [X] T053 [P] Sync final approved token/variant inventory with implementation state in .github/design-system/approved-design-rules.json
+- [X] T054 [P] Publish final human-readable design guidance and variant table in docs/design/design-system.md
+- [X] T055 [P] Finalize skill guidance wording to match shipped governance rules in .github/skills/design-system-guard/SKILL.md
+- [X] T056 Update README with user-facing UI identity, theming, and governance guidance changes in README.md
+- [X] T057 Run full quickstart validation checklist and record outcomes in specs/002-unify-ui-identity/quickstart.md
+- [X] T058 Run pre-closeout quality gate (README updated, lint/test/build pass, docs+skill+rules sync confirmed) and capture pass status in specs/002-unify-ui-identity/plan.md
 
 ---
 

@@ -330,6 +330,35 @@ General deployment flow:
 - Transfer display includes validation warnings if referenced accounts are missing.
 - Some legacy fields exist in Dexie schema comments/index definitions and can be refactored in a future migration.
 
+## UI Identity and Design System
+
+Easy Week uses a **blue-monochrome identity**. All primary surfaces, actions, and forms share one blue palette; neutral gray tones provide background hierarchy.
+
+### Theming
+
+- **Dark mode** is controlled by the `.theme-dark` class on the app root (toggled via settings).
+- Tailwind v4 `dark:` utilities are used for all theme-specific styling via `@variant dark (.theme-dark &)` declared in `src/App.css`.
+- Semantic neutral surface tokens (`--ew-surface-50/100/200/300`) are defined as CSS variables and override in `.theme-dark`.
+
+### Shared UI Primitives
+
+Reusable interaction patterns live in `src/lib/ui/`:
+
+| Primitive | Purpose |
+|---|---|
+| `BottomSheet` | Sliding sheet container with correct `translate-y-full` animation |
+| `SheetHeader` | Centred title with optional left/right icon slots |
+| `IconButton` | Standardised icon action button |
+| `SubmitButton` | Form submit with checkmark icon |
+| `FormField` | Input/select with focus ring (`focus:ring-2`) |
+| `StatusMessage` | Semantic feedback: success / error / warning / info |
+
+See [`docs/design/design-system.md`](docs/design/design-system.md) for full documentation and governance rules.
+
+### Design Governance
+
+All approved design tokens and interaction patterns are tracked in [`.github/design-system/approved-design-rules.json`](.github/design-system/approved-design-rules.json). Use the `design-system-guard` skill when proposing UI changes.
+
 ## License
 
 See `LICENSE`.

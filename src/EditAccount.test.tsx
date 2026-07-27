@@ -142,7 +142,7 @@ describe('EditAccount', () => {
     });
 
     it('sheet does not use translate-y-100 (defect D-001 regression)', async () => {
-      const { container } = render(
+      render(
         <EditAccount open={true} callback={mockCallback} settings={mockSettings} account={mockAccount} />
       );
       const form = await screen.findByTestId('account-form');
